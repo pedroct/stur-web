@@ -40,6 +40,14 @@ O CI (`.github/workflows/ci.yml`) roda, em jobs separados:
 
 Localmente: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`.
 
+Os fluxos no navegador rodam contra a build de produção na porta 3100, com a API simulada no
+próprio navegador (`e2e/apoio.ts`): não precisam do backend. Na primeira vez, baixe o Chromium:
+
+```bash
+pnpm exec playwright install chromium
+pnpm e2e
+```
+
 ## Imagem
 
 ```bash
