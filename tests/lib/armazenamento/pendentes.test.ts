@@ -63,7 +63,7 @@ test("cancelar aborta o sinal entregue a iniciar", () => {
 
 test("cancelar e chamar de novo: a antiga, ao terminar, não apaga a nova", async () => {
   let resolver!: (v: number) => void;
-  consultaEmAndamento(
+  const antiga = consultaEmAndamento(
     "k",
     () =>
       new Promise<number>((r) => {
@@ -74,8 +74,7 @@ test("cancelar e chamar de novo: a antiga, ao terminar, não apaga a nova", asyn
   marcarPendente("k");
   consultaEmAndamento("k", () => new Promise(() => {}));
   resolver(1);
-  await Promise.resolve();
-  await Promise.resolve();
+  await antiga;
   expect(emAndamento("k")).toBe(true);
   expect(temPendente("k")).toBe(true);
 });

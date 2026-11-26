@@ -20,7 +20,8 @@ function ehRecente(valor: unknown): valor is Recente {
     typeof r.endereco === "string" &&
     typeof r.descricao === "string" &&
     typeof r.detalhe === "string" &&
-    typeof r.quando === "string"
+    typeof r.quando === "string" &&
+    !Number.isNaN(Date.parse(r.quando))
   );
 }
 

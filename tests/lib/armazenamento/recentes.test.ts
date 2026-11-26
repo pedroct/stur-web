@@ -45,6 +45,15 @@ test("JSON inválido ou fora do formato vira lista vazia", () => {
   expect(lerRecentes()).toEqual([]);
 });
 
+test("descarta item cujo quando não é um instante válido", () => {
+  const bom = { ...registro(1), quando: "2026-11-25T17:00:00.000Z" };
+  localStorage.setItem(
+    "stur-web:recentes",
+    JSON.stringify([{ ...registro(2), quando: "ontem à tarde" }, bom]),
+  );
+  expect(lerRecentes()).toEqual([bom]);
+});
+
 test.each([
   ["2026-11-25T13:59:40-03:00", "agora"],
   ["2026-11-25T13:58:00-03:00", "há 2 min"],
