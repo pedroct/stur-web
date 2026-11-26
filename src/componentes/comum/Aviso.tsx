@@ -9,6 +9,12 @@ const TONS = {
     icone: Info,
     papel: "note",
   },
+  neutro: {
+    classes: "bg-superficie-sutil",
+    cor: "text-texto-auxiliar",
+    icone: Info,
+    papel: "note",
+  },
   atencao: {
     classes: "bg-estado-atencao-fundo",
     cor: "text-estado-atencao",
@@ -17,13 +23,13 @@ const TONS = {
   },
 } as const;
 
-/** Aviso na página: informação é uma nota; atenção é um alerta que o leitor de tela anuncia. */
+/** Aviso na página: informação e neutro são notas; atenção é um alerta que o leitor de tela anuncia. */
 export function Aviso({
   tom,
   className,
   children,
 }: Readonly<{
-  tom: "info" | "atencao";
+  tom: "info" | "neutro" | "atencao";
   className?: string;
   children: ReactNode;
 }>) {

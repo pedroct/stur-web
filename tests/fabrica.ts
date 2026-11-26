@@ -775,6 +775,8 @@ export function vendaCheia(classificacao: Classificacao, servicos = 1): VendaCon
 
   return vendaConsultada({
     venda: v,
+    // Como o backend: "Dados do Stur até" é o `dtalteracaovinculado`, em ISO com `T`.
+    dadosDoSturAte: v.dtalteracaovinculado?.replace(" ", "T") ?? null,
     calculos: calculos({
       servicos: contas,
       totaisServicos: { ...totais, percentualLucro: "10.00" },

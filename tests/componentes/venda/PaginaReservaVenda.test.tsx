@@ -629,8 +629,8 @@ test("a moldura fica ocupada na primeira carga e não no Atualizar", async () =>
 
   primeira.soltar();
   await esperarCliente();
-  expect(principal).not.toHaveAttribute("aria-busy");
-  expect(screen.getByRole("button", { name: "Buscar" })).toBeEnabled();
+  await waitFor(() => expect(principal).not.toHaveAttribute("aria-busy"));
+  await waitFor(() => expect(screen.getByRole("button", { name: "Buscar" })).toBeEnabled());
 
   await userEvent.click(screen.getByRole("button", { name: "Atualizar" }));
   await waitFor(() => expect(screen.getByRole("button", { name: "Buscando…" })).toBeDisabled());
@@ -659,7 +659,7 @@ test("venda que carrega dentro da reserva liga a faixa sem ocupar a página", as
   expect(screen.getByRole("main")).not.toHaveAttribute("aria-busy");
   segura.soltar();
   await esperarCliente(2);
-  expect(screen.getByRole("button", { name: "Buscar" })).toBeEnabled();
+  await waitFor(() => expect(screen.getByRole("button", { name: "Buscar" })).toBeEnabled());
 });
 
 // --- Painel (decisão 20) ---
