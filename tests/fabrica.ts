@@ -8,6 +8,7 @@ import type {
   ResumoResultado,
   ResumoVenda,
 } from "@/contrato/tipos";
+import { somarDecimais } from "@/lib/decimal";
 
 const DATA = "2026-11-17T10:00:00";
 
@@ -54,27 +55,39 @@ export function linha(campos?: Partial<LinhaResultado>): LinhaResultado {
 }
 
 type CamposDoResultado = Partial<Omit<ResultadoConsulta, "resumo">> & {
-  resumo?: Partial<ResumoResultado> & { incentivos?: Partial<ResumoIncentivos> };
+  resumo?: Partial<Omit<ResumoResultado, "incentivos">> & {
+    incentivos?: Partial<ResumoIncentivos>;
+  };
 };
 
-// Totais fixos ("0.00") e quantidade = número de linhas: a Task 4 passa a somá-los.
-export function resultado(vendas: LinhaResultado[], campos?: CamposDoResultado): ResultadoConsulta {
-  const { resumo, ...resto } = campos ?? {};
-  const padrao: ResumoResultado = {
-    quantidade: vendas.length,
-    totalCliente: "0.00",
-    totalFornecedor: "0.00",
-    margem: "0.00",
+// Como o `resumir_resultado` do backend: sem canceladas e sem incentivos; incentivos não cancelados
+// à parte. Os percentuais ficam null (a fábrica não divide): o teste que precisa deles os informa.
+function resumir(vendas: LinhaResultado[]): ResumoResultado {
+  const ativas = vendas.filter((v) => v.situacao !== "cancelada");
+  const clientes = ativas.filter((v) => v.tipo !== "incentivo");
+  const incentivos = ativas.filter((v) => v.tipo === "incentivo");
+  const margem = somarDecimais(clientes.map((v) => v.margem));
+  const valor = somarDecimais(incentivos.map((v) => v.margem));
+  return {
+    quantidade: clientes.length,
+    totalCliente: somarDecimais(clientes.map((v) => v.totalCliente)),
+    totalFornecedor: somarDecimais(clientes.map((v) => v.totalFornecedor)),
+    margem,
     percentualLucro: null,
-    naoFecham: 0,
-    canceladas: 0,
+    naoFecham: vendas.filter((v) => !v.contaFecha).length,
+    canceladas: vendas.filter((v) => v.situacao === "cancelada").length,
     incentivos: {
-      quantidade: 0,
-      valor: "0.00",
-      margemComIncentivos: "0.00",
+      quantidade: incentivos.length,
+      valor,
+      margemComIncentivos: somarDecimais([margem, valor]),
       percentualComIncentivos: null,
     },
   };
+}
+
+export function resultado(vendas: LinhaResultado[], campos?: CamposDoResultado): ResultadoConsulta {
+  const { resumo, ...resto } = campos ?? {};
+  const padrao = resumir(vendas);
   return {
     consulta: {
       reserva: null,
@@ -103,6 +116,7 @@ export function reserva(
   resumos: ResumoVenda[],
   campos?: Partial<ReservaConsultada>,
 ): ReservaConsultada {
+  const ativas = resumos.filter((r) => r.situacao !== "cancelada");
   return {
     numero,
     consultadoEm: "2026-11-24T22:48:05.000001-03:00",
@@ -118,9 +132,9 @@ export function reserva(
       totais: {
         quantidade: resumos.length,
         quantidadeCanceladas: resumos.filter((r) => r.situacao === "cancelada").length,
-        totalCliente: "0.00",
-        totalFornecedor: "0.00",
-        margem: "0.00",
+        totalCliente: somarDecimais(ativas.map((r) => r.totalCliente)),
+        totalFornecedor: somarDecimais(ativas.map((r) => r.totalFornecedor)),
+        margem: somarDecimais(ativas.map((r) => r.margem)),
         percentualLucro: null,
       },
     },
