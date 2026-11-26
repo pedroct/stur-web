@@ -141,3 +141,25 @@ test("número sem vendas e número com uma venda (P7)", async ({ page, api }) =>
   await busca.getByRole("button", { name: "Buscar" }).click();
   await expect(page).toHaveURL("/reservas/90000001/vendas/1001");
 });
+
+test("resultado guardado em formato inesperado: erro da aplicação uma vez; recarregar volta ao link", async ({
+  page,
+  api,
+}) => {
+  await page.goto("/");
+  const guardado = resultado([linha()], { resumo: { totalCliente: "não é decimal" } });
+  await page.evaluate(
+    ([chave, json]) => {
+      sessionStorage.setItem(`stur-web:resultado:${chave}`, json);
+      sessionStorage.setItem("stur-web:resultados", JSON.stringify([chave]));
+    },
+    [LINK, JSON.stringify(guardado)] as const,
+  );
+  await page.goto(LINK);
+  const alerta = page.getByRole("alert");
+  await expect(alerta.getByRole("heading", { level: 1 })).toHaveText("Erro nesta aplicação");
+
+  await page.reload();
+  await expect(page.getByRole("note")).toContainText("Este link trouxe uma consulta pronta");
+  expect(api.chamadas(VENDAS)).toBe(0);
+});

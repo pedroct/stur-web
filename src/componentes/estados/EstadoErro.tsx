@@ -26,7 +26,7 @@ export function EstadoErro({
   alterarHref,
 }: {
   erro: ErroDaConsulta;
-  rodape: string;
+  rodape?: string;
   aoTentar?: () => void;
   alterarHref: string;
 }) {
@@ -101,7 +101,7 @@ export function EstadoErro({
           </div>
         </div>
       </div>
-      <p className="mt-4 text-[13px] leading-5 text-texto-auxiliar">{rodape}</p>
+      {rodape && <p className="mt-4 text-[13px] leading-5 text-texto-auxiliar">{rodape}</p>}
     </div>
   );
 }
