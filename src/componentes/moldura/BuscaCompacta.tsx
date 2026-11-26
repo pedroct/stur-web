@@ -4,10 +4,18 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import { type SubmitEvent, useRef, useState } from "react";
 import { CampoNumero } from "@/componentes/comum/CampoNumero";
 import { Button } from "@/componentes/ui/button";
+import { apagarOrigem } from "@/lib/armazenamento/origem";
+import { marcarPendente } from "@/lib/armazenamento/pendentes";
 import { numeroDaReserva } from "@/lib/consulta/consulta";
+import { enderecoDaReserva } from "@/lib/venda/rota";
 import { useConsultando } from "./consultando";
 
-/** Busca do topo: começa com o número da rota (/reservas/…) e leva a /reservas/{n}. */
+/**
+ * Busca do topo: começa com o número da rota (/reservas/…) e leva a /reservas/{n}. Cada busca é
+ * uma consulta nova (PRD RF-10), mesmo do número aberto: marca o pedido antes de navegar, e a
+ * página da reserva, que assina os pedidos, consulta de novo (decisão 16). A origem do resultado
+ * sai, porque quem chega pela busca não veio dele (decisão 28).
+ */
 export function BuscaCompacta() {
   const router = useRouter();
   const rota = usePathname();
@@ -35,7 +43,9 @@ export function BuscaCompacta() {
       campo.current?.focus();
       return;
     }
-    router.push(`/reservas/${n}`);
+    apagarOrigem();
+    marcarPendente(enderecoDaReserva(n));
+    router.push(enderecoDaReserva(n));
   }
 
   return (

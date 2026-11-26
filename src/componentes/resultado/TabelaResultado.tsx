@@ -21,6 +21,7 @@ import { campoDaData, rotuloDaData, tituloConsulta, tituloCurto } from "@/lib/co
 import { formatarData, formatarDiaMes, formatarValor } from "@/lib/formatacao";
 import { cn } from "@/lib/utils";
 import { fornecedoresDe } from "@/lib/venda/campos";
+import { enderecoDaVenda } from "@/lib/venda/rota";
 
 const CABECALHO = "h-auto px-4 py-2.5 text-xs font-semibold text-texto-auxiliar";
 const CELULA = "px-4 py-3 align-top text-sm leading-5 whitespace-normal";
@@ -28,10 +29,6 @@ const CELULA = "px-4 py-3 align-top text-sm leading-5 whitespace-normal";
 const DUAS_LINHAS = "line-clamp-2 [overflow-wrap:anywhere]";
 const FOCO =
   "rounded-pequeno outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco";
-
-function enderecoDaVenda(linha: LinhaResultado): string {
-  return `/reservas/${linha.numero}/vendas/${linha.idreserva}`;
-}
 
 /** Sem ano quando o período cabe num ano só; com a janela larga ou o ano trocando, sempre com ele. */
 function comAno(consulta: Consulta, janelaLarga: boolean): boolean {
@@ -80,7 +77,7 @@ function Linha({
     >
       <TableCell className={cn(CELULA, "whitespace-nowrap")}>
         <Link
-          href={enderecoDaVenda(linha)}
+          href={enderecoDaVenda(linha.numero, linha.idreserva)}
           onClick={() => aoAbrir(linha, false)}
           className={cn(
             FOCO,
@@ -208,7 +205,7 @@ export function TabelaResultado({
       tituloCurto: tituloCurto(consulta),
       vendas: refinadas.map(({ numero, idreserva, produto }) => ({ numero, idreserva, produto })),
     });
-    if (navegar) roteador.push(enderecoDaVenda(linha));
+    if (navegar) roteador.push(enderecoDaVenda(linha.numero, linha.idreserva));
   }
 
   return (

@@ -8,6 +8,7 @@ import { formatarData } from "@/lib/formatacao";
 import { normalizar } from "@/lib/textos";
 import { fornecedoresDe, preenchido } from "./campos";
 import { ABREVIACOES_DE_PRODUTO, ACENTOS_DE_PRODUTO } from "./parametros";
+import { enderecoDaVenda } from "./rota";
 
 export type AvisoDaTela = { tom: "atencao" | "info" | "neutro"; texto: string; link?: string };
 
@@ -84,7 +85,7 @@ function textoDoFee(vinculos: Vinculos): AvisoDaTela {
   return {
     tom: "info",
     texto: `Esta venda é o fee ${de} desta mesma reserva.`,
-    link: `/reservas/${fee.numero}/vendas/${fee.idreserva}`,
+    link: enderecoDaVenda(fee.numero, fee.idreserva),
   };
 }
 

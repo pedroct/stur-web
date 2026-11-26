@@ -1,4 +1,4 @@
-import { lerOrigem, registrarOrigem } from "@/lib/armazenamento/origem";
+import { apagarOrigem, lerOrigem, registrarOrigem } from "@/lib/armazenamento/origem";
 
 const origem = {
   enderecoResultado: "/consulta?de=2026-11-17&ate=2026-11-24",
@@ -30,5 +30,14 @@ test("conteúdo inválido vale como ausente", () => {
   sessionStorage.setItem("stur-web:origem", "{não é json");
   expect(lerOrigem()).toBeNull();
   sessionStorage.setItem("stur-web:origem", JSON.stringify({ tituloCurto: 1 }));
+  expect(lerOrigem()).toBeNull();
+});
+
+test("apagar tira a origem da sessão", () => {
+  registrarOrigem(origem);
+  apagarOrigem();
+  expect(lerOrigem()).toBeNull();
+  expect(sessionStorage.getItem("stur-web:origem")).toBeNull();
+  apagarOrigem();
   expect(lerOrigem()).toBeNull();
 });
