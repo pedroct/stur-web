@@ -13,8 +13,11 @@ export type LinhaJson = {
   fim: string;
 };
 
-/** Recuo, texto entre aspas (a chave, ou um item solto), `": "`, o resto e a vírgula do fim. */
-const LINHA = /^(\s*)("(?:[^"\\]|\\.)*")?(: )?(.*?)(,?)$/;
+/**
+ * Recuo, texto entre aspas (a chave, ou um item solto), `": "`, o resto e a vírgula do fim. A
+ * flag `s` faz o `.` casar também U+2028 e U+2029, que o backend manda crus dentro dos textos.
+ */
+const LINHA = /^(\s*)("(?:[^"\\]|\\.)*")?(: )?(.*?)(,?)$/s;
 
 /** Quantos links "linha n" a tela mostra; `achadas` guarda todas. */
 export const ACHADOS_MOSTRADOS = 20;
@@ -31,6 +34,7 @@ function tipoDoValor(valor: string): LinhaJson["tipo"] {
  * backend, com as chaves na ordem da AGI: nada é reformatado, e os números ficam como texto.
  */
 export function linhasDoJson(texto: string): LinhaJson[] {
+  // Só o `\n` quebra linha, como o backend conta; U+2028 e U+2029 ficam dentro do texto.
   const linhas = texto.split("\n");
   if (linhas.at(-1) === "") linhas.pop();
   return linhas.map((linha, i) => {

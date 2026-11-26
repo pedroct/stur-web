@@ -120,3 +120,18 @@ test("tamanhoEmKb: bytes UTF-8 por 1.024, com uma casa e vírgula", () => {
   expect(tamanhoEmKb("ç".repeat(512))).toBe("1,0 KB");
   expect(tamanhoEmKb("")).toBe("0,0 KB");
 });
+
+test("linhasDoJson não trata U+2028 e U+2029 como quebra de linha nem perde a linha", () => {
+  const texto = ["{", '  "nota": "antes depois",', '  "outra": "um dois",', '  "fim": 1', "}"].join(
+    "\n",
+  );
+  const linhas = linhasDoJson(texto);
+  // As mesmas 5 linhas do texto, como o backend as conta.
+  expect(linhas).toHaveLength(5);
+  expect(linhas[1]).toMatchObject({ chave: '"nota"', valor: '"antes depois"', fim: "," });
+  expect(linhas[2]).toMatchObject({ chave: '"outra"', valor: '"um dois"', tipo: "texto" });
+  const refeito = linhas.map((l) => l.recuo + l.chave + l.separador + l.valor + l.fim).join("\n");
+  expect(refeito).toBe(texto);
+  expect(buscarNoJson(linhas, "depois").achadas).toEqual([2]);
+  expect(buscarNoJson(linhas, "dois").achadas).toEqual([3]);
+});
