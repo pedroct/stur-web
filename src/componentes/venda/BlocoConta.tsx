@@ -6,7 +6,7 @@ import type {
   ServicoAgi,
   VendaAgi,
 } from "@/contrato/tipos";
-import { classificacaoDe } from "@/lib/consulta/consulta";
+import { type Classificacao, classificacaoDe } from "@/lib/consulta/consulta";
 import { ehDecimal } from "@/lib/decimal";
 import { formatarValor } from "@/lib/formatacao";
 import { cn } from "@/lib/utils";
@@ -46,12 +46,17 @@ function camposDoGrupo(grupo: string): CampoAnexo[] {
   return CAMPOS_ANEXO_B.filter((c) => c.grupo === grupo && !c.conteiner);
 }
 
+/** O título da conta de um serviço só, pela classificação, como no canvas de cada classe. */
+const TITULO_DA_CONTA: Partial<Record<Classificacao, string>> = {
+  aereo: "Conta do bilhete",
+  rodoviario: "Conta da passagem",
+  hotelaria: "Conta da hospedagem",
+  locacao: "Conta da locação",
+};
+
 function tituloDaConta(classificacao: string | null, servicos: number): string {
   if (servicos > 1) return "Conta da venda";
-  const classe = classificacaoDe(classificacao);
-  if (classe === "hotelaria") return "Conta da hospedagem";
-  if (classe === "locacao") return "Conta da locação";
-  return "Conta do serviço";
+  return TITULO_DA_CONTA[classificacaoDe(classificacao) ?? "diversos"] ?? "Conta do serviço";
 }
 
 function Linha({

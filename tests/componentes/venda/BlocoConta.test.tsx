@@ -363,3 +363,23 @@ test("com câmbio 1: a frase embaixo da tarifa, sem os valores na moeda original
   expect(lado.queryByText("Cliente: Valores em")).toBeNull();
   expect(screen.queryByText("Valores na moeda original")).toBeNull();
 });
+
+test.each([
+  ["Aereo", "Conta do bilhete"],
+  ["Rodoviário", "Conta da passagem"],
+  ["Hotelaria", "Conta da hospedagem"],
+  ["Locacao", "Conta da locação"],
+  ["Diversos", "Conta do serviço"],
+  ["Pacote", "Conta do serviço"],
+])("com um serviço, o título da conta sai da classificação: %s, %s", (classificacao, titulo) => {
+  render(
+    <BlocoConta
+      contas={[CONTA_DA_HOSPEDAGEM]}
+      servicos={[HOSPEDAGEM]}
+      classificacao={classificacao}
+      situacao="CONFIRMADA"
+      venda={vendaAgi({ status: "CONFIRMADA", detalheItem: [HOSPEDAGEM] })}
+    />,
+  );
+  expect(screen.getByRole("heading", { level: 2, name: titulo })).toBeVisible();
+});
