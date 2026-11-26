@@ -1,9 +1,17 @@
 import type { Locator, Page } from "@playwright/test";
-import { calculos, contaServico, servicoAgi, vendaAgi, vendaConsultada } from "../tests/fabrica";
+import {
+  calculos,
+  contaServico,
+  lancamento,
+  pagamento,
+  servicoAgi,
+  vendaAgi,
+  vendaConsultada,
+} from "../tests/fabrica";
 import { expect, test } from "./apoio";
 
-// A geometria que o jsdom não mede: os pares lado a lado (IA 7.1) e a hospedagem e a conta em
-// cartões lado a lado (tela 3).
+// A geometria que o jsdom não mede: os pares lado a lado (IA 7.1), a hospedagem e a conta em
+// cartões lado a lado (tela 3) e as ações à direita, no topo (telas 5 e 17).
 
 const VENDA = "/api/v1/reservas/90000001/vendas/1001";
 const PAGINA = "/reservas/90000001/vendas/1001";
@@ -77,4 +85,70 @@ test("pares do grupo: rótulo e valor lado a lado a partir de 720 px, empilhados
   const r2 = await caixa(rotulo);
   const v2 = await caixa(valor);
   expect(v2.y).toBeGreaterThanOrEqual(r2.y + r2.height - 1);
+});
+
+test("tela 17: as ações do incentivo à direita, no topo, acima dos pares", async ({
+  page,
+  api,
+}) => {
+  api.responder(VENDA, {
+    corpo: vendaConsultada({
+      venda: vendaAgi({
+        nomeproduto: "INCENTIVO",
+        classificacaoproduto: "Diversos",
+        categoriaproduto: "Nacional",
+        totalCliente: "0.00",
+        totalFornecedor: "-3698.14",
+        margemLucroBruta: "3698.14",
+        detalheItem: [servicoAgi({ descricao: "INCENTIVO EXEMPLO/25" })],
+        recebimentos: [],
+        pagamentos: [pagamento({ valor: "3698.14", descricaoForma: "Crédito" })],
+      }),
+      calculos: calculos({
+        tipo: "incentivo",
+        servicos: [contaServico()],
+        percentualLucro: null,
+        recebimentos: [],
+        pagamentos: [lancamento({ ehCredito: true, situacao: "em_aberto" })],
+      }),
+    }),
+  });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(PAGINA);
+  const copiar = page.getByRole("button", { name: "Copiar para enviar" });
+  const titulo = page.getByRole("heading", { level: 1 });
+  const produto = page.locator('[data-anexo-secao="1"] dt', { hasText: /^Produto$/ });
+  await expect(produto).toBeVisible();
+  const b = await caixa(copiar);
+  const t = await caixa(titulo);
+  const p = await caixa(produto);
+  expect(b.y + b.height).toBeLessThan(p.y);
+  expect(b.x).toBeGreaterThan(t.x + 400);
+});
+
+test("tela 5: no painel do serviço, as ações numa coluna à direita", async ({ page, api }) => {
+  const itens = [1, 2].map((k) =>
+    servicoAgi({ descricao: `ITEM ${k}`, nomePaxCompleto: `PESSOA ${k}` }),
+  );
+  api.responder(VENDA, {
+    corpo: vendaConsultada({
+      venda: vendaAgi({
+        classificacaoproduto: "Diversos",
+        nomeproduto: "EVENTO",
+        detalheItem: itens,
+      }),
+      calculos: calculos({ servicos: itens.map((_, indice) => contaServico({ indice })) }),
+    }),
+  });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`${PAGINA}/servicos/1`);
+  const painel = page.getByRole("dialog", { name: "ITEM 1" });
+  const copiar = painel.getByRole("button", { name: "Copiar para enviar" });
+  const cru = painel.getByRole("button", { name: "Ver dado cru" });
+  await expect(copiar).toBeVisible();
+  const c = await caixa(copiar);
+  const d = await caixa(cru);
+  // As duas ações terminam na mesma borda direita, uma embaixo da outra.
+  expect(Math.abs(c.x + c.width - (d.x + d.width))).toBeLessThan(2);
+  expect(d.y).toBeGreaterThan(c.y);
 });

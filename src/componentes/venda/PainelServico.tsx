@@ -138,10 +138,13 @@ export function PainelServico({ dados, k }: Readonly<{ dados: VendaConsultada; k
       aoTeclar={aoTeclar}
       focoSemAbridor={tituloDaVenda}
     >
-      {/* O copiar leva a linha e o link do serviço aberto (decisão 18); o dado cru troca por replace. */}
-      <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
-        <VerDadoCru aoClicar={painel.trocarParaDadoCru} />
+      {/*
+        O copiar leva a linha e o link do serviço aberto (decisão 18); o dado cru troca por replace.
+        As ações ficam numa coluna à direita, como no cabeçalho da venda.
+      */}
+      <div className="mt-5 flex flex-col items-end gap-2 text-right">
         <CopiarDaVenda dados={dados} />
+        <VerDadoCru aoClicar={painel.trocarParaDadoCru} />
       </div>
       <Pessoa
         venda={venda}
