@@ -153,16 +153,20 @@ export function textoCarregando(c: Consulta, segundos: number): string {
   return `Consultando ${vendas}${periodo} na API do Stur. ${espera}`;
 }
 
+/** Consulta só pelo número: `texto` é o número como veio, que pode nem ser um número. */
+export function textoSemVendasNumero(texto: string): string {
+  return `Nenhuma venda com o número de reserva ${texto}. Verifique o número no Stur e consulte de novo.`;
+}
+
 export function textoSemVendas(c: Consulta): string {
   const filtros = temFiltro(c);
   if (c.reserva !== null) {
+    if (!temPeriodo(c) && !filtros) return textoSemVendasNumero(String(c.reserva));
     const [onde, ajuste] = temPeriodo(c)
       ? filtros
         ? [" nesse período e com esses filtros", " ou mude o período ou os filtros"]
         : [" nesse período", " ou amplie o período"]
-      : filtros
-        ? [" e esses filtros", " ou mude os filtros"]
-        : ["", ""];
+      : [" e esses filtros", " ou mude os filtros"];
     return `Nenhuma venda com o número de reserva ${c.reserva}${onde}. Verifique o número no Stur${ajuste} e consulte de novo.`;
   }
   const venda = `nenhuma venda ${participio(c.tipoData, "singular")}`;

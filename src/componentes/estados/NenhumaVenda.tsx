@@ -17,7 +17,7 @@ export function NenhumaVenda({
   complemento: string | null;
   alterarHref: string;
   acaoExtra?: { rotulo: string; aoClicar(): void };
-  consultadoAs: string;
+  consultadoAs?: string;
 }) {
   return (
     <>
@@ -46,9 +46,11 @@ export function NenhumaVenda({
           </div>
         </div>
       </div>
-      <p className="mt-4 text-[13px] leading-5 text-texto-auxiliar">
-        Consultado às {consultadoAs}.
-      </p>
+      {consultadoAs && (
+        <p className="mt-4 text-[13px] leading-5 text-texto-auxiliar">
+          Consultado às {consultadoAs}.
+        </p>
+      )}
     </>
   );
 }

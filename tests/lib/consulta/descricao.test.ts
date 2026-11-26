@@ -9,6 +9,7 @@ import {
   textoDadosAteSemVendas,
   textoPeriodoAteCopia,
   textoSemVendas,
+  textoSemVendasNumero,
   tituloConsulta,
   tituloCurto,
 } from "@/lib/consulta/descricao";
@@ -76,6 +77,15 @@ test("nenhuma venda", () => {
   ).toBe("Dados do Stur até 18/11, 09h30. Uma reserva criada depois disso ainda não aparece aqui.");
   expect(textoDadosAteSemVendas(periodo, "2026-11-18T09:30:00")).toBe(
     "Dados do Stur até 18/11, 09h30. Uma venda emitida depois disso ainda não aparece aqui.",
+  );
+});
+
+test("nenhuma venda só pelo número, com o texto como veio", () => {
+  expect(textoSemVendasNumero("9000x")).toBe(
+    "Nenhuma venda com o número de reserva 9000x. Verifique o número no Stur e consulte de novo.",
+  );
+  expect(textoSemVendasNumero("90000099")).toBe(
+    textoSemVendas({ ...CONSULTA_VAZIA, reserva: 90000099 }),
   );
 });
 
