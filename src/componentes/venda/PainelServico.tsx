@@ -19,15 +19,7 @@ import { BlocoConta, GruposDoServico } from "./BlocoConta";
 import { GrupoDeCampos } from "./GrupoDeCampos";
 import { Pessoa } from "./Pessoa";
 import { usePainel } from "./painel-contexto";
-import { nomeDoGrupo, texto } from "./produto-comum";
-
-/** Os grupos da seção 3 que são de cada serviço (o itinerário é da venda). */
-const GRUPOS_DA_SECAO_3 = [
-  "Hospedagem (hotelaria)",
-  "Veículo (locação)",
-  "Itens (diversos e pacote)",
-  "Confirmação do fornecedor",
-];
+import { GRUPOS_DO_SERVICO_DA_SECAO_3, nomeDoGrupo, texto } from "./produto-comum";
 
 const SETA = cn(
   "inline-flex size-alvo shrink-0 items-center justify-center rounded-pilula border border-borda text-texto-principal outline-0 transition-colors duration-150 hover:bg-superficie-sutil focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco",
@@ -174,7 +166,7 @@ export function PainelServico({ dados, k }: Readonly<{ dados: VendaConsultada; k
       </section>
       {n > 1 && (
         <div data-anexo-secao="3" className="mt-8 space-y-6 empty:hidden">
-          {GRUPOS_DA_SECAO_3.map((grupo) => {
+          {GRUPOS_DO_SERVICO_DA_SECAO_3.map((grupo) => {
             const campos = CAMPOS_ANEXO_B.filter(
               (c) => c.grupo === grupo && !c.conteiner && !mostrados.has(c.caminho),
             );

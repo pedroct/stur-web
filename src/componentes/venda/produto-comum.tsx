@@ -56,6 +56,14 @@ export function parDaPessoa(venda: VendaAgi, servico: ServicoAgi): ParDoCartao |
   return { rotulo: linha.slice(0, corte), valor: linha.slice(corte + 1), secao: 4 };
 }
 
+/** Os grupos da seção 3 que são de cada serviço (o itinerário é da venda). */
+export const GRUPOS_DO_SERVICO_DA_SECAO_3 = [
+  "Hospedagem (hotelaria)",
+  "Veículo (locação)",
+  "Itens (diversos e pacote)",
+  "Confirmação do fornecedor",
+];
+
 /** O nome do grupo no Anexo B sem a anotação entre parênteses: "Itinerário (aéreo e rodoviário)" vira "Itinerário". */
 export function nomeDoGrupo(grupo: string): string {
   return grupo.replace(/\s*\(.*\)\s*$/, "");

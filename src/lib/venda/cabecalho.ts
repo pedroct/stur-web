@@ -3,7 +3,7 @@
 import type { AvisoApi, CalculosVenda, VendaAgi, Vinculos } from "@/contrato/tipos";
 import { situacaoDe } from "@/lib/consulta/consulta";
 import { maiuscula, unir } from "@/lib/consulta/descricao";
-import { ehNegativo, ehZero } from "@/lib/decimal";
+import { ehDecimal, ehNegativo, ehZero } from "@/lib/decimal";
 import { formatarData } from "@/lib/formatacao";
 import { normalizar } from "@/lib/textos";
 import { fornecedoresDe, preenchido } from "./campos";
@@ -63,8 +63,13 @@ export function apoioDoIncentivo(v: VendaAgi): string {
     : `Não há venda a cliente: o Stur registra a própria ${cliente} como cliente.`;
 }
 
+/** Só um decimal conta: vazio (`""`, nulo) não é zero nem negativo, e não derruba a página. */
+function decimal(valor: string | null | undefined): valor is string {
+  return valor !== null && valor !== undefined && ehDecimal(valor);
+}
+
 function zero(valor: string | null | undefined): boolean {
-  return valor !== null && valor !== undefined && ehZero(valor);
+  return decimal(valor) && ehZero(valor);
 }
 
 /** A frase do cartão Receita, só nos quatro casos de regra (decisão 4). */
@@ -73,7 +78,7 @@ export function fraseDaReceita(v: VendaAgi, c: CalculosVenda): string | null {
     situacaoDe(v.status ?? null) === "cancelada"
       ? "fora dos totais, porque a venda está cancelada"
       : null,
-    zero(v.totalCliente) && v.margemLucroBruta && ehNegativo(v.margemLucroBruta)
+    zero(v.totalCliente) && decimal(v.margemLucroBruta) && ehNegativo(v.margemLucroBruta)
       ? "custo sem cobrança ao cliente"
       : null,
     zero(v.totalFornecedor) ? "sem custo do fornecedor" : null,

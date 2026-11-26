@@ -310,6 +310,9 @@ describe("Hospedagem", () => {
     nomePax: "EXEMPLO/HOSPEDE",
     numerodeconfirmacao: "001",
     numeroVC: "VC0001",
+    // Na hotelaria, a base nunca traz a quantidade do serviço (Anexo B, Itens): ela vai nos
+    // apartamentos. Com ela, a página mostra o grupo "Itens" (Task 9).
+    qtde: null,
   };
 
   test("o hotel, o período com as diárias e os pares do canvas", () => {
@@ -358,6 +361,19 @@ describe("Hospedagem", () => {
       "ROTA EXEMPLO",
     );
     expect(screen.getByText("ROTA EXEMPLO")).toBeVisible();
+  });
+
+  test("com um serviço, um campo de outro grupo do serviço vem com o nome do grupo (Itens)", () => {
+    montar(dadosDe(HOTEL, {}, [servicoAgi({ ...HOSPEDE, qtde: 3 })]));
+    const itens = screen.getByRole("heading", { level: 2, name: "Itens" });
+    expect(itens.closest('[data-anexo-secao="3"]')).not.toBeNull();
+    const qtde = within(itens.closest("section") as HTMLElement).getByText("Qtde", {
+      selector: "dt",
+    });
+    expect(qtde.nextElementSibling).toHaveTextContent("3");
+    // Sem campo de outro grupo, nada a mais.
+    const { container } = montar(dadosDe(HOTEL, {}, [servicoAgi(HOSPEDE)]));
+    expect(within(container).queryByRole("heading", { name: "Itens" })).toBeNull();
   });
 
   test("com um serviço, o resto da hospedagem não repete a diária que a conta mostra", () => {

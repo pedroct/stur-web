@@ -176,3 +176,10 @@ describe("incentivo", () => {
     expect(apoioDoIncentivo(vendaAgi({ nomecliente: null }))).toBe("Não há venda a cliente.");
   });
 });
+
+test("frase da receita: total vazio não é zero e não derruba a página", () => {
+  const v = vendaAgi({ totalCliente: "", totalFornecedor: "", margemLucroBruta: "" });
+  expect(fraseDaReceita(v, calculos())).toBeNull();
+  const nulos = vendaAgi({ totalCliente: "0.00", margemLucroBruta: null });
+  expect(fraseDaReceita(nulos, calculos())).toBeNull();
+});
