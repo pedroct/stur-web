@@ -5,7 +5,7 @@
  */
 
 import type { Reserva, VendaDaReserva } from "@/contrato/tipos";
-import { CLASSIFICACOES, classificacaoDe, situacaoDe } from "@/lib/consulta/consulta";
+import { classificacaoDe, rotuloDaClassificacao, situacaoDe } from "@/lib/consulta/consulta";
 import { unir } from "@/lib/consulta/descricao";
 import { ehDecimal, ehNegativo, ehZero } from "@/lib/decimal";
 import { formatarMoeda } from "@/lib/formatacao";
@@ -25,10 +25,7 @@ export function cancelada(v: VendaDaReserva): boolean {
 }
 
 function nomeDaClassificacao(texto: string | null): string {
-  const conhecida = CLASSIFICACOES.find((c) => c.valor === classificacaoDe(texto));
-  if (conhecida) return conhecida.rotulo;
-  const limpo = texto?.trim() ?? "";
-  return limpo === "" ? "Sem classificação" : limpo;
+  return rotuloDaClassificacao(texto) ?? "Sem classificação";
 }
 
 /**

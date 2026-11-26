@@ -1,7 +1,7 @@
 /** Textos do topo da venda: nome do produto, subtítulo, frase da receita e avisos (IA 6.2, 9.5). */
 
 import type { AvisoApi, CalculosVenda, VendaAgi, Vinculos } from "@/contrato/tipos";
-import { situacaoDe } from "@/lib/consulta/consulta";
+import { rotuloDaClassificacao, situacaoDe } from "@/lib/consulta/consulta";
 import { maiuscula, unir } from "@/lib/consulta/descricao";
 import { ehDecimal, ehNegativo, ehZero } from "@/lib/decimal";
 import { formatarData } from "@/lib/formatacao";
@@ -33,7 +33,7 @@ export function nomeDoProduto(produto: string | null, categoria: string | null):
 
 /** "{produto} ({classificação}) · {fornecedor2}, pela {fornecedor} · emitida em {data}". */
 export function subtituloDaVenda(v: VendaAgi): string {
-  const classificacao = texto(v.classificacaoproduto);
+  const classificacao = rotuloDaClassificacao(v.classificacaoproduto);
   const produto = nomeDoProduto(v.nomeproduto ?? null, v.categoriaproduto ?? null);
   const comClassificacao = classificacao === null ? produto : `${produto} (${classificacao})`;
   const { principal, operadora } = fornecedoresDe(texto(v.nomefornec), texto(v.nomefornec2));

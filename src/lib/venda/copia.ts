@@ -5,6 +5,7 @@
  */
 
 import type { ReservaConsultada, VendaConsultada } from "@/contrato/tipos";
+import { rotuloDaClassificacao } from "@/lib/consulta/consulta";
 import { maiuscula } from "@/lib/consulta/descricao";
 import { ehDecimal } from "@/lib/decimal";
 import {
@@ -89,7 +90,7 @@ function linhaDoServico(dados: VendaConsultada, k: number): string {
 function linhaDoProduto(dados: VendaConsultada): string | null {
   const { venda } = dados;
   const produto = texto(venda.nomeproduto);
-  const detalhe = [texto(venda.classificacaoproduto), texto(venda.categoriaproduto)]
+  const detalhe = [rotuloDaClassificacao(venda.classificacaoproduto), texto(venda.categoriaproduto)]
     .filter((p) => p !== null)
     .join(", ");
   const situacao = texto(venda.status);

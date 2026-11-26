@@ -4,6 +4,7 @@
  * do grupo aparece pelo `GrupoDeCampos`, por `camposSemMolde`.
  */
 
+import { rotuloDaClassificacao } from "@/lib/consulta/consulta";
 import { maiuscula } from "@/lib/consulta/descricao";
 import { CAMPOS_ANEXO_B, type CampoAnexo } from "./anexo-b";
 import { nomeDoProduto } from "./cabecalho";
@@ -80,7 +81,7 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
     valor("reserva", (f) => `Reserva ${f}`),
     valor("status", (f) => `${maiuscula(f.trim().toLowerCase())} no Stur`),
     valor("nomeproduto", (f) => nomeDoProduto(f, null)),
-    valor("classificacaoproduto", (f) => `(${f})`),
+    valor("classificacaoproduto", (f) => `(${rotuloDaClassificacao(f) ?? f})`),
     valor("categoriaproduto", (f) => f.toLowerCase()),
     valor("nomecliente"),
     valor("dtemissao", (f) => `emitida em ${f}`),

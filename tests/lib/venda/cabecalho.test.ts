@@ -43,6 +43,14 @@ test("subtítulo com um fornecedor e com o fornecedor 2", () => {
   );
 });
 
+test("a classificação no subtítulo é o rótulo da aplicação, com acento, e não o texto da API", () => {
+  const v = (classificacaoproduto: string) => subtituloDaVenda(vendaAgi({ classificacaoproduto }));
+  expect(v("Aereo")).toMatch(/^Hotel nacional \(Aéreo\) ·/);
+  expect(v("RODOVIARIO")).toMatch(/\(Rodoviário\) ·/);
+  expect(v("Locacao")).toMatch(/\(Locação\) ·/);
+  expect(v("Classe Nova")).toMatch(/\(Classe Nova\) ·/);
+});
+
 test("receita com dois casos", () => {
   const v = vendaAgi({
     totalCliente: "0.00",

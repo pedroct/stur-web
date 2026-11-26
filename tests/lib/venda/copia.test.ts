@@ -70,6 +70,12 @@ test("o texto da venda, linha a linha, como na IA 10.2", () => {
   );
 });
 
+test("a classificação do produto, no texto copiado, é o rótulo com acento", () => {
+  const dados = venda();
+  const comAereo = { ...dados, venda: { ...dados.venda, classificacaoproduto: "Aereo" } };
+  expect(textoCopiadoVenda(comAereo, URL_DA_VENDA)).toContain("Produto: EVENTO (Aéreo, Nacional).");
+});
+
 test("sem nome de passageiro, documento nem contato, salvo com o serviço aberto", () => {
   const texto = textoCopiadoVenda(venda(), URL_DA_VENDA);
   expect(texto).not.toContain("PASSAGEIRO");
