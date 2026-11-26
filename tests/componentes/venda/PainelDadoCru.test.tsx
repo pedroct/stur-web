@@ -192,6 +192,7 @@ test("Copiar tudo copia o texto inteiro e diz Copiado", async () => {
   await usuario.click(within(painel).getByRole("button", { name: "Copiar tudo" }));
   expect(escrever).toHaveBeenCalledWith(CRU);
   expect(await within(painel).findByRole("button", { name: "Copiado" })).toBeVisible();
+  expect(within(painel).getByText("Copiado", { selector: "[aria-live]" })).toBeInTheDocument();
 });
 
 test("Baixar .json baixa o texto como veio, com o nome venda-{numero}-{idreserva}.json", async () => {

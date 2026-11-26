@@ -2,6 +2,7 @@
 
 import { Copy, RotateCw, TriangleAlert } from "lucide-react";
 import Link from "next/link";
+import { AvisoDaCopia } from "@/componentes/comum/AvisoDaCopia";
 import { Button, buttonVariants } from "@/componentes/ui/button";
 import type { ErroDaConsulta } from "@/lib/api/cliente";
 import { useParametros } from "@/lib/api/parametros";
@@ -81,6 +82,8 @@ export function EstadoErro({
                 {copiado ? "Copiado" : "Copiar detalhe"}
               </Button>
             )}
+            {/* Sem "Não foi possível copiar": o detalhe segue à vista, como na tela. */}
+            {tipo === "formato" && <AvisoDaCopia copiado={copiado} falhou={false} />}
             <Link
               href={alterarHref}
               className={buttonVariants({ variant: "secundaria", size: "compacto" })}

@@ -2,6 +2,8 @@
 
 import { Copy } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useId } from "react";
+import { AvisoDaCopia } from "@/componentes/comum/AvisoDaCopia";
 import { Button } from "@/componentes/ui/button";
 import type { ReservaConsultada, VendaConsultada } from "@/contrato/tipos";
 import { useCopiado } from "@/lib/copiar";
@@ -16,23 +18,28 @@ import { enderecoDaReserva, enderecoDaVenda, enderecoDoServico, lerResto } from 
 
 /**
  * "Copiar para enviar" (IA 10.1): copia o texto de `texto()`, montado no clique, e diz "Copiado"
- * por 2 s, ou "Não foi possível copiar" se o navegador negar. A `ajuda` fica logo abaixo.
+ * por 2 s, ou "Não foi possível copiar" se o navegador negar, também para o leitor de tela
+ * (`AvisoDaCopia`). A `ajuda` fica logo abaixo e é a descrição do botão.
  */
 export function CopiarParaEnviar({
   texto,
   ajuda,
 }: Readonly<{ texto: () => string; ajuda: string }>) {
   const { copiado, falhou, copiar } = useCopiado();
+  const idDaAjuda = useId();
   let rotulo = "Copiar para enviar";
   if (copiado) rotulo = "Copiado";
   else if (falhou) rotulo = "Não foi possível copiar";
   return (
     <div className="flex flex-col items-end gap-2">
-      <Button onClick={() => copiar(texto())}>
+      <Button onClick={() => copiar(texto())} aria-describedby={idDaAjuda}>
         <Copy className="size-[18px]" aria-hidden="true" />
         {rotulo}
       </Button>
-      <span className="text-right text-[13px] leading-5 text-texto-auxiliar">{ajuda}</span>
+      <span id={idDaAjuda} className="text-right text-[13px] leading-5 text-texto-auxiliar">
+        {ajuda}
+      </span>
+      <AvisoDaCopia copiado={copiado} falhou={falhou} />
     </div>
   );
 }

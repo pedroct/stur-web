@@ -3,6 +3,7 @@
 import { Braces, Copy, Download, RotateCw, TriangleAlert } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
+import { AvisoDaCopia } from "@/componentes/comum/AvisoDaCopia";
 import { Esqueleto } from "@/componentes/comum/Esqueleto";
 import { Painel } from "@/componentes/comum/Painel";
 import { Button } from "@/componentes/ui/button";
@@ -176,6 +177,7 @@ function Json({
           <Copy className="size-[18px]" aria-hidden="true" />
           {rotulo}
         </Button>
+        <AvisoDaCopia copiado={copiado} falhou={falhou} />
         <Button
           variant="secundaria"
           size="compacto"

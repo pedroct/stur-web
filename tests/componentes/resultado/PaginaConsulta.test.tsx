@@ -327,6 +327,7 @@ test("Copiar detalhe copia o código e o detalhe, e diz Copiado por 2 s", async 
     JSON.stringify({ codigo: "api_stur_resposta_invalida", detalhe }, null, 2),
   );
   expect(await within(alerta).findByRole("button", { name: "Copiado" })).toBeVisible();
+  expect(within(alerta).getByText("Copiado", { selector: "[aria-live]" })).toBeInTheDocument();
   await act(() => vi.advanceTimersByTimeAsync(2000));
   expect(within(alerta).getByRole("button", { name: "Copiar detalhe" })).toBeVisible();
 });

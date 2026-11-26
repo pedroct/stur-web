@@ -293,9 +293,16 @@ test('"Copiado" some depois de 2 s', async () => {
   const usuario = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
   const escrever = vi.spyOn(navigator.clipboard, "writeText");
   render(<CopiarParaEnviar texto={() => "o texto"} ajuda="Copia tudo" />);
+  // A ajuda é a descrição do botão, e o resultado vai para o leitor de tela por uma região viva.
+  expect(screen.getByRole("button", { name: "Copiar para enviar" })).toHaveAccessibleDescription(
+    "Copia tudo",
+  );
+  const aviso = document.querySelector('[aria-live="polite"]');
+  expect(aviso).toBeEmptyDOMElement();
   await usuario.click(screen.getByRole("button", { name: "Copiar para enviar" }));
   expect(escrever).toHaveBeenCalledWith("o texto");
   expect(screen.getByRole("button", { name: "Copiado" })).toBeVisible();
+  expect(aviso).toHaveTextContent(/^Copiado$/);
   await act(() => vi.advanceTimersByTimeAsync(1900));
   expect(screen.getByRole("button", { name: "Copiado" })).toBeVisible();
   await act(() => vi.advanceTimersByTimeAsync(200));
@@ -309,6 +316,10 @@ test("sem acesso à área de transferência, diz que não foi possível copiar, 
   vi.spyOn(navigator.clipboard, "writeText").mockRejectedValue(new Error("negado"));
   await usuario.click(screen.getByRole("button", { name: "Copiar para enviar" }));
   expect(screen.getByRole("button", { name: "Não foi possível copiar" })).toBeVisible();
+  expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent(
+    /^Não foi possível copiar$/,
+  );
   await act(() => vi.advanceTimersByTimeAsync(2000));
   expect(screen.getByRole("button", { name: "Copiar para enviar" })).toBeVisible();
+  expect(document.querySelector('[aria-live="polite"]')).toBeEmptyDOMElement();
 });
