@@ -1,8 +1,15 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, vi } from "vitest";
+import { zerarParametros } from "@/lib/api/parametros";
+import { servidor, zerarContagem } from "./servidor";
+
+beforeAll(() => servidor.listen({ onUnhandledRequest: "error" }));
 
 afterEach(() => {
+  servidor.resetHandlers();
+  zerarContagem();
+  zerarParametros();
   vi.useRealTimers();
   if (typeof window !== "undefined") {
     cleanup();
@@ -10,3 +17,5 @@ afterEach(() => {
     window.sessionStorage.clear();
   }
 });
+
+afterAll(() => servidor.close());

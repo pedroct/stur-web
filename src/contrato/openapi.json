@@ -1,0 +1,5492 @@
+{
+  "components": {
+    "schemas": {
+      "ApartamentoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `detalheItem[].apartamentos[]`.",
+        "properties": {
+          "idTipoApto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idtipoapto"
+          },
+          "qtde": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qtde"
+          },
+          "qtdeDiarias": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qtdediarias"
+          },
+          "tipoApartamento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipoapartamento"
+          },
+          "vlrBalcao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrbalcao"
+          },
+          "vlrDiaria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrdiaria"
+          },
+          "vlrDiariaP": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrdiariap"
+          }
+        },
+        "title": "ApartamentoAgi",
+        "type": "object"
+      },
+      "Aviso": {
+        "properties": {
+          "codigo": {
+            "enum": [
+              "conta_nao_fecha",
+              "moeda_estrangeira",
+              "moeda_cambio_1",
+              "comissao_nao_apurada",
+              "venda_fee",
+              "venda_cancelada",
+              "venda_reservada"
+            ],
+            "title": "Codigo",
+            "type": "string"
+          },
+          "siglas": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Siglas",
+            "type": "array"
+          }
+        },
+        "required": [
+          "codigo",
+          "siglas"
+        ],
+        "title": "Aviso",
+        "type": "object"
+      },
+      "CalculosVenda": {
+        "properties": {
+          "avisos": {
+            "items": {
+              "$ref": "#/components/schemas/Aviso"
+            },
+            "title": "Avisos",
+            "type": "array"
+          },
+          "diferencaPagamentosFornecedor": {
+            "title": "Diferencapagamentosfornecedor",
+            "type": "string"
+          },
+          "estadoServico": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstadoServico"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "itinerario": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Itinerario"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pagamentos": {
+            "items": {
+              "$ref": "#/components/schemas/LancamentoCalculado"
+            },
+            "title": "Pagamentos",
+            "type": "array"
+          },
+          "percentualLucro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentuallucro"
+          },
+          "recebimentos": {
+            "items": {
+              "$ref": "#/components/schemas/LancamentoCalculado"
+            },
+            "title": "Recebimentos",
+            "type": "array"
+          },
+          "servicos": {
+            "items": {
+              "$ref": "#/components/schemas/ContaServico"
+            },
+            "title": "Servicos",
+            "type": "array"
+          },
+          "tipo": {
+            "enum": [
+              "venda",
+              "fee",
+              "incentivo"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          },
+          "totaisServicos": {
+            "$ref": "#/components/schemas/TotaisServicos"
+          },
+          "totalPagamentos": {
+            "title": "Totalpagamentos",
+            "type": "string"
+          },
+          "verificacao": {
+            "$ref": "#/components/schemas/Verificacao"
+          }
+        },
+        "required": [
+          "tipo",
+          "servicos",
+          "totaisServicos",
+          "percentualLucro",
+          "verificacao",
+          "recebimentos",
+          "pagamentos",
+          "totalPagamentos",
+          "diferencaPagamentosFornecedor",
+          "itinerario",
+          "estadoServico",
+          "avisos"
+        ],
+        "title": "CalculosVenda",
+        "type": "object"
+      },
+      "ConsultaEcoada": {
+        "description": "Os parâmetros da consulta como o backend os entendeu.",
+        "properties": {
+          "ate": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ate"
+          },
+          "classificacao": {
+            "items": {
+              "enum": [
+                "aereo",
+                "hotelaria",
+                "rodoviario",
+                "diversos",
+                "locacao",
+                "pacote"
+              ],
+              "type": "string"
+            },
+            "title": "Classificacao",
+            "type": "array"
+          },
+          "cliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cliente"
+          },
+          "de": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "De"
+          },
+          "emissor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emissor"
+          },
+          "fornecedor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fornecedor"
+          },
+          "janelaLarga": {
+            "title": "Janelalarga",
+            "type": "boolean"
+          },
+          "reserva": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reserva"
+          },
+          "situacao": {
+            "items": {
+              "enum": [
+                "reservada",
+                "confirmada",
+                "fechada",
+                "cancelada"
+              ],
+              "type": "string"
+            },
+            "title": "Situacao",
+            "type": "array"
+          },
+          "tipoData": {
+            "enum": [
+              "emissao",
+              "confirmacao",
+              "alteracao"
+            ],
+            "title": "Tipodata",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reserva",
+          "tipoData",
+          "de",
+          "ate",
+          "situacao",
+          "classificacao",
+          "fornecedor",
+          "cliente",
+          "emissor",
+          "janelaLarga"
+        ],
+        "title": "ConsultaEcoada",
+        "type": "object"
+      },
+      "ContaLado": {
+        "properties": {
+          "conversao": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Conversao"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "siglaComCambio1": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siglacomcambio1"
+          },
+          "termos": {
+            "items": {
+              "$ref": "#/components/schemas/TermoConta"
+            },
+            "title": "Termos",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "string"
+          },
+          "zerados": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Zerados",
+            "type": "array"
+          }
+        },
+        "required": [
+          "termos",
+          "zerados",
+          "total",
+          "conversao",
+          "siglaComCambio1"
+        ],
+        "title": "ContaLado",
+        "type": "object"
+      },
+      "ContaServico": {
+        "properties": {
+          "cliente": {
+            "$ref": "#/components/schemas/ContaLado"
+          },
+          "comissoesNaoApuradas": {
+            "title": "Comissoesnaoapuradas",
+            "type": "boolean"
+          },
+          "fornecedor": {
+            "$ref": "#/components/schemas/ContaLado"
+          },
+          "indice": {
+            "title": "Indice",
+            "type": "integer"
+          },
+          "margem": {
+            "title": "Margem",
+            "type": "string"
+          },
+          "percentualLucro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentuallucro"
+          }
+        },
+        "required": [
+          "indice",
+          "cliente",
+          "fornecedor",
+          "margem",
+          "percentualLucro",
+          "comissoesNaoApuradas"
+        ],
+        "title": "ContaServico",
+        "type": "object"
+      },
+      "ContaVerificada": {
+        "properties": {
+          "api": {
+            "title": "Api",
+            "type": "string"
+          },
+          "calculado": {
+            "title": "Calculado",
+            "type": "string"
+          },
+          "conta": {
+            "enum": [
+              "cliente",
+              "fornecedor",
+              "margem"
+            ],
+            "title": "Conta",
+            "type": "string"
+          },
+          "diferenca": {
+            "title": "Diferenca",
+            "type": "string"
+          },
+          "fecha": {
+            "title": "Fecha",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "conta",
+          "calculado",
+          "api",
+          "diferenca",
+          "fecha"
+        ],
+        "title": "ContaVerificada",
+        "type": "object"
+      },
+      "Conversao": {
+        "properties": {
+          "cambio": {
+            "title": "Cambio",
+            "type": "string"
+          },
+          "dataCambio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datacambio"
+          },
+          "sigla": {
+            "title": "Sigla",
+            "type": "string"
+          },
+          "tarifaOrigem": {
+            "title": "Tarifaorigem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sigla",
+          "tarifaOrigem",
+          "cambio",
+          "dataCambio"
+        ],
+        "title": "Conversao",
+        "type": "object"
+      },
+      "ErroApi": {
+        "description": "Envelope de todo erro ao cliente (404, 500, 502, 504): em pt-BR, sem o valor.",
+        "properties": {
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "detalhe": {
+            "title": "Detalhe"
+          },
+          "mensagem": {
+            "title": "Mensagem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "mensagem"
+        ],
+        "title": "ErroApi",
+        "type": "object"
+      },
+      "ErroConsulta": {
+        "description": "Envelope do 422: `campo` é o parâmetro da consulta que falhou (nulo se não há um só).",
+        "properties": {
+          "campo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Campo"
+          },
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "detalhe": {
+            "title": "Detalhe"
+          },
+          "mensagem": {
+            "title": "Mensagem",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "mensagem"
+        ],
+        "title": "ErroConsulta",
+        "type": "object"
+      },
+      "Espera": {
+        "properties": {
+          "aeroporto": {
+            "title": "Aeroporto",
+            "type": "string"
+          },
+          "aposTrecho": {
+            "title": "Apostrecho",
+            "type": "integer"
+          },
+          "minutos": {
+            "title": "Minutos",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "aposTrecho",
+          "minutos",
+          "aeroporto"
+        ],
+        "title": "Espera",
+        "type": "object"
+      },
+      "Estadia": {
+        "properties": {
+          "aposTrajeto": {
+            "title": "Apostrajeto",
+            "type": "integer"
+          },
+          "cidade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cidade"
+          },
+          "dias": {
+            "title": "Dias",
+            "type": "integer"
+          },
+          "sigla": {
+            "title": "Sigla",
+            "type": "string"
+          }
+        },
+        "required": [
+          "aposTrajeto",
+          "dias",
+          "sigla",
+          "cidade"
+        ],
+        "title": "Estadia",
+        "type": "object"
+      },
+      "EstadoServico": {
+        "properties": {
+          "base": {
+            "enum": [
+              "trechos",
+              "entrada_saida",
+              "retirada_devolucao",
+              "inicio_termino"
+            ],
+            "title": "Base",
+            "type": "string"
+          },
+          "estado": {
+            "enum": [
+              "a_acontecer",
+              "em_andamento",
+              "concluido"
+            ],
+            "title": "Estado",
+            "type": "string"
+          },
+          "fim": {
+            "format": "date",
+            "title": "Fim",
+            "type": "string"
+          },
+          "inicio": {
+            "format": "date",
+            "title": "Inicio",
+            "type": "string"
+          }
+        },
+        "required": [
+          "estado",
+          "inicio",
+          "fim",
+          "base"
+        ],
+        "title": "EstadoServico",
+        "type": "object"
+      },
+      "FinanceiroVinculadoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `financeiroVinculado`.",
+        "properties": {
+          "contasPagar": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TituloVinculadoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contaspagar"
+          },
+          "contasReceber": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TituloVinculadoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contasreceber"
+          }
+        },
+        "title": "FinanceiroVinculadoAgi",
+        "type": "object"
+      },
+      "Itinerario": {
+        "properties": {
+          "estadias": {
+            "items": {
+              "$ref": "#/components/schemas/Estadia"
+            },
+            "title": "Estadias",
+            "type": "array"
+          },
+          "forma": {
+            "enum": [
+              "sem_dados",
+              "so_datas",
+              "com_horario"
+            ],
+            "title": "Forma",
+            "type": "string"
+          },
+          "trajetos": {
+            "items": {
+              "$ref": "#/components/schemas/Trajeto"
+            },
+            "title": "Trajetos",
+            "type": "array"
+          }
+        },
+        "required": [
+          "forma",
+          "trajetos",
+          "estadias"
+        ],
+        "title": "Itinerario",
+        "type": "object"
+      },
+      "LancamentoCalculado": {
+        "properties": {
+          "cartaoRepassado": {
+            "title": "Cartaorepassado",
+            "type": "boolean"
+          },
+          "ehCredito": {
+            "title": "Ehcredito",
+            "type": "boolean"
+          },
+          "indice": {
+            "title": "Indice",
+            "type": "integer"
+          },
+          "situacao": {
+            "enum": [
+              "previsto",
+              "sem_saldo",
+              "em_aberto",
+              "recebido_em_parte"
+            ],
+            "title": "Situacao",
+            "type": "string"
+          },
+          "valorExibido": {
+            "title": "Valorexibido",
+            "type": "string"
+          },
+          "vencido": {
+            "title": "Vencido",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "indice",
+          "valorExibido",
+          "ehCredito",
+          "situacao",
+          "vencido",
+          "cartaoRepassado"
+        ],
+        "title": "LancamentoCalculado",
+        "type": "object"
+      },
+      "LinhaResultado": {
+        "properties": {
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria"
+          },
+          "classificacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classificacao"
+          },
+          "cliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cliente"
+          },
+          "contaFecha": {
+            "title": "Contafecha",
+            "type": "boolean"
+          },
+          "dataAlteracao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataalteracao"
+          },
+          "dataConfirmacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataconfirmacao"
+          },
+          "dataEmissao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataemissao"
+          },
+          "emissor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emissor"
+          },
+          "fee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VinculoDoFee"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fornecedor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fornecedor"
+          },
+          "fornecedor2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fornecedor2"
+          },
+          "idVendaFee": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idvendafee"
+          },
+          "idreserva": {
+            "title": "Idreserva",
+            "type": "integer"
+          },
+          "margem": {
+            "title": "Margem",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "passageiros": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Passageiros",
+            "type": "array"
+          },
+          "percentualLucro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentuallucro"
+          },
+          "produto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Produto"
+          },
+          "situacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Situacao"
+          },
+          "tipo": {
+            "enum": [
+              "venda",
+              "fee",
+              "incentivo"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          },
+          "totalCliente": {
+            "title": "Totalcliente",
+            "type": "string"
+          },
+          "totalFornecedor": {
+            "title": "Totalfornecedor",
+            "type": "string"
+          },
+          "vendasNoResultado": {
+            "title": "Vendasnoresultado",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numero",
+          "idreserva",
+          "produto",
+          "classificacao",
+          "categoria",
+          "cliente",
+          "fornecedor",
+          "fornecedor2",
+          "emissor",
+          "dataEmissao",
+          "dataConfirmacao",
+          "dataAlteracao",
+          "situacao",
+          "totalCliente",
+          "totalFornecedor",
+          "margem",
+          "percentualLucro",
+          "contaFecha",
+          "tipo",
+          "idVendaFee",
+          "passageiros",
+          "vendasNoResultado",
+          "fee"
+        ],
+        "title": "LinhaResultado",
+        "type": "object"
+      },
+      "LocalTrechoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `trechos[].destino` e `trechos[].origem`.",
+        "properties": {
+          "aeroporto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aeroporto"
+          },
+          "cidade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cidade"
+          },
+          "fusoHorario": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fusohorario"
+          },
+          "pais": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pais"
+          },
+          "sigla": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sigla"
+          }
+        },
+        "title": "LocalTrechoAgi",
+        "type": "object"
+      },
+      "PagamentoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `pagamentos[]`.",
+        "properties": {
+          "descricaoForma": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricaoforma"
+          },
+          "descricaoFormaPagamentoCartao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricaoformapagamentocartao"
+          },
+          "documentosFinanceiro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentosfinanceiro"
+          },
+          "dtVencto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtvencto"
+          },
+          "ehsinal": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ehsinal"
+          },
+          "forma": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forma"
+          },
+          "idBenificiario": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idbenificiario"
+          },
+          "moedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Moedaoriginal"
+          },
+          "nomeBenificiario": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomebenificiario"
+          },
+          "numeroCartaoMascarado": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerocartaomascarado"
+          },
+          "qtParcelasCartao": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qtparcelascartao"
+          },
+          "uniqueid": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uniqueid"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor"
+          },
+          "valorLiquido": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valorliquido"
+          },
+          "valorLiquidoMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valorliquidomoedaoriginal"
+          },
+          "valorMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valormoedaoriginal"
+          },
+          "vlrCambio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcambio"
+          },
+          "vlrTxAdministrativa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxadministrativa"
+          },
+          "vlrTxAdministrativaMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxadministrativamoedaoriginal"
+          },
+          "vlrTxAdministrativaRepassada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxadministrativarepassada"
+          },
+          "vlrTxAdministrativaRepassadaMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxadministrativarepassadamoedaoriginal"
+          }
+        },
+        "title": "PagamentoAgi",
+        "type": "object"
+      },
+      "Parametros": {
+        "properties": {
+          "dadosDoSturAte": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dadosdosturate"
+          },
+          "linhasPorPagina": {
+            "title": "Linhasporpagina",
+            "type": "integer"
+          },
+          "opcoesPorPagina": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Opcoesporpagina",
+            "type": "array"
+          },
+          "periodoMaximoDias": {
+            "title": "Periodomaximodias",
+            "type": "integer"
+          },
+          "tempoLimiteSegundos": {
+            "title": "Tempolimitesegundos",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "periodoMaximoDias",
+          "linhasPorPagina",
+          "opcoesPorPagina",
+          "tempoLimiteSegundos",
+          "dadosDoSturAte"
+        ],
+        "title": "Parametros",
+        "type": "object"
+      },
+      "RecebimentoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `recebimentos[]`.",
+        "properties": {
+          "cartaoRepassadoAoFornecedor": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cartaorepassadoaofornecedor"
+          },
+          "descricaoCCustoCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricaoccustocliente"
+          },
+          "descricaoForma": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricaoforma"
+          },
+          "documentosFinanceiro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Documentosfinanceiro"
+          },
+          "dtVencto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtvencto"
+          },
+          "ehsinal": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ehsinal"
+          },
+          "forma": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forma"
+          },
+          "idPagante": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idpagante"
+          },
+          "moedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Moedaoriginal"
+          },
+          "nomePagante": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomepagante"
+          },
+          "numNotaCredito": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numnotacredito"
+          },
+          "numNotaDebito": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numnotadebito"
+          },
+          "numRecebCartaoCredito": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numrecebcartaocredito"
+          },
+          "numRecibo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numrecibo"
+          },
+          "numeroCartaoMascarado": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerocartaomascarado"
+          },
+          "siglaCCustoCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siglaccustocliente"
+          },
+          "uniqueid": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uniqueid"
+          },
+          "valor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valor"
+          },
+          "valorLiquido": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valorliquido"
+          },
+          "valorLiquidoMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valorliquidomoedaoriginal"
+          },
+          "valorMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valormoedaoriginal"
+          },
+          "vlrCambio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcambio"
+          },
+          "vlrRetTarifa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrrettarifa"
+          },
+          "vlrRetTxDU": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrrettxdu"
+          },
+          "vlrRetTxEmb": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrrettxemb"
+          },
+          "vlrRetTxExtra": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrrettxextra"
+          },
+          "vlrRetTxServ": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrrettxserv"
+          },
+          "vlrTxAdministrativa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxadministrativa"
+          },
+          "vlrTxAdministrativaMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxadministrativamoedaoriginal"
+          },
+          "vlrTxAdministrativaRepassada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxadministrativarepassada"
+          },
+          "vlrTxAdministrativaRepassadaMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxadministrativarepassadamoedaoriginal"
+          }
+        },
+        "title": "RecebimentoAgi",
+        "type": "object"
+      },
+      "ReembolsoVinculado": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "nomePax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomepax"
+          },
+          "numeroSR": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerosr"
+          },
+          "venda": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VendaVinculada"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "numeroSR",
+          "nomePax",
+          "venda"
+        ],
+        "title": "ReembolsoVinculado",
+        "type": "object"
+      },
+      "ReembolsoVinculadoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `reembolsoVinculado[]`.",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "idDetalheItem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iddetalheitem"
+          },
+          "idReservaVinculada": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idreservavinculada"
+          },
+          "nomePax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomepax"
+          },
+          "numeroSR": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerosr"
+          }
+        },
+        "title": "ReembolsoVinculadoAgi",
+        "type": "object"
+      },
+      "Reserva": {
+        "properties": {
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "totais": {
+            "$ref": "#/components/schemas/TotaisReserva"
+          },
+          "vendas": {
+            "items": {
+              "$ref": "#/components/schemas/VendaDaReserva"
+            },
+            "title": "Vendas",
+            "type": "array"
+          }
+        },
+        "required": [
+          "numero",
+          "vendas",
+          "totais"
+        ],
+        "title": "Reserva",
+        "type": "object"
+      },
+      "ReservaConsultada": {
+        "properties": {
+          "consultadoEm": {
+            "format": "date-time",
+            "title": "Consultadoem",
+            "type": "string"
+          },
+          "dadosDoSturAte": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dadosdosturate"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "reserva": {
+            "$ref": "#/components/schemas/Reserva"
+          }
+        },
+        "required": [
+          "numero",
+          "consultadoEm",
+          "dadosDoSturAte",
+          "reserva"
+        ],
+        "title": "ReservaConsultada",
+        "type": "object"
+      },
+      "ResultadoConsulta": {
+        "properties": {
+          "consulta": {
+            "$ref": "#/components/schemas/ConsultaEcoada"
+          },
+          "consultadoEm": {
+            "format": "date-time",
+            "title": "Consultadoem",
+            "type": "string"
+          },
+          "dadosDoSturAte": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dadosdosturate"
+          },
+          "periodoPassaDaCopia": {
+            "title": "Periodopassadacopia",
+            "type": "boolean"
+          },
+          "resumo": {
+            "$ref": "#/components/schemas/ResumoResultado"
+          },
+          "vendas": {
+            "items": {
+              "$ref": "#/components/schemas/LinhaResultado"
+            },
+            "title": "Vendas",
+            "type": "array"
+          }
+        },
+        "required": [
+          "consulta",
+          "consultadoEm",
+          "dadosDoSturAte",
+          "periodoPassaDaCopia",
+          "vendas",
+          "resumo"
+        ],
+        "title": "ResultadoConsulta",
+        "type": "object"
+      },
+      "ResumoIncentivos": {
+        "properties": {
+          "margemComIncentivos": {
+            "title": "Margemcomincentivos",
+            "type": "string"
+          },
+          "percentualComIncentivos": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentualcomincentivos"
+          },
+          "quantidade": {
+            "title": "Quantidade",
+            "type": "integer"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quantidade",
+          "valor",
+          "margemComIncentivos",
+          "percentualComIncentivos"
+        ],
+        "title": "ResumoIncentivos",
+        "type": "object"
+      },
+      "ResumoResultado": {
+        "properties": {
+          "canceladas": {
+            "title": "Canceladas",
+            "type": "integer"
+          },
+          "incentivos": {
+            "$ref": "#/components/schemas/ResumoIncentivos"
+          },
+          "margem": {
+            "title": "Margem",
+            "type": "string"
+          },
+          "naoFecham": {
+            "title": "Naofecham",
+            "type": "integer"
+          },
+          "percentualLucro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentuallucro"
+          },
+          "quantidade": {
+            "title": "Quantidade",
+            "type": "integer"
+          },
+          "totalCliente": {
+            "title": "Totalcliente",
+            "type": "string"
+          },
+          "totalFornecedor": {
+            "title": "Totalfornecedor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quantidade",
+          "totalCliente",
+          "totalFornecedor",
+          "margem",
+          "percentualLucro",
+          "naoFecham",
+          "canceladas",
+          "incentivos"
+        ],
+        "title": "ResumoResultado",
+        "type": "object"
+      },
+      "ResumoVenda": {
+        "properties": {
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria"
+          },
+          "classificacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classificacao"
+          },
+          "cliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cliente"
+          },
+          "contaFecha": {
+            "title": "Contafecha",
+            "type": "boolean"
+          },
+          "dataAlteracao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataalteracao"
+          },
+          "dataConfirmacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataconfirmacao"
+          },
+          "dataEmissao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataemissao"
+          },
+          "emissor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emissor"
+          },
+          "fornecedor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fornecedor"
+          },
+          "fornecedor2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fornecedor2"
+          },
+          "idVendaFee": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idvendafee"
+          },
+          "idreserva": {
+            "title": "Idreserva",
+            "type": "integer"
+          },
+          "margem": {
+            "title": "Margem",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "passageiros": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Passageiros",
+            "type": "array"
+          },
+          "percentualLucro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentuallucro"
+          },
+          "produto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Produto"
+          },
+          "situacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Situacao"
+          },
+          "tipo": {
+            "enum": [
+              "venda",
+              "fee",
+              "incentivo"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          },
+          "totalCliente": {
+            "title": "Totalcliente",
+            "type": "string"
+          },
+          "totalFornecedor": {
+            "title": "Totalfornecedor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "numero",
+          "idreserva",
+          "produto",
+          "classificacao",
+          "categoria",
+          "cliente",
+          "fornecedor",
+          "fornecedor2",
+          "emissor",
+          "dataEmissao",
+          "dataConfirmacao",
+          "dataAlteracao",
+          "situacao",
+          "totalCliente",
+          "totalFornecedor",
+          "margem",
+          "percentualLucro",
+          "contaFecha",
+          "tipo",
+          "idVendaFee",
+          "passageiros"
+        ],
+        "title": "ResumoVenda",
+        "type": "object"
+      },
+      "SaudeStur": {
+        "properties": {
+          "apiStur": {
+            "enum": [
+              "ok",
+              "sem_resposta",
+              "acesso_recusado"
+            ],
+            "title": "Apistur",
+            "type": "string"
+          }
+        },
+        "required": [
+          "apiStur"
+        ],
+        "title": "SaudeStur",
+        "type": "object"
+      },
+      "ServicoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `detalheItem[]`.",
+        "properties": {
+          "acomodacoesePassageiros": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acomodacoesepassageiros"
+          },
+          "apartamentos": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ApartamentoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Apartamentos"
+          },
+          "bilhete": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bilhete"
+          },
+          "categHotel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categhotel"
+          },
+          "celularpax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Celularpax"
+          },
+          "comisSobreTxEmb": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comissobretxemb"
+          },
+          "comisSobreTxEmbMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Comissobretxembmoedaoriginal"
+          },
+          "confirmadopor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmadopor"
+          },
+          "cpfPax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpfpax"
+          },
+          "datadeconfirmacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datadeconfirmacao"
+          },
+          "descricao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricao"
+          },
+          "descricaoSiglaTipoPax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricaosiglatipopax"
+          },
+          "doctoPax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doctopax"
+          },
+          "dtCambio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtcambio"
+          },
+          "dtCambiop": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtcambiop"
+          },
+          "dtDevolucao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtdevolucao"
+          },
+          "dtEntrada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtentrada"
+          },
+          "dtInicio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtinicio"
+          },
+          "dtRetirada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtretirada"
+          },
+          "dtSaida": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtsaida"
+          },
+          "dtTermino": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dttermino"
+          },
+          "emailpax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emailpax"
+          },
+          "horaDevolucao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horadevolucao"
+          },
+          "horaRetirada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horaretirada"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "idPaisPassaporte": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idpaispassaporte"
+          },
+          "localDevolucao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Localdevolucao"
+          },
+          "localRetirada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Localretirada"
+          },
+          "matriculaFunc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matriculafunc"
+          },
+          "motivoViagem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivoviagem"
+          },
+          "nomePax": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomepax"
+          },
+          "nomePaxCompleto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomepaxcompleto"
+          },
+          "numeroOS": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeroos"
+          },
+          "numeroPassaporte": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeropassaporte"
+          },
+          "numeroVC": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerovc"
+          },
+          "numeroViagem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numeroviagem"
+          },
+          "numerodeconfirmacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerodeconfirmacao"
+          },
+          "observacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observacao"
+          },
+          "observacaoInterna": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observacaointerna"
+          },
+          "perDesconto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perdesconto"
+          },
+          "perOverRep": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peroverrep"
+          },
+          "perTaxas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pertaxas"
+          },
+          "perTaxasP": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pertaxasp"
+          },
+          "percComisRecebida": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perccomisrecebida"
+          },
+          "percComisRepassada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perccomisrepassada"
+          },
+          "percDescontoAcordo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percdescontoacordo"
+          },
+          "percTxFaturamento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perctxfaturamento"
+          },
+          "qtde": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qtde"
+          },
+          "qtdeDiarias": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qtdediarias"
+          },
+          "regime": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regime"
+          },
+          "rotaProdutoFT": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rotaprodutoft"
+          },
+          "siglaMoedaTarifa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siglamoedatarifa"
+          },
+          "siglaMoedaTarifap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siglamoedatarifap"
+          },
+          "siglaMoedaTaxaServico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siglamoedataxaservico"
+          },
+          "taxas": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TaxaServicoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taxas"
+          },
+          "tipoViagem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipoviagem"
+          },
+          "veiculo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Veiculo"
+          },
+          "vlrApliRec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlraplirec"
+          },
+          "vlrCambio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcambio"
+          },
+          "vlrCambioTxServico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcambiotxservico"
+          },
+          "vlrCambiop": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcambiop"
+          },
+          "vlrComirecMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomirecmoedaoriginal"
+          },
+          "vlrComisEmissorExterno": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomisemissorexterno"
+          },
+          "vlrComisRecebida": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomisrecebida"
+          },
+          "vlrComisRepassada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomisrepassada"
+          },
+          "vlrComisRepassadaMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomisrepassadamoedaoriginal"
+          },
+          "vlrComissaoAuxiliar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomissaoauxiliar"
+          },
+          "vlrComissaoCoordenador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomissaocoordenador"
+          },
+          "vlrComissaoEmissor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomissaoemissor"
+          },
+          "vlrComissaoPromotor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcomissaopromotor"
+          },
+          "vlrCustoOperacional": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcustooperacional"
+          },
+          "vlrDesconto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrdesconto"
+          },
+          "vlrDescontoAcordo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrdescontoacordo"
+          },
+          "vlrDescontoAcordoMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrdescontoacordomoedaoriginal"
+          },
+          "vlrDescontoMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrdescontomoedaoriginal"
+          },
+          "vlrFeePagar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrfeepagar"
+          },
+          "vlrFeePagarMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrfeepagarmoedaoriginal"
+          },
+          "vlrOverRec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlroverrec"
+          },
+          "vlrOverRecMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlroverrecmoedaoriginal"
+          },
+          "vlrOverRep": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlroverrep"
+          },
+          "vlrOverRepMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlroverrepmoedaoriginal"
+          },
+          "vlrTarCheio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarcheio"
+          },
+          "vlrTarCheiop": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarcheiop"
+          },
+          "vlrTarifa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifa"
+          },
+          "vlrTarifaCheia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifacheia"
+          },
+          "vlrTarifaOficial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifaoficial"
+          },
+          "vlrTarifaOficialTotal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifaoficialtotal"
+          },
+          "vlrTarifaOficialTotalp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifaoficialtotalp"
+          },
+          "vlrTarifaOficialp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifaoficialp"
+          },
+          "vlrTarifaTotal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifatotal"
+          },
+          "vlrTarifaTotalp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifatotalp"
+          },
+          "vlrTarifap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtarifap"
+          },
+          "vlrTaxas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtaxas"
+          },
+          "vlrTaxasMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtaxasmoedaoriginal"
+          },
+          "vlrTaxasP": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtaxasp"
+          },
+          "vlrTaxasPMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtaxaspmoedaoriginal"
+          },
+          "vlrTxDU": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxdu"
+          },
+          "vlrTxDUMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxdumoedaoriginal"
+          },
+          "vlrTxDURepassada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxdurepassada"
+          },
+          "vlrTxDURepassadaMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxdurepassadamoedaoriginal"
+          },
+          "vlrTxEmb": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxemb"
+          },
+          "vlrTxEmbp": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxembp"
+          },
+          "vlrTxEmbpMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxembpmoedaoriginal"
+          },
+          "vlrTxExt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxext"
+          },
+          "vlrTxExtMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxextmoedaoriginal"
+          },
+          "vlrTxExtP": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxextp"
+          },
+          "vlrTxExtPMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxextpmoedaoriginal"
+          },
+          "vlrTxFaturamento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxfaturamento"
+          },
+          "vlrTxFaturamentoMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxfaturamentomoedaoriginal"
+          },
+          "vlrTxServico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxservico"
+          },
+          "vlrTxServicoMoedaOriginal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrtxservicomoedaoriginal"
+          }
+        },
+        "title": "ServicoAgi",
+        "type": "object"
+      },
+      "SistemaExternoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `sistemaExterno`.",
+        "properties": {
+          "idSistema": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idsistema"
+          },
+          "idVenda": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idvenda"
+          },
+          "sistema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sistema"
+          }
+        },
+        "title": "SistemaExternoAgi",
+        "type": "object"
+      },
+      "TaxaServicoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `detalheItem[].taxas[]`.",
+        "properties": {
+          "descricaotaxa": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricaotaxa"
+          },
+          "vlrCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrcliente"
+          },
+          "vlrFornec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vlrfornec"
+          }
+        },
+        "title": "TaxaServicoAgi",
+        "type": "object"
+      },
+      "TermoConta": {
+        "properties": {
+          "campo": {
+            "title": "Campo",
+            "type": "string"
+          },
+          "efeito": {
+            "enum": [
+              "soma",
+              "reduz"
+            ],
+            "title": "Efeito",
+            "type": "string"
+          },
+          "valor": {
+            "title": "Valor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "campo",
+          "valor",
+          "efeito"
+        ],
+        "title": "TermoConta",
+        "type": "object"
+      },
+      "TituloVinculadoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `financeiroVinculado.contasPagar[]` e `financeiroVinculado.contasReceber[]`.",
+        "properties": {
+          "docto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Docto"
+          },
+          "dtemissao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtemissao"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          }
+        },
+        "title": "TituloVinculadoAgi",
+        "type": "object"
+      },
+      "TotaisReserva": {
+        "properties": {
+          "margem": {
+            "title": "Margem",
+            "type": "string"
+          },
+          "percentualLucro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentuallucro"
+          },
+          "quantidade": {
+            "title": "Quantidade",
+            "type": "integer"
+          },
+          "quantidadeCanceladas": {
+            "title": "Quantidadecanceladas",
+            "type": "integer"
+          },
+          "totalCliente": {
+            "title": "Totalcliente",
+            "type": "string"
+          },
+          "totalFornecedor": {
+            "title": "Totalfornecedor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quantidade",
+          "quantidadeCanceladas",
+          "totalCliente",
+          "totalFornecedor",
+          "margem",
+          "percentualLucro"
+        ],
+        "title": "TotaisReserva",
+        "type": "object"
+      },
+      "TotaisServicos": {
+        "description": "Soma das contas dos serviços (a coluna da lista de serviços), não os totais da API.",
+        "properties": {
+          "cliente": {
+            "title": "Cliente",
+            "type": "string"
+          },
+          "fornecedor": {
+            "title": "Fornecedor",
+            "type": "string"
+          },
+          "margem": {
+            "title": "Margem",
+            "type": "string"
+          },
+          "percentualLucro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentuallucro"
+          }
+        },
+        "required": [
+          "cliente",
+          "fornecedor",
+          "margem",
+          "percentualLucro"
+        ],
+        "title": "TotaisServicos",
+        "type": "object"
+      },
+      "Trajeto": {
+        "properties": {
+          "esperas": {
+            "items": {
+              "$ref": "#/components/schemas/Espera"
+            },
+            "title": "Esperas",
+            "type": "array"
+          },
+          "trechos": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Trechos",
+            "type": "array"
+          }
+        },
+        "required": [
+          "trechos",
+          "esperas"
+        ],
+        "title": "Trajeto",
+        "type": "object"
+      },
+      "TrechoAgi": {
+        "additionalProperties": true,
+        "description": "Objeto da AGI em `trechos[]`.",
+        "properties": {
+          "cia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cia"
+          },
+          "classe": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classe"
+          },
+          "conexao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conexao"
+          },
+          "destino": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocalTrechoAgi"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dtChegada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtchegada"
+          },
+          "dtPartida": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtpartida"
+          },
+          "farebase": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Farebase"
+          },
+          "localizador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Localizador"
+          },
+          "origem": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocalTrechoAgi"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "segmento": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Segmento"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "voo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voo"
+          }
+        },
+        "title": "TrechoAgi",
+        "type": "object"
+      },
+      "VendaAgi": {
+        "additionalProperties": true,
+        "description": "Venda da AGI: cada item da lista `vendas` da resposta.",
+        "properties": {
+          "atividade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atividade"
+          },
+          "camposGerenciais": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Camposgerenciais"
+          },
+          "categoriaproduto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoriaproduto"
+          },
+          "chaveimportacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chaveimportacao"
+          },
+          "classificacaoproduto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classificacaoproduto"
+          },
+          "destino": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destino"
+          },
+          "detalheItem": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ServicoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detalheitem"
+          },
+          "dtalteracao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtalteracao"
+          },
+          "dtalteracaovinculado": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtalteracaovinculado"
+          },
+          "dtcancelamento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtcancelamento"
+          },
+          "dtconfirmacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtconfirmacao"
+          },
+          "dtcriacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtcriacao"
+          },
+          "dtemissao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtemissao"
+          },
+          "dtreabertura": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtreabertura"
+          },
+          "dtreativacao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dtreativacao"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "financeiroVinculado": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FinanceiroVinculadoAgi"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "grupocliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grupocliente"
+          },
+          "idAuxiliar": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idauxiliar"
+          },
+          "idCentrocustos": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idcentrocustos"
+          },
+          "idCliente": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idcliente"
+          },
+          "idDepSetCli": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iddepsetcli"
+          },
+          "idPromotor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idpromotor"
+          },
+          "idcCustoCliente": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idccustocliente"
+          },
+          "idemissor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idemissor"
+          },
+          "idfilial": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idfilial"
+          },
+          "idfornec": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idfornec"
+          },
+          "idfornec2": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idfornec2"
+          },
+          "idproduto": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idproduto"
+          },
+          "idreserva": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idreserva"
+          },
+          "idreservavinculadafee": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idreservavinculadafee"
+          },
+          "intinerario": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Intinerario"
+          },
+          "margemLucroBruta": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Margemlucrobruta"
+          },
+          "midiaOrigem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Midiaorigem"
+          },
+          "nomeAutorizador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomeautorizador"
+          },
+          "nomeAuxiliar": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomeauxiliar"
+          },
+          "nomeCCustoCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomeccustocliente"
+          },
+          "nomeCenctroCustos": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomecenctrocustos"
+          },
+          "nomeCoordenador": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomecoordenador"
+          },
+          "nomeDeptoSetorCli": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomedeptosetorcli"
+          },
+          "nomeEmissor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomeemissor"
+          },
+          "nomeFilial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomefilial"
+          },
+          "nomePromotor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomepromotor"
+          },
+          "nomeSolicitante": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomesolicitante"
+          },
+          "nomearquivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomearquivo"
+          },
+          "nomecliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomecliente"
+          },
+          "nomefornec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomefornec"
+          },
+          "nomefornec2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomefornec2"
+          },
+          "nomeproduto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nomeproduto"
+          },
+          "pagamentos": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PagamentoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pagamentos"
+          },
+          "projeto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Projeto"
+          },
+          "recebimentos": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RecebimentoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recebimentos"
+          },
+          "reembolsoVinculado": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ReembolsoVinculadoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reembolsovinculado"
+          },
+          "reserva": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reserva"
+          },
+          "siglaCCustoCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Siglaccustocliente"
+          },
+          "sistemaExterno": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SistemaExternoAgi"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "situacaoFinanceiroRecebimento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Situacaofinanceirorecebimento"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "taxasAdministrativas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taxasadministrativas"
+          },
+          "taxasAdministrativasRepassadas": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taxasadministrativasrepassadas"
+          },
+          "tipoVenda": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tipovenda"
+          },
+          "tiporegistro": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tiporegistro"
+          },
+          "totalAPagarCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalapagarcliente"
+          },
+          "totalAPagarFornec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalapagarfornec"
+          },
+          "totalAReceberCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalarecebercliente"
+          },
+          "totalAReceberFornecedor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalareceberfornecedor"
+          },
+          "totalCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalcliente"
+          },
+          "totalFornecedor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalfornecedor"
+          },
+          "totalPagoCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalpagocliente"
+          },
+          "totalPagoFornec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalpagofornec"
+          },
+          "totalRecebidoCliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalrecebidocliente"
+          },
+          "totalRecebidoFornec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totalrecebidofornec"
+          },
+          "trechos": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TrechoAgi"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trechos"
+          }
+        },
+        "title": "VendaAgi",
+        "type": "object"
+      },
+      "VendaConsultada": {
+        "properties": {
+          "calculos": {
+            "$ref": "#/components/schemas/CalculosVenda"
+          },
+          "camposDesconhecidos": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Camposdesconhecidos",
+            "type": "array"
+          },
+          "consultadoEm": {
+            "format": "date-time",
+            "title": "Consultadoem",
+            "type": "string"
+          },
+          "dadosDoSturAte": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dadosdosturate"
+          },
+          "posicao": {
+            "title": "Posicao",
+            "type": "integer"
+          },
+          "reserva": {
+            "$ref": "#/components/schemas/Reserva"
+          },
+          "venda": {
+            "$ref": "#/components/schemas/VendaAgi"
+          },
+          "vinculos": {
+            "$ref": "#/components/schemas/Vinculos"
+          }
+        },
+        "required": [
+          "consultadoEm",
+          "dadosDoSturAte",
+          "venda",
+          "calculos",
+          "reserva",
+          "posicao",
+          "vinculos",
+          "camposDesconhecidos"
+        ],
+        "title": "VendaConsultada",
+        "type": "object"
+      },
+      "VendaDaReserva": {
+        "properties": {
+          "pagamentos": {
+            "items": {
+              "$ref": "#/components/schemas/LancamentoCalculado"
+            },
+            "title": "Pagamentos",
+            "type": "array"
+          },
+          "posicao": {
+            "title": "Posicao",
+            "type": "integer"
+          },
+          "recebimentos": {
+            "items": {
+              "$ref": "#/components/schemas/LancamentoCalculado"
+            },
+            "title": "Recebimentos",
+            "type": "array"
+          },
+          "resumo": {
+            "$ref": "#/components/schemas/ResumoVenda"
+          }
+        },
+        "required": [
+          "resumo",
+          "posicao",
+          "recebimentos",
+          "pagamentos"
+        ],
+        "title": "VendaDaReserva",
+        "type": "object"
+      },
+      "VendaVinculada": {
+        "description": "Outra venda ligada a esta. `posicao` e `quantidade` só quando ela é do mesmo número.",
+        "properties": {
+          "idreserva": {
+            "title": "Idreserva",
+            "type": "integer"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "posicao": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posicao"
+          },
+          "produto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Produto"
+          },
+          "quantidade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantidade"
+          }
+        },
+        "required": [
+          "idreserva",
+          "numero",
+          "produto",
+          "posicao",
+          "quantidade"
+        ],
+        "title": "VendaVinculada",
+        "type": "object"
+      },
+      "Verificacao": {
+        "properties": {
+          "contas": {
+            "items": {
+              "$ref": "#/components/schemas/ContaVerificada"
+            },
+            "title": "Contas",
+            "type": "array"
+          },
+          "fecha": {
+            "title": "Fecha",
+            "type": "boolean"
+          },
+          "tolerancia": {
+            "title": "Tolerancia",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contas",
+          "tolerancia",
+          "fecha"
+        ],
+        "title": "Verificacao",
+        "type": "object"
+      },
+      "VinculoDoFee": {
+        "description": "A venda a que a linha de fee pertence; `produto` só quando ela está no resultado.",
+        "properties": {
+          "idreserva": {
+            "title": "Idreserva",
+            "type": "integer"
+          },
+          "produto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Produto"
+          }
+        },
+        "required": [
+          "idreserva",
+          "produto"
+        ],
+        "title": "VinculoDoFee",
+        "type": "object"
+      },
+      "Vinculos": {
+        "properties": {
+          "fee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VendaVinculada"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reembolsos": {
+            "items": {
+              "$ref": "#/components/schemas/ReembolsoVinculado"
+            },
+            "title": "Reembolsos",
+            "type": "array"
+          }
+        },
+        "required": [
+          "fee",
+          "reembolsos"
+        ],
+        "title": "Vinculos",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "stur-api",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/parametros": {
+      "get": {
+        "operationId": "parametros",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Parametros"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "Falha nesta aplicação, não na API do Stur."
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur recusou o acesso ou respondeu num formato desconhecido."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur não respondeu a tempo."
+          }
+        },
+        "summary": "Parametros"
+      }
+    },
+    "/api/v1/reservas/{numero}": {
+      "get": {
+        "description": "Número sem vendas: 200 com `reserva.vendas` vazia.",
+        "operationId": "abrir_reserva",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReservaConsultada"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroConsulta"
+                }
+              }
+            },
+            "description": "Parâmetro inválido ou combinação inválida; `campo` aponta o primeiro."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "Falha nesta aplicação, não na API do Stur."
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur recusou o acesso ou respondeu num formato desconhecido."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur não respondeu a tempo."
+          }
+        },
+        "summary": "Abrir Reserva"
+      }
+    },
+    "/api/v1/reservas/{numero}/vendas/{idreserva}": {
+      "get": {
+        "description": "`idreserva` fora do número: 404 `venda_nao_encontrada`.",
+        "operationId": "abrir_venda",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "idreserva",
+            "required": true,
+            "schema": {
+              "title": "Idreserva",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VendaConsultada"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "Nenhuma venda com esse número e esse idreserva."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroConsulta"
+                }
+              }
+            },
+            "description": "Parâmetro inválido ou combinação inválida; `campo` aponta o primeiro."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "Falha nesta aplicação, não na API do Stur."
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur recusou o acesso ou respondeu num formato desconhecido."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur não respondeu a tempo."
+          }
+        },
+        "summary": "Abrir Venda"
+      }
+    },
+    "/api/v1/reservas/{numero}/vendas/{idreserva}/dado-cru": {
+      "get": {
+        "operationId": "dado_cru_da_venda",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "numero",
+            "required": true,
+            "schema": {
+              "title": "Numero",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "idreserva",
+            "required": true,
+            "schema": {
+              "title": "Idreserva",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A venda como a AGI devolveu: números exatos e a ordem das chaves."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "Nenhuma venda com esse número e esse idreserva."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroConsulta"
+                }
+              }
+            },
+            "description": "Parâmetro inválido ou combinação inválida; `campo` aponta o primeiro."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "Falha nesta aplicação, não na API do Stur."
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur recusou o acesso ou respondeu num formato desconhecido."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur não respondeu a tempo."
+          }
+        },
+        "summary": "Dado Cru Da Venda"
+      }
+    },
+    "/api/v1/saude": {
+      "get": {
+        "operationId": "saude",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Saude",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Saude"
+      }
+    },
+    "/api/v1/saude/stur": {
+      "get": {
+        "description": "Sempre 200: diz se a AGI aceita o login desta aplicação.",
+        "operationId": "saude_stur",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaudeStur"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Saude Stur"
+      }
+    },
+    "/api/v1/vendas": {
+      "get": {
+        "operationId": "consultar_vendas",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "reserva",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reserva"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tipoData",
+            "required": false,
+            "schema": {
+              "default": "emissao",
+              "enum": [
+                "emissao",
+                "confirmacao",
+                "alteracao"
+              ],
+              "title": "Tipodata",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "de",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "De"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ate",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ate"
+            }
+          },
+          {
+            "in": "query",
+            "name": "situacao",
+            "required": false,
+            "schema": {
+              "items": {
+                "enum": [
+                  "reservada",
+                  "confirmada",
+                  "fechada",
+                  "cancelada"
+                ],
+                "type": "string"
+              },
+              "title": "Situacao",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "classificacao",
+            "required": false,
+            "schema": {
+              "items": {
+                "enum": [
+                  "aereo",
+                  "hotelaria",
+                  "rodoviario",
+                  "diversos",
+                  "locacao",
+                  "pacote"
+                ],
+                "type": "string"
+              },
+              "title": "Classificacao",
+              "type": "array"
+            }
+          },
+          {
+            "in": "query",
+            "name": "fornecedor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Fornecedor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cliente",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cliente"
+            }
+          },
+          {
+            "in": "query",
+            "name": "emissor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Emissor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "atualizar",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Atualizar",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultadoConsulta"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroConsulta"
+                }
+              }
+            },
+            "description": "Parâmetro inválido ou combinação inválida; `campo` aponta o primeiro."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "Falha nesta aplicação, não na API do Stur."
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur recusou o acesso ou respondeu num formato desconhecido."
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroApi"
+                }
+              }
+            },
+            "description": "A API do Stur não respondeu a tempo."
+          }
+        },
+        "summary": "Consultar Vendas"
+      }
+    }
+  }
+}
