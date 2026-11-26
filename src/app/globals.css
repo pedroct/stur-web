@@ -79,6 +79,20 @@
   --spacing-alvo: var(--alvo-minimo);
 }
 
+/* Faixa de consulta (FaixaCarregando): a barra corre da esquerda para a direita. */
+@theme {
+  --animate-corre: corre 1.4s ease-in-out infinite;
+
+  @keyframes corre {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
+}
+
 /* Pontes do shadcn (tabela "Como cada stack consome" do DS). Ficam depois do bloco acima,
    senão o --color-*: initial as apagaria. */
 @theme inline {
