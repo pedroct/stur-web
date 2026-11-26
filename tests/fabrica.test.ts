@@ -186,8 +186,10 @@ test("trecho() e servicoAgi() aceitam campos", () => {
 test("contaServico(): tarifa nos dois lados e nada zerado", () => {
   const c = contaServico();
   expect(c.indice).toBe(0);
-  expect(c.cliente.termos).toEqual([{ campo: "vlrTarifa", valor: "1000.00", efeito: "soma" }]);
-  expect(c.fornecedor.termos).toEqual([{ campo: "vlrTarifap", valor: "900.00", efeito: "soma" }]);
+  expect(c.cliente.termos).toEqual([{ campo: "vlrTarifaTotal", valor: "1000.00", efeito: "soma" }]);
+  expect(c.fornecedor.termos).toEqual([
+    { campo: "vlrTarifaTotalp", valor: "900.00", efeito: "soma" },
+  ]);
   expect(c.cliente.zerados).toEqual([]);
   expect(c.fornecedor.zerados).toEqual([]);
   expect(c.margem).toBe("100.00");

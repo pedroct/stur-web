@@ -73,7 +73,12 @@ export function CabecalhoVenda({
             )}
             <SeloDoEstado dados={dados} />
           </div>
-          <h1 className="mt-3 text-4xl leading-11 font-bold tracking-[-0.01em]">
+          {/* O foco volta para cá ao fechar um painel que veio por link (decisão 20). */}
+          <h1
+            data-titulo-venda
+            tabIndex={-1}
+            className="mt-3 text-4xl leading-11 font-bold tracking-[-0.01em] outline-0"
+          >
             {venda.nomecliente ?? `Reserva ${dados.reserva.numero}`}
           </h1>
           <p className="mt-1.5 text-base leading-6 text-texto-auxiliar">

@@ -102,8 +102,9 @@ function falhou(e: Estado, { id, erro, modo }: Extract<Acao, { tipo: "falhou" }>
   if (modo === "primeira" && erro.tipo === "invalida") return { ...e, carga: "invalido" };
   const vendas = id === null ? e.vendas : comVenda(e.vendas, id, { estado: "erro", erro });
   if (modo === "dentro") return { ...e, vendas };
-  // A venda que não é do número não é erro da consulta: a página mostra a decisão 21.
-  if (erro.tipo === "nao_encontrada") return { ...e, vendas, carga: "ociosa" };
+  // A venda que não é do número não é erro da consulta: a página mostra a decisão 21. Na chamada
+  // da reserva (`id` nulo), é erro: ociosa, a entrada pediria a reserva de novo, sem fim.
+  if (erro.tipo === "nao_encontrada" && id !== null) return { ...e, vendas, carga: "ociosa" };
   return { ...e, vendas, carga: "erro", erro };
 }
 

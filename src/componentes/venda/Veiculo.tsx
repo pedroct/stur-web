@@ -88,6 +88,8 @@ export function Veiculo({
     lista.flatMap(([rotulo, valor]) => (valor === null ? [] : [{ rotulo, valor }]));
   const nivel = (nivelBase + 2) as NivelDeTitulo;
   const veiculo = texto(servico.veiculo);
+  // Com vários serviços, o resto de cada um fica no painel dele (decisão 22).
+  const umServico = (venda.detalheItem ?? []).length === 1;
 
   return (
     <SecaoDoProduto titulo="Veículo" nivelBase={nivelBase}>
@@ -103,22 +105,26 @@ export function Veiculo({
         ]}
       />
       <p className="mt-3 text-[13px] leading-5 text-texto-auxiliar">Horários locais.</p>
-      <RestoDoGrupo
-        grupo="Veículo (locação)"
-        campos={camposSemMolde("Veículo (locação)", ["veiculo"])}
-        venda={venda}
-        calculos={calculos}
-        indices={[0]}
-        nivel={nivel}
-      />
-      <RestoDoGrupo
-        grupo="Confirmação do fornecedor"
-        campos={camposSemMolde("Confirmação do fornecedor", ["veiculo"])}
-        venda={venda}
-        calculos={calculos}
-        indices={[0]}
-        nivel={nivel}
-      />
+      {umServico && (
+        <>
+          <RestoDoGrupo
+            grupo="Veículo (locação)"
+            campos={camposSemMolde("Veículo (locação)", ["veiculo"])}
+            venda={venda}
+            calculos={calculos}
+            indices={[0]}
+            nivel={nivel}
+          />
+          <RestoDoGrupo
+            grupo="Confirmação do fornecedor"
+            campos={camposSemMolde("Confirmação do fornecedor", ["veiculo"])}
+            venda={venda}
+            calculos={calculos}
+            indices={[0]}
+            nivel={nivel}
+          />
+        </>
+      )}
     </SecaoDoProduto>
   );
 }

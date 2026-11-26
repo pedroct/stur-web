@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { EstadoErro } from "@/componentes/estados/EstadoErro";
 import { LinhaStatus } from "@/componentes/estados/LinhaStatus";
 import { NenhumaVenda } from "@/componentes/estados/NenhumaVenda";
@@ -17,8 +17,9 @@ import {
   textoSemVendasNumero,
 } from "@/lib/consulta/descricao";
 import { formatarHora } from "@/lib/tempo";
-import { enderecoDaReserva, lerResto } from "@/lib/venda/rota";
+import { enderecoDaReserva, enderecoDaVenda, lerResto } from "@/lib/venda/rota";
 import { EsqueletoVenda } from "./EsqueletoVenda";
+import { PainelServico } from "./PainelServico";
 import { PainelContexto, useValorDoPainel } from "./painel-contexto";
 import { useReservaVenda } from "./useReservaVenda";
 import { Venda } from "./Venda";
@@ -62,6 +63,26 @@ export function PaginaReservaVenda({
   const pagina = useReservaVenda(numeroTexto, rota);
   const numero = numeroDaReserva(numeroTexto);
   const painel = useValorDoPainel(numero, rota);
+  const roteador = useRouter();
+
+  // O painel do serviço (decisões 20 e 22): só com a venda da rota carregada, que fica atrás. Com
+  // um serviço só, ou com `k` fora de 1 a n, o endereço volta para a venda.
+  const id = rota?.tipo === "venda" ? rota.idreserva : null;
+  const k = rota?.tipo === "venda" && rota.painel?.tipo === "servico" ? rota.painel.k : null;
+  const daVenda = id === null ? undefined : pagina.vendas.get(id)?.dados;
+  const servicos = daVenda?.calculos.servicos.length ?? 0;
+  const servicoNaFaixa = k !== null && servicos > 1 && k <= servicos;
+  const corrigido = useRef<string | null>(null);
+  useEffect(() => {
+    if (numero === null || id === null || k === null || daVenda === undefined || servicoNaFaixa) {
+      corrigido.current = null;
+      return;
+    }
+    const destino = enderecoDaVenda(numero, id);
+    if (corrigido.current === `${destino}/${k}`) return;
+    corrigido.current = `${destino}/${k}`;
+    roteador.replace(destino, { scroll: false });
+  }, [numero, id, k, daVenda, servicoNaFaixa, roteador]);
 
   const alterarHref = `/?reserva=${numero ?? encodeURIComponent(numeroTexto)}`;
   const reservaNoCaminho: Nivel = { rotulo: `Reserva ${numeroTexto}` };
@@ -102,7 +123,7 @@ export function PaginaReservaVenda({
           </>
         );
       case "erro":
-        if (pagina.erro?.tipo === "nao_encontrada") return deFora;
+        if (pagina.erro?.tipo === "nao_encontrada" && rota?.tipo === "venda") return deFora;
         return pagina.erro ? (
           <>
             <Caminho niveis={[reservaNoCaminho]} />
@@ -132,7 +153,6 @@ export function PaginaReservaVenda({
     const { reserva } = pagina;
     if (reserva === null || rota === null) return null;
     const lista = reserva.reserva.vendas;
-    const id = rota.tipo === "venda" ? rota.idreserva : null;
     const daRota = id === null ? undefined : lista.find((v) => v.resumo.idreserva === id);
     const estado = id === null ? undefined : pagina.vendas.get(id);
     if (id !== null && (!daRota || estado?.erro?.tipo === "nao_encontrada")) return deFora;
@@ -172,5 +192,14 @@ export function PaginaReservaVenda({
     );
   }
 
-  return <PainelContexto value={painel}>{conteudo()}</PainelContexto>;
+  const vendaDaReserva =
+    id !== null && pagina.reserva?.reserva.vendas.some((v) => v.resumo.idreserva === id);
+  return (
+    <PainelContexto value={painel}>
+      {conteudo()}
+      {pagina.fase === "pronta" && vendaDaReserva && daVenda && k !== null && servicoNaFaixa && (
+        <PainelServico dados={daVenda} k={k} />
+      )}
+    </PainelContexto>
+  );
 }

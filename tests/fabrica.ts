@@ -487,14 +487,14 @@ export function contaServico(campos?: Partial<ContaServico>): ContaServico {
   return {
     indice: 0,
     cliente: {
-      termos: [{ campo: "vlrTarifa", valor: "1000.00", efeito: "soma" }],
+      termos: [{ campo: "vlrTarifaTotal", valor: "1000.00", efeito: "soma" }],
       zerados: [],
       total: "1000.00",
       conversao: null,
       siglaComCambio1: null,
     },
     fornecedor: {
-      termos: [{ campo: "vlrTarifap", valor: "900.00", efeito: "soma" }],
+      termos: [{ campo: "vlrTarifaTotalp", valor: "900.00", efeito: "soma" }],
       zerados: [],
       total: "900.00",
       conversao: null,

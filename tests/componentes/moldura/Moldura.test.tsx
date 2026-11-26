@@ -134,3 +134,19 @@ test("a tecla / foca o campo da página na tela inicial, sem a barra entrar no c
   expect(campo).toHaveValue("");
   expect(roteador.push).not.toHaveBeenCalled();
 });
+
+test("a tecla / não tira o foco de um diálogo modal aberto", async () => {
+  definirEndereco("/reservas/90000001");
+  render(
+    <Moldura parametrosIniciais={{}}>
+      <div role="dialog" aria-modal="true">
+        <button type="button">dentro do painel</button>
+      </div>
+    </Moldura>,
+  );
+  const dentro = screen.getByRole("button", { name: "dentro do painel" });
+  act(() => dentro.focus());
+  await userEvent.keyboard("/");
+  expect(dentro).toHaveFocus();
+  expect(screen.getByRole("textbox", BUSCA)).not.toHaveFocus();
+});

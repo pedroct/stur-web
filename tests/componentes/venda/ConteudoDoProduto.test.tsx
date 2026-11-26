@@ -360,6 +360,47 @@ describe("Hospedagem", () => {
     expect(screen.getByText("ROTA EXEMPLO")).toBeVisible();
   });
 
+  test("com um serviço, o resto da hospedagem não repete a diária que a conta mostra", () => {
+    const apartamento = {
+      tipoApartamento: "(DBL) - DUPLO",
+      qtde: 1,
+      qtdeDiarias: 2,
+      vlrDiaria: "462.00",
+      vlrDiariaP: "412.00",
+      vlrBalcao: "412.00",
+    };
+    montar(dadosDe(HOTEL, {}, [servicoAgi({ ...HOSPEDE, apartamentos: [apartamento] })]));
+    // A conta mostra a diária de cada lado na linha da tarifa e a de balcão na frase.
+    expect(screen.queryByText("Diária cliente")).toBeNull();
+    expect(screen.queryByText("Diária fornecedor")).toBeNull();
+    expect(screen.queryByText("Diária balcão")).toBeNull();
+    // A quantidade de apartamentos continua como par.
+    expect(screen.getByText("Qtde").nextElementSibling).toHaveTextContent("1");
+  });
+
+  test("sem a linha dos apartamentos na conta, a diária fica no resto da hospedagem", () => {
+    const apartamento = { tipoApartamento: "(DBL) - DUPLO", qtde: 1, vlrDiaria: "462.00" };
+    montar(dadosDe(HOTEL, {}, [servicoAgi({ ...HOSPEDE, apartamentos: [apartamento] })]));
+    expect(screen.getByText("Diária cliente").nextElementSibling).toHaveTextContent("462,00");
+  });
+
+  test("com mais de um serviço, a página não mostra o resto do serviço 1 (fica no painel)", () => {
+    montar(
+      dadosDe(HOTEL, {}, [
+        servicoAgi({
+          ...HOSPEDE,
+          confirmadopor: "ATENDENTE EXEMPLO",
+          rotaProdutoFT: "ROTA EXEMPLO",
+          apartamentos: [{ tipoApartamento: "(DBL) - DUPLO", qtde: 1, qtdeDiarias: 2 }],
+        }),
+        servicoAgi({ ...HOSPEDE, nomePaxCompleto: "Hospede Dois" }),
+      ]),
+    );
+    expect(screen.queryByText("Confirmado por")).toBeNull();
+    expect(screen.queryByText("ROTA EXEMPLO")).toBeNull();
+    expect(screen.queryByText("Qtde", { selector: "dt" })).toBeNull();
+  });
+
   test("com mais de um serviço, a tabela lista as pessoas e o card não traz o hóspede", () => {
     montar(
       dadosDe(HOTEL, {}, [
@@ -416,6 +457,16 @@ describe("Veículo", () => {
     expect(screen.getByText("Horários locais.")).toBeVisible();
     expect(screen.queryByText(/00h00/)).toBeNull();
     expect(screen.queryByText(/—/)).toBeNull();
+  });
+
+  test("com mais de um serviço, a página não mostra o resto do veículo do serviço 1", () => {
+    montar(
+      dadosDe(LOCADORA, {}, [
+        servicoAgi({ ...CARRO, confirmadopor: "ATENDENTE EXEMPLO" }),
+        servicoAgi({ ...CARRO, nomePaxCompleto: "Condutor Dois" }),
+      ]),
+    );
+    expect(screen.queryByText("Confirmado por")).toBeNull();
   });
 
   test("a venda cancelada acrescenta que não vai acontecer", () => {
@@ -752,7 +803,15 @@ describe("cobertura dos moldes (Anexo B)", () => {
     "diversos",
     "pacote",
   ];
-  const MOLDES_DA_SECAO = ["itinerario", "hospedagem", "veiculo", "servicos", "pessoa"] as const;
+  // A conta (seção 5) também está na página, com um serviço só (decisão 22).
+  const MOLDES_DA_SECAO = [
+    "itinerario",
+    "hospedagem",
+    "veiculo",
+    "servicos",
+    "pessoa",
+    "conta",
+  ] as const;
 
   test.each(CLASSES)("%s: cada campo que um molde declara aparece na tela", async (classe) => {
     const dados = vendaCheia(classe);
@@ -797,7 +856,7 @@ describe("cobertura dos moldes (Anexo B)", () => {
     expect(declarados.filter((c) => !mostrados.has(c))).toEqual([]);
   });
 
-  test.each(CLASSES)("%s: todo campo preenchido das seções 3 e 4 tem lugar", (classe) => {
+  test.each(CLASSES)("%s: todo campo preenchido das seções 3, 4 e 5 tem lugar", (classe) => {
     const dados = vendaCheia(classe);
     const { container } = render(
       <PainelContexto.Provider value={CONTEXTO}>
@@ -810,13 +869,13 @@ describe("cobertura dos moldes (Anexo B)", () => {
       </PainelContexto.Provider>,
     );
     const declarados = new Set(MOLDES_DA_SECAO.flatMap((m) => MOLDES[m].map((c) => c.caminho)));
-    const texto = [3, 4]
+    const texto = [3, 4, 5]
       .flatMap((n) => [...container.querySelectorAll(`[data-anexo-secao="${n}"]`)])
       .map((e) => (e.textContent ?? "").toLowerCase())
       .join("\n");
     const faltando: string[] = [];
     for (const campo of CAMPOS_ANEXO_B) {
-      if (![3, 4].includes(campo.secao) || campo.conteiner || !campo.classes.includes(classe))
+      if (![3, 4, 5].includes(campo.secao) || campo.conteiner || !campo.classes.includes(classe))
         continue;
       if (declarados.has(campo.caminho)) continue;
       for (const v of valores(dados.venda, campo.caminho)) {

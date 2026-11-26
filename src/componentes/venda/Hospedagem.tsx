@@ -2,6 +2,7 @@ import type { VendaConsultada } from "@/contrato/tipos";
 import { situacaoDe } from "@/lib/consulta/consulta";
 import { unir } from "@/lib/consulta/descricao";
 import { fornecedoresDe, preenchido } from "@/lib/venda/campos";
+import { caminhosDaConta } from "@/lib/venda/conta";
 import { periodoCurto } from "@/lib/venda/datas";
 import { camposSemMolde } from "@/lib/venda/moldes";
 import type { NivelDeTitulo } from "./GrupoDeCampos";
@@ -79,6 +80,14 @@ export function Hospedagem({
     })(),
   ];
   const nivel = (nivelBase + 2) as NivelDeTitulo;
+  // Com vários serviços, o resto de cada um fica no painel dele (decisão 22). Com um só, a conta
+  // está na mesma página: o que ela mostra (a diária, a de balcão) não se repete aqui.
+  const umServico = (venda.detalheItem ?? []).length === 1;
+  const [conta] = calculos.servicos;
+  const naConta =
+    conta === undefined
+      ? new Set<string>()
+      : caminhosDaConta(conta, servico, venda.classificacaoproduto ?? null);
 
   return (
     <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase}>
@@ -87,22 +96,28 @@ export function Hospedagem({
         <p className="mt-0.5 text-base leading-6 tabular-nums">{linhaDoPeriodo}</p>
       )}
       <ParesDoCartao pares={pares} />
-      <RestoDoGrupo
-        grupo="Hospedagem (hotelaria)"
-        campos={camposSemMolde("Hospedagem (hotelaria)", ["hospedagem"])}
-        venda={venda}
-        calculos={calculos}
-        indices={[0]}
-        nivel={nivel}
-      />
-      <RestoDoGrupo
-        grupo="Confirmação do fornecedor"
-        campos={camposSemMolde("Confirmação do fornecedor", ["hospedagem"])}
-        venda={venda}
-        calculos={calculos}
-        indices={[0]}
-        nivel={nivel}
-      />
+      {umServico && (
+        <>
+          <RestoDoGrupo
+            grupo="Hospedagem (hotelaria)"
+            campos={camposSemMolde("Hospedagem (hotelaria)", ["hospedagem"]).filter(
+              (c) => !naConta.has(c.caminho),
+            )}
+            venda={venda}
+            calculos={calculos}
+            indices={[0]}
+            nivel={nivel}
+          />
+          <RestoDoGrupo
+            grupo="Confirmação do fornecedor"
+            campos={camposSemMolde("Confirmação do fornecedor", ["hospedagem"])}
+            venda={venda}
+            calculos={calculos}
+            indices={[0]}
+            nivel={nivel}
+          />
+        </>
+      )}
     </SecaoDoProduto>
   );
 }

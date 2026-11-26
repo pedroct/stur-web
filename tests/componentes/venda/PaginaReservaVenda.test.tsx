@@ -728,3 +728,19 @@ test("painel fechado pelo Voltar do navegador: o próximo, por link direto, fech
     scroll: false,
   });
 });
+
+test("404 de venda não encontrada na chamada da reserva não repete a chamada", async () => {
+  servidor.use(
+    http.get(`*${CAMINHO}`, () =>
+      HttpResponse.json(erroApi("venda_nao_encontrada"), { status: 404 }),
+    ),
+  );
+  abrir("/reservas/90000001");
+  const alerta = await screen.findByRole("alert");
+  expect(within(alerta).getByRole("heading", { level: 1 })).toHaveTextContent(
+    "Erro nesta aplicação",
+  );
+  // Dá tempo de uma segunda chamada aparecer, se a entrada voltasse a pedir a reserva.
+  await act(() => new Promise((resolver) => setTimeout(resolver, 50)));
+  expect(requisicoesPara(CAMINHO)).toBe(1);
+});
