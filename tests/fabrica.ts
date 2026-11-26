@@ -2,6 +2,8 @@ import type {
   CalculosVenda,
   ContaServico,
   ErroApi,
+  EstadoServico,
+  Itinerario,
   LancamentoCalculado,
   LinhaResultado,
   PagamentoAgi,
@@ -17,7 +19,9 @@ import type {
   VendaAgi,
   VendaConsultada,
 } from "@/contrato/tipos";
+import type { Classificacao } from "@/lib/consulta/consulta";
 import { somarDecimais } from "@/lib/decimal";
+import { CAMPOS_ANEXO_B, type CampoAnexo } from "@/lib/venda/anexo-b";
 
 const DATA = "2026-11-17T10:00:00";
 
@@ -434,21 +438,23 @@ export function servicoAgi(campos?: Partial<ServicoAgi>): ServicoAgi {
   };
 }
 
-function recebimentoAgi(): RecebimentoAgi {
+export function recebimento(campos?: Partial<RecebimentoAgi>): RecebimentoAgi {
   return {
     ...nulos<RecebimentoAgi>(NULOS_RECEBIMENTO),
     descricaoForma: "Faturado",
     dtVencto: "2026-11-20 00:00:00",
     valor: "1000.00",
+    ...campos,
   };
 }
 
-function pagamentoAgi(): PagamentoAgi {
+export function pagamento(campos?: Partial<PagamentoAgi>): PagamentoAgi {
   return {
     ...nulos<PagamentoAgi>(NULOS_PAGAMENTO),
     descricaoForma: "Faturado",
     dtVencto: "2026-11-20 00:00:00",
     valor: "900.00",
+    ...campos,
   };
 }
 
@@ -469,8 +475,8 @@ export function vendaAgi(campos?: Partial<VendaAgi>): VendaAgi {
     margemLucroBruta: "100.00",
     camposGerenciais: [],
     detalheItem: [servicoAgi()],
-    recebimentos: [recebimentoAgi()],
-    pagamentos: [pagamentoAgi()],
+    recebimentos: [recebimento()],
+    pagamentos: [pagamento()],
     reembolsoVinculado: [],
     trechos: [],
     ...campos,
@@ -545,4 +551,265 @@ export function vendaConsultada(campos?: Partial<VendaConsultada>): VendaConsult
     dadosDoSturAte: base.dadosDoSturAte,
     ...campos,
   };
+}
+
+// --- venda cheia: a base do teste do Anexo B (Task 9) ---
+
+const PRODUTOS: Record<Classificacao, { classificacao: string; produto: string }> = {
+  aereo: { classificacao: "Aéreo", produto: "BILHETE NACIONAL" },
+  hotelaria: { classificacao: "Hotelaria", produto: "HOTEL NAC" },
+  rodoviario: { classificacao: "Rodoviário", produto: "RODOVIARIO NAC" },
+  diversos: { classificacao: "Diversos", produto: "SEGURO INT" },
+  locacao: { classificacao: "Locação", produto: "CARRO NAC" },
+  pacote: { classificacao: "Pacote", produto: "PACOTE TER INT" },
+};
+
+const BASE_DO_ESTADO: Record<Classificacao, EstadoServico["base"]> = {
+  aereo: "trechos",
+  rodoviario: "trechos",
+  hotelaria: "entrada_saida",
+  locacao: "retirada_devolucao",
+  diversos: "inicio_termino",
+  pacote: "inicio_termino",
+};
+
+const CAMPOS_DE_HORA = new Set(["detalheItem[].horaRetirada", "detalheItem[].horaDevolucao"]);
+const CAMPOS_DE_MOEDA = new Set([
+  "detalheItem[].siglaMoedaTarifa",
+  "detalheItem[].siglaMoedaTarifap",
+  "detalheItem[].siglaMoedaTaxaServico",
+  "recebimentos[].moedaOriginal",
+  "pagamentos[].moedaOriginal",
+]);
+/** Formato `inteiro` pelo nome (`id*`), mas texto no contrato. */
+const INTEIROS_EM_TEXTO = new Set([
+  "sistemaExterno.idVenda",
+  "detalheItem[].id",
+  "reembolsoVinculado[].idDetalheItem",
+]);
+
+const LOCAL = ["aeroporto", "cidade", "fusoHorario", "pais", "sigla"];
+const TITULO = ["docto", "dtemissao", "id"];
+
+type Objeto = Record<string, unknown>;
+
+/** Itens e objetos vazios, com todas as chaves do contrato. */
+const ITENS: Record<string, () => Objeto> = {
+  trechos: () => ({ ...trecho() }),
+  apartamentos: () =>
+    nulos([
+      "idTipoApto",
+      "qtde",
+      "qtdeDiarias",
+      "tipoApartamento",
+      "vlrBalcao",
+      "vlrDiaria",
+      "vlrDiariaP",
+    ]),
+  taxas: () => nulos(["descricaotaxa", "vlrCliente", "vlrFornec"]),
+  recebimentos: () => ({ ...recebimento({ descricaoForma: null, dtVencto: null, valor: null }) }),
+  pagamentos: () => ({ ...pagamento({ descricaoForma: null, dtVencto: null, valor: null }) }),
+  reembolsoVinculado: () =>
+    nulos(["id", "idDetalheItem", "idReservaVinculada", "nomePax", "numeroSR"]),
+  contasPagar: () => nulos(TITULO),
+  contasReceber: () => nulos(TITULO),
+};
+const OBJETOS: Record<string, () => Objeto> = {
+  origem: () => nulos(LOCAL),
+  destino: () => nulos(LOCAL),
+  sistemaExterno: () => nulos(["idSistema", "idVenda", "sistema"]),
+  financeiroVinculado: () => ({ contasPagar: [], contasReceber: [] }),
+};
+
+function servicoVazio(): Objeto {
+  return {
+    ...servicoAgi({
+      qtde: null,
+      vlrTarifa: null,
+      vlrTarifap: null,
+      vlrCambio: null,
+      vlrCambiop: null,
+    }),
+  };
+}
+
+function valorDeTeste(c: CampoAnexo, i: number): unknown {
+  if (CAMPOS_DE_HORA.has(c.caminho)) return "1899-12-30T16:59:00";
+  if (CAMPOS_DE_MOEDA.has(c.caminho)) return "US$";
+  switch (c.formato) {
+    case "texto":
+      return `TESTE ${i}`;
+    case "dinheiro":
+      return `${100 + i}.45`;
+    case "percentual":
+      return `${i}.5000`;
+    case "cambio":
+      return "5.1700";
+    case "data":
+      return "2026-11-20 00:00:00";
+    case "dataHora":
+      return "2026-11-20 10:30:00";
+    case "hora":
+      return "1899-12-30T16:59:00";
+    case "inteiro":
+      return INTEIROS_EM_TEXTO.has(c.caminho) ? String(i + 2) : i + 2;
+    case "booleano":
+      return true;
+    case "lista":
+      return [`TESTE ${i}`];
+  }
+}
+
+/** Grava `valor` no caminho, em todo item das listas; lista vazia ganha 2 itens. */
+function gravar(alvo: Objeto, partes: string[], valor: unknown): void {
+  const [parte, ...resto] = partes;
+  if (parte === undefined) return;
+  if (resto.length === 0) {
+    alvo[parte] = valor;
+    return;
+  }
+  if (parte.endsWith("[]")) {
+    const nome = parte.slice(0, -2);
+    let itens = alvo[nome];
+    if (!Array.isArray(itens) || itens.length === 0) {
+      const item = ITENS[nome];
+      if (item === undefined) throw new Error(`Lista sem item de teste: ${nome}`);
+      itens = [item(), item()];
+      alvo[nome] = itens;
+    }
+    for (const item of itens as Objeto[]) gravar(item, resto, valor);
+    return;
+  }
+  let objeto = alvo[parte];
+  if (objeto === null || typeof objeto !== "object") {
+    const novo = OBJETOS[parte];
+    if (novo === undefined) throw new Error(`Objeto sem base de teste: ${parte}`);
+    objeto = novo();
+    alvo[parte] = objeto;
+  }
+  gravar(objeto as Objeto, resto, valor);
+}
+
+/**
+ * Uma venda com cada campo do Anexo B da classificação preenchido com um valor distinto (pelo
+ * índice do campo), em moeda estrangeira, e os cálculos que combinam com ela. Os campos que nunca
+ * vieram preenchidos na base ficam fora (as classes deles são vazias).
+ */
+export function vendaCheia(classificacao: Classificacao, servicos = 1): VendaConsultada {
+  const venda: Objeto = {
+    ...vendaAgi(),
+    detalheItem: Array.from({ length: servicos }, servicoVazio),
+    trechos: [],
+    recebimentos: [],
+    pagamentos: [],
+    reembolsoVinculado: [],
+  };
+  CAMPOS_ANEXO_B.forEach((c, i) => {
+    if (!c.conteiner && c.classes.includes(classificacao)) {
+      gravar(venda, c.caminho.split("."), valorDeTeste(c, i));
+    }
+  });
+
+  const v = venda as VendaAgi;
+  const { classificacao: texto, produto } = PRODUTOS[classificacao];
+  const comFee = CAMPOS_ANEXO_B.some(
+    (c) => c.caminho === "idreservavinculadafee" && c.classes.includes(classificacao),
+  );
+  Object.assign(v, {
+    status: "FECHADA",
+    classificacaoproduto: texto,
+    nomeproduto: produto,
+    categoriaproduto: "Nacional",
+    reserva: 90000001,
+    idreserva: 1001,
+    dtcancelamento: null,
+    idreservavinculadafee: comFee ? 1002 : null,
+  });
+  for (const r of v.recebimentos ?? [])
+    Object.assign(r, { forma: 1, cartaoRepassadoAoFornecedor: false });
+  for (const [k, p] of (v.pagamentos ?? []).entries()) p.forma = k === 1 ? 2 : 1;
+
+  const recebimentos = (v.recebimentos ?? []).map((r, k) =>
+    lancamento({
+      indice: k,
+      valorExibido: r.valor ?? "0.00",
+      descricaoForma: r.descricaoForma ?? null,
+      vencimento: r.dtVencto ?? null,
+    }),
+  );
+  const pagamentos = (v.pagamentos ?? []).map((p, k) => {
+    const credito = p.forma === 2;
+    const valor = p.valor ?? "0.00";
+    return lancamento({
+      indice: k,
+      ehCredito: credito,
+      valorExibido: credito ? `-${valor}` : valor,
+      descricaoForma: p.descricaoForma ?? null,
+      vencimento: p.dtVencto ?? null,
+    });
+  });
+  const contas = (v.detalheItem ?? []).map((s, k) => {
+    const base = contaServico({ indice: k });
+    const conversao = (tarifa: string | null | undefined, data: string | null | undefined) => ({
+      sigla: "US$",
+      cambio: "5.1700",
+      dataCambio: data ?? null,
+      tarifaOrigem: tarifa ?? "0.00",
+    });
+    return {
+      ...base,
+      cliente: { ...base.cliente, conversao: conversao(s.vlrTarifaTotal, s.dtCambio) },
+      fornecedor: { ...base.fornecedor, conversao: conversao(s.vlrTarifaTotalp, s.dtCambiop) },
+    };
+  });
+  const totais = {
+    cliente: v.totalCliente ?? "0.00",
+    fornecedor: v.totalFornecedor ?? "0.00",
+    margem: v.margemLucroBruta ?? "0.00",
+  };
+  const totalPagamentos = somarDecimais(pagamentos.map((p) => p.valorExibido));
+  const comTrechos = classificacao === "aereo" || classificacao === "rodoviario";
+  const itinerario: Itinerario | null = comTrechos
+    ? { forma: "com_horario", trajetos: [{ trechos: [0, 1], esperas: [] }], estadias: [] }
+    : null;
+
+  return vendaConsultada({
+    venda: v,
+    calculos: calculos({
+      servicos: contas,
+      totaisServicos: { ...totais, percentualLucro: "10.00" },
+      verificacao: {
+        fecha: true,
+        tolerancia: "0.02",
+        contas: (["cliente", "fornecedor", "margem"] as const).map((conta) => ({
+          conta,
+          calculado: totais[conta],
+          api: totais[conta],
+          diferenca: "0.00",
+          fecha: true,
+        })),
+      },
+      avisos: [{ codigo: "moeda_estrangeira", siglas: ["US$"] }],
+      recebimentos,
+      pagamentos,
+      totalPagamentos,
+      diferencaPagamentosFornecedor: somarDecimais([totalPagamentos, `-${totais.fornecedor}`]),
+      estadoServico: {
+        estado: "concluido",
+        inicio: "2026-11-20",
+        fim: "2026-11-20",
+        base: BASE_DO_ESTADO[classificacao],
+      },
+      itinerario,
+    }),
+    vinculos: {
+      fee: null,
+      reembolsos: (v.reembolsoVinculado ?? []).map((r) => ({
+        id: r.id ?? null,
+        nomePax: r.nomePax ?? null,
+        numeroSR: r.numeroSR ?? null,
+        venda: null,
+      })),
+    },
+  });
 }

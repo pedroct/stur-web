@@ -20,6 +20,7 @@ import type { Consulta } from "@/lib/consulta/consulta";
 import { campoDaData, rotuloDaData, tituloConsulta, tituloCurto } from "@/lib/consulta/descricao";
 import { formatarData, formatarDiaMes, formatarValor } from "@/lib/formatacao";
 import { cn } from "@/lib/utils";
+import { fornecedoresDe } from "@/lib/venda/campos";
 
 const CABECALHO = "h-auto px-4 py-2.5 text-xs font-semibold text-texto-auxiliar";
 const CELULA = "px-4 py-3 align-top text-sm leading-5 whitespace-normal";
@@ -30,18 +31,6 @@ const FOCO =
 
 function enderecoDaVenda(linha: LinhaResultado): string {
   return `/reservas/${linha.numero}/vendas/${linha.idreserva}`;
-}
-
-/** Fornecedor 2 diferente do 1 (a companhia, o hotel) vem primeiro, com a operadora embaixo. */
-function fornecedoresDaLinha(linha: LinhaResultado): {
-  principal: string | null;
-  operadora: string | null;
-} {
-  const { fornecedor, fornecedor2 } = linha;
-  if (fornecedor2 !== null && fornecedor2 !== fornecedor) {
-    return { principal: fornecedor2, operadora: fornecedor };
-  }
-  return { principal: fornecedor, operadora: null };
 }
 
 /** Sem ano quando o período cabe num ano só; com a janela larga ou o ano trocando, sempre com ele. */
@@ -74,7 +63,7 @@ function Linha({
 }>) {
   const incentivo = linha.tipo === "incentivo";
   const selo = seloDaSituacao(linha.situacao);
-  const { principal, operadora } = fornecedoresDaLinha(linha);
+  const { principal, operadora } = fornecedoresDe(linha.fornecedor, linha.fornecedor2);
   const tituloDoFornecedor =
     principal !== null && operadora !== null
       ? `${principal}, pela ${operadora}`
