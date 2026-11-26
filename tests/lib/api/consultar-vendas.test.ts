@@ -42,7 +42,7 @@ test("manda listas repetidas e os nomes do backend", async () => {
     { atualizar: true },
   );
   expect(chamada.url().search).toBe(
-    "?reserva=90000001&tipoData=confirmacao&de=2026-11-01&ate=2026-11-24&situacao=reservada&situacao=cancelada&classificacao=aereo&fornecedor=AEREA%20EXEMPLO&atualizar=true",
+    "?reserva=90000001&tipoData=confirmacao&de=2026-11-01&ate=2026-11-24&situacao=reservada&situacao=cancelada&classificacao=aereo&fornecedor=AEREA+EXEMPLO&atualizar=true",
   );
 });
 

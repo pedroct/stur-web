@@ -47,7 +47,9 @@ test("valor inválido é ignorado e número perde o que não é dígito", () => 
 
 test("só número: sem período e sem filtro (decisão 13)", () => {
   expect(soNumero({ ...CONSULTA_VAZIA, reserva: 90000001 })).toBe(true);
-  expect(soNumero({ ...CONSULTA_VAZIA, reserva: 90000001, fornecedor: "AEREA EXEMPLO" })).toBe(false);
+  expect(soNumero({ ...CONSULTA_VAZIA, reserva: 90000001, fornecedor: "AEREA EXEMPLO" })).toBe(
+    false,
+  );
   expect(
     soNumero({ ...CONSULTA_VAZIA, reserva: 90000001, de: "2026-11-01", ate: "2026-11-02" }),
   ).toBe(false);

@@ -103,7 +103,9 @@ test("só número vai para a reserva; número com filtro e período abrem o resu
   roteador.push.mockClear();
 
   const comFiltro = render(
-    <FormularioConsulta inicial={{ ...CONSULTA_VAZIA, reserva: 90000001, fornecedor: "AEREA EXEMPLO" }} />,
+    <FormularioConsulta
+      inicial={{ ...CONSULTA_VAZIA, reserva: 90000001, fornecedor: "AEREA EXEMPLO" }}
+    />,
   );
   await userEvent.click(screen.getByRole("button", { name: "Consultar" }));
   const chaveDoFiltro = "/consulta?reserva=90000001&fornecedor=AEREA%20EXEMPLO";
@@ -212,7 +214,12 @@ test("o campo de número é o que o atalho / procura", () => {
 test("link de período mostra o aviso e o formulário preenchido (tela 1c)", () => {
   render(
     <FormularioConsulta
-      inicial={{ ...CONSULTA_VAZIA, de: "2026-11-17", ate: "2026-11-24", fornecedor: "AEREA EXEMPLO" }}
+      inicial={{
+        ...CONSULTA_VAZIA,
+        de: "2026-11-17",
+        ate: "2026-11-24",
+        fornecedor: "AEREA EXEMPLO",
+      }}
       avisoLink
     />,
   );

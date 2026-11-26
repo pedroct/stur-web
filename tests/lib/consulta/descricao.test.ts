@@ -26,16 +26,16 @@ test("títulos", () => {
   expect(tituloConsulta({ ...periodo, reserva: 90000001 })).toBe(
     "Reserva 90000001, emitida de 17/11 a 24/11/2026",
   );
-  expect(tituloConsulta({ ...CONSULTA_VAZIA, reserva: 90000001, fornecedor: "AEREA EXEMPLO" })).toBe(
-    "Reserva 90000001",
-  );
+  expect(
+    tituloConsulta({ ...CONSULTA_VAZIA, reserva: 90000001, fornecedor: "AEREA EXEMPLO" }),
+  ).toBe("Reserva 90000001");
 });
 
 test("filtros da consulta em texto", () => {
   expect(descreverFiltros(periodo)).toBe("Sem filtros na consulta");
-  expect(descreverFiltros({ ...periodo, situacao: ["reservada"], fornecedor: "AEREA EXEMPLO" })).toBe(
-    "Reservadas, fornecedor AEREA EXEMPLO",
-  );
+  expect(
+    descreverFiltros({ ...periodo, situacao: ["reservada"], fornecedor: "AEREA EXEMPLO" }),
+  ).toBe("Reservadas, fornecedor AEREA EXEMPLO");
   expect(
     descreverFiltros({
       ...periodo,
@@ -168,7 +168,11 @@ test("textos do número com filtro e com período", () => {
 });
 
 test("nenhuma venda com filtros da consulta", () => {
-  const comFiltro = { ...periodo, situacao: ["reservada"] as Situacao[], fornecedor: "AEREA EXEMPLO" };
+  const comFiltro = {
+    ...periodo,
+    situacao: ["reservada"] as Situacao[],
+    fornecedor: "AEREA EXEMPLO",
+  };
   expect(textoSemVendas(comFiltro)).toBe(
     "A API do Stur não devolveu nenhuma venda emitida de 17/11 a 24/11/2026 com esses filtros. Verifique as datas e os filtros e consulte de novo.",
   );
