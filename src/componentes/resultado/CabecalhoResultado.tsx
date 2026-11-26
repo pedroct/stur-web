@@ -1,0 +1,69 @@
+import Link from "next/link";
+import { Aviso } from "@/componentes/comum/Aviso";
+import { Caminho } from "@/componentes/moldura/Caminho";
+import { Button, buttonVariants } from "@/componentes/ui/button";
+import type { ResultadoConsulta } from "@/contrato/tipos";
+import { type Consulta, escreverConsulta } from "@/lib/consulta/consulta";
+import {
+  descreverFiltros,
+  participio,
+  tituloConsulta,
+  tituloCurto,
+} from "@/lib/consulta/descricao";
+import { formatarDadosAte } from "@/lib/formatacao";
+import { formatarHora } from "@/lib/tempo";
+
+/** Caminho, título, a linha do que foi consultado e as ações; abaixo, o aviso da cópia (decisão 8). */
+export function CabecalhoResultado({
+  consulta,
+  resultado,
+  aoAtualizar,
+}: {
+  consulta: Consulta;
+  resultado: ResultadoConsulta;
+  aoAtualizar: () => void;
+}) {
+  const { consultadoEm, dadosDoSturAte, periodoPassaDaCopia } = resultado;
+  const dadosAte = dadosDoSturAte !== null && !periodoPassaDaCopia ? dadosDoSturAte : null;
+  const linhaDeBaixo = [
+    descreverFiltros(consulta),
+    `Consultado às ${formatarHora(consultadoEm)}`,
+    ...(dadosAte === null ? [] : [`Dados do Stur até ${formatarDadosAte(dadosAte)}`]),
+  ].join(" · ");
+
+  return (
+    <>
+      <Caminho niveis={[{ rotulo: tituloCurto(consulta) }]} />
+      <section className="mt-3 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="min-w-0 flex-[1_1_35rem]">
+          <h1 className="text-[30px] leading-[38px] font-bold tracking-[-0.01em]">
+            {tituloConsulta(consulta)}
+          </h1>
+          <p className="mt-1 text-sm leading-5 text-texto-auxiliar">{linhaDeBaixo}</p>
+        </div>
+        <div className="flex gap-2">
+          <Link
+            href={`/?${escreverConsulta(consulta)}`}
+            className={buttonVariants({ variant: "secundaria" })}
+          >
+            Alterar consulta
+          </Link>
+          <Button
+            variant="secundaria"
+            title="Atualizar (u)"
+            aria-keyshortcuts="u"
+            onClick={aoAtualizar}
+          >
+            Atualizar
+          </Button>
+        </div>
+      </section>
+      {periodoPassaDaCopia && dadosDoSturAte !== null && (
+        <Aviso tom="info" className="mt-4">
+          Dados do Stur até {formatarDadosAte(dadosDoSturAte)}. Vendas{" "}
+          {participio(consulta.tipoData, "plural")} depois disso não aparecem neste resultado.
+        </Aviso>
+      )}
+    </>
+  );
+}

@@ -8,7 +8,9 @@ import type { LinhaResultado } from "@/contrato/tipos";
 import {
   CLASSIFICACOES,
   type Classificacao,
+  type Consulta,
   classificacaoDe,
+  escreverConsulta,
   lista,
   SITUACOES,
   type Situacao,
@@ -72,6 +74,26 @@ export function escreverRefinamentos(r: Refinamentos): string {
   }
   if (r.soNaoFecham) partes.push(["f.contas", "nao-fecham"]);
   return partes.map(([nome, valor]) => `${nome}=${valor}`).join("&");
+}
+
+/**
+ * O endereço do resultado: a chave da consulta, depois os refinamentos, depois `pagina` e `por`;
+ * cada um é omitido quando vale o padrão (página 1, `por` igual a `porPadrao`).
+ */
+export function escreverEnderecoResultado(
+  c: Consulta,
+  r: Refinamentos,
+  pagina: number,
+  por: number,
+  porPadrao: number,
+): string {
+  const partes = [
+    escreverConsulta(c),
+    escreverRefinamentos(r),
+    pagina > 1 ? `pagina=${pagina}` : "",
+    por === porPadrao ? "" : `por=${por}`,
+  ];
+  return `/consulta?${partes.filter((parte) => parte !== "").join("&")}`;
 }
 
 export function temRefinamento(r: Refinamentos): boolean {
