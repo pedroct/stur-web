@@ -114,6 +114,13 @@ export function fraseReceitaNegativa(r: Reserva): string | null {
   return `${sujeito} receita negativa: custo lançado sem cobrança ao cliente.`;
 }
 
+/** O rodapé da tabela: "Total das {k} vendas ativas", "Total da venda ativa" ou, sem ativas, nada. */
+export function rotuloDoTotal(r: Reserva): string | null {
+  const k = ativasDaReserva(r).length;
+  if (k === 0) return null;
+  return k === 1 ? "Total da venda ativa" : `Total das ${k} vendas ativas`;
+}
+
 /** Os passageiros da venda, sem repetir. */
 export function passageirosDaVenda(v: VendaDaReserva): string {
   const nomes = v.resumo.passageiros.map((p) => p.trim()).filter((p) => p !== "");

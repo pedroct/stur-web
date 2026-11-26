@@ -18,7 +18,6 @@ import {
 } from "@/componentes/ui/table";
 import type { Reserva, VendaDaReserva } from "@/contrato/tipos";
 import { formatarPercentual, formatarValor } from "@/lib/formatacao";
-import { ativasDaReserva } from "@/lib/reserva/cabecalho";
 import {
   cancelada,
   fornecedorDaVenda,
@@ -26,6 +25,7 @@ import {
   gruposDaTabela,
   passageirosDaVenda,
   passageirosDiferem,
+  rotuloDoTotal,
   segundaLinha,
   seloDaCancelada,
 } from "@/lib/reserva/tabela";
@@ -168,6 +168,7 @@ export function TabelaVendas({
   const { totais } = reserva;
   const percentual = formatarPercentual(totais.percentualLucro);
   const negativa = fraseReceitaNegativa(reserva);
+  const rotuloTotal = rotuloDoTotal(reserva);
 
   function aoAbrir(e: MouseEvent, v: VendaDaReserva) {
     if (!cliqueSimples(e)) return;
@@ -221,25 +222,27 @@ export function TabelaVendas({
               ))}
             </TableBody>
           ))}
-          <TableFooter className="border-t-2 border-texto-principal bg-transparent tabular-nums">
-            <TableRow className="hover:bg-transparent">
-              <TableCell colSpan={colunas - 2} className={cn(CELULA, "font-semibold")}>
-                Total das {ativasDaReserva(reserva).length} vendas ativas
-              </TableCell>
-              <TableCell className={cn(CELULA, "text-right font-semibold")}>
-                {formatarValor(totais.totalCliente)}
-              </TableCell>
-              <TableCell className={cn(CELULA, "text-right font-semibold")}>
-                {formatarValor(totais.margem)}
-                {percentual !== null && (
-                  <>
-                    {" "}
-                    <span className="font-medium text-texto-auxiliar">{percentual}</span>
-                  </>
-                )}
-              </TableCell>
-            </TableRow>
-          </TableFooter>
+          {rotuloTotal !== null && (
+            <TableFooter className="border-t-2 border-texto-principal bg-transparent tabular-nums">
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={colunas - 2} className={cn(CELULA, "font-semibold")}>
+                  {rotuloTotal}
+                </TableCell>
+                <TableCell className={cn(CELULA, "text-right font-semibold")}>
+                  {formatarValor(totais.totalCliente)}
+                </TableCell>
+                <TableCell className={cn(CELULA, "text-right font-semibold")}>
+                  {formatarValor(totais.margem)}
+                  {percentual !== null && (
+                    <>
+                      {" "}
+                      <span className="font-medium text-texto-auxiliar">{percentual}</span>
+                    </>
+                  )}
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          )}
         </Table>
       </div>
       {negativa !== null && (

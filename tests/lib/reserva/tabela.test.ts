@@ -4,6 +4,7 @@ import {
   fraseReceitaNegativa,
   gruposDaTabela,
   linhaDaBarra,
+  rotuloDoTotal,
   segundaLinha,
   textoDaProxima,
   textoDaVenda,
@@ -233,6 +234,18 @@ describe("textos da barra de troca", () => {
     expect(
       contagemDasVendas(comVendas([{ situacao: "cancelada" }, { situacao: "cancelada" }])),
     ).toBe("2 vendas, 2 canceladas");
+  });
+});
+
+describe("rotuloDoTotal", () => {
+  test("duas ou mais ativas, uma ativa e nenhuma", () => {
+    expect(rotuloDoTotal(comVendas([{}, {}, { situacao: "cancelada" }]))).toBe(
+      "Total das 2 vendas ativas",
+    );
+    expect(rotuloDoTotal(comVendas([{}, { situacao: "cancelada" }]))).toBe("Total da venda ativa");
+    expect(
+      rotuloDoTotal(comVendas([{ situacao: "cancelada" }, { situacao: "cancelada" }])),
+    ).toBeNull();
   });
 });
 

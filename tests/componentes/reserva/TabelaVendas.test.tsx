@@ -84,6 +84,21 @@ describe("TabelaVendas", () => {
     expect(rodape).toHaveTextContent("10,00%");
   });
 
+  test("com uma venda ativa, 'Total da venda ativa'", () => {
+    const { reserva: r } = consultada([{}, { situacao: "cancelada" }]);
+    render(<TabelaVendas reserva={r} hoje={HOJE} />);
+    expect(screen.getByText("Total da venda ativa").closest("tr")).toHaveTextContent("1.000,00");
+    expect(screen.queryByText(/^Total das/)).toBeNull();
+  });
+
+  test("sem venda ativa, sem a linha do total; as canceladas seguem fora do total", () => {
+    const { reserva: r } = consultada([{ situacao: "cancelada" }, { situacao: "cancelada" }]);
+    const { container } = render(<TabelaVendas reserva={r} hoje={HOJE} />);
+    expect(screen.queryByText(/^Total d/)).toBeNull();
+    expect(container.querySelector("tfoot")).toBeNull();
+    expect(screen.getAllByText("fora do total")).toHaveLength(2);
+  });
+
   test("sem a coluna Passageiro quando as vendas têm o mesmo passageiro", () => {
     const { reserva: r } = tresVendas();
     render(<TabelaVendas reserva={r} hoje={HOJE} />);
