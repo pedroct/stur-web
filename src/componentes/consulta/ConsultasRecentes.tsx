@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { type MouseEvent, useEffect, useState } from "react";
+import { apagarOrigem } from "@/lib/armazenamento/origem";
 import { marcarPendente } from "@/lib/armazenamento/pendentes";
 import { descreverQuando, lerRecentes, type Recente } from "@/lib/armazenamento/recentes";
 
@@ -33,6 +34,7 @@ export function ConsultasRecentes() {
     if (evento.button !== 0 || evento.metaKey || evento.ctrlKey || evento.shiftKey || evento.altKey)
       return;
     evento.preventDefault();
+    apagarOrigem();
     if (endereco.startsWith("/consulta?")) marcarPendente(endereco);
     router.push(endereco);
   }

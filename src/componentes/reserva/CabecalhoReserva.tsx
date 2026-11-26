@@ -10,14 +10,15 @@ import {
 
 /**
  * O topo da reserva com várias vendas (decisão 12; telas 4b, 6b e 7b): "Reserva {n} · {k} vendas",
- * um selo por situação, o cliente em h1, o subtítulo e as frases das datas. À direita vai o que a
- * página põe (a linha da consulta).
+ * um selo por situação, o cliente em h1, o subtítulo e as frases das datas. À direita vão a
+ * `acao` ("Copiar para enviar") e o que a página põe (a linha da consulta).
  */
 export function CabecalhoReserva({
   reserva,
   hoje,
+  acao,
   children,
-}: Readonly<{ reserva: Reserva; hoje: string; children?: ReactNode }>) {
+}: Readonly<{ reserva: Reserva; hoje: string; acao?: ReactNode; children?: ReactNode }>) {
   const { numero, vendas } = reserva;
   const cliente = vendas.find((v) => v.resumo.cliente)?.resumo.cliente ?? `Reserva ${numero}`;
   const subtitulo = subtituloDaReserva(reserva);
@@ -49,7 +50,10 @@ export function CabecalhoReserva({
           <p className="mt-1 text-[13px] leading-5 text-texto-auxiliar tabular-nums">{datas}</p>
         )}
       </div>
-      <div className="flex flex-col items-end text-right">{children}</div>
+      <div className="flex flex-col items-end gap-2 text-right">
+        {acao}
+        {children}
+      </div>
     </section>
   );
 }

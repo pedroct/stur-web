@@ -1,7 +1,7 @@
 import { Check } from "lucide-react";
 import type { ReactNode } from "react";
 import { dadosDoSeloTexto, Selo } from "@/componentes/comum/Selo";
-import type { LancamentoCalculado, PagamentoAgi, VendaConsultada } from "@/contrato/tipos";
+import type { VendaConsultada } from "@/contrato/tipos";
 import { situacaoDe } from "@/lib/consulta/consulta";
 import { ehDecimal } from "@/lib/decimal";
 import { formatarData, formatarMoeda, formatarPercentual, formatarValor } from "@/lib/formatacao";
@@ -10,6 +10,7 @@ import { CAMPOS_ANEXO_B, type Formato } from "@/lib/venda/anexo-b";
 import { preenchido, valorDoCampo } from "@/lib/venda/campos";
 import {
   fraseSemLancamentos,
+  lancamentoDoCredito,
   seloDoLancamento,
   textoDoLancamento,
   textoDosDocumentos,
@@ -48,19 +49,9 @@ function Cartao({ rotulo, children }: Readonly<{ rotulo: string; children: React
 const DESTAQUE = "mt-0.5 text-[22px] leading-7 font-semibold tabular-nums";
 const APOIO = "mt-1 text-[13px] leading-[22px] text-texto-auxiliar";
 
-/** O crédito do fornecedor; sem ele, o primeiro pagamento (decisão 18). */
-function lancamentoDoRecebimento(
-  dados: VendaConsultada,
-): { l: LancamentoCalculado; cru: PagamentoAgi } | null {
-  const { pagamentos } = dados.calculos;
-  const l = pagamentos.find((p) => p.ehCredito) ?? pagamentos[0];
-  const cru = l === undefined ? undefined : dados.venda.pagamentos?.[l.indice];
-  return l === undefined || cru === undefined ? null : { l, cru };
-}
-
 function Recebimento({ dados, hoje }: Readonly<{ dados: VendaConsultada; hoje: string }>) {
   const { venda } = dados;
-  const alvo = lancamentoDoRecebimento(dados);
+  const alvo = lancamentoDoCredito(dados);
   if (alvo === null) {
     return <p className={APOIO}>{fraseSemLancamentos("fornecedor")}</p>;
   }
@@ -101,7 +92,7 @@ function Linha({
 /** "Como o Stur registra": os totais da API e o crédito, com a conta que fecha (tela 17). */
 function ComoOSturRegistra({ dados }: Readonly<{ dados: VendaConsultada }>) {
   const { venda, calculos } = dados;
-  const alvo = lancamentoDoRecebimento(dados);
+  const alvo = lancamentoDoCredito(dados);
   const percentual = formatarPercentual(calculos.percentualLucro);
   const vencimento =
     alvo !== null && preenchido(alvo.l.vencimento, "vencimento") && alvo.l.vencimento !== null

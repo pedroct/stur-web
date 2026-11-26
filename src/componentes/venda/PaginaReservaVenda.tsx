@@ -21,6 +21,7 @@ import { enderecoDaReserva, enderecoDaVenda, lerResto } from "@/lib/venda/rota";
 import { EsqueletoVenda } from "./EsqueletoVenda";
 import { PainelServico } from "./PainelServico";
 import { PainelContexto, useValorDoPainel } from "./painel-contexto";
+import { SetasDoResultado, useOrigemDaVenda } from "./SetasDoResultado";
 import { useReservaVenda } from "./useReservaVenda";
 import { Venda } from "./Venda";
 
@@ -84,6 +85,15 @@ export function PaginaReservaVenda({
     roteador.replace(destino, { scroll: false });
   }, [numero, id, k, daVenda, servicoNaFaixa, roteador]);
 
+  // A venda vinda do resultado (decisão 17): o caminho passa pelo resultado, com as setas dele.
+  const origem = useOrigemDaVenda(id);
+  const doResultado: Nivel[] =
+    origem === null ? [] : [{ rotulo: origem.tituloCurto, href: origem.enderecoResultado }];
+  const setasDoResultado =
+    origem !== null && id !== null ? (
+      <SetasDoResultado origem={origem} idreserva={id} />
+    ) : undefined;
+
   const alterarHref = `/?reserva=${numero ?? encodeURIComponent(numeroTexto)}`;
   const reservaNoCaminho: Nivel = { rotulo: `Reserva ${numeroTexto}` };
   const consulta = { ...CONSULTA_VAZIA, reserva: numero };
@@ -112,7 +122,7 @@ export function PaginaReservaVenda({
       case "carregando":
         return (
           <>
-            <Caminho niveis={[reservaNoCaminho]} />
+            <Caminho niveis={[...doResultado, reservaNoCaminho]} direita={setasDoResultado} />
             <div className="mt-4">
               <LinhaStatus
                 texto={textoCarregando(consulta, tempoLimiteSegundos)}
@@ -126,7 +136,7 @@ export function PaginaReservaVenda({
         if (pagina.erro?.tipo === "nao_encontrada" && rota?.tipo === "venda") return deFora;
         return pagina.erro ? (
           <>
-            <Caminho niveis={[reservaNoCaminho]} />
+            <Caminho niveis={[...doResultado, reservaNoCaminho]} direita={setasDoResultado} />
             <EstadoErro
               erro={pagina.erro}
               rodape={rodapeErro(
@@ -160,7 +170,7 @@ export function PaginaReservaVenda({
     if (lista.length === 1) {
       return estado?.dados ? (
         <>
-          <Caminho niveis={[reservaNoCaminho]} />
+          <Caminho niveis={[...doResultado, reservaNoCaminho]} direita={setasDoResultado} />
           <Venda dados={estado.dados} naReserva={false} nivelBase={1} consulta={consultaDaVenda} />
         </>
       ) : null;
@@ -174,7 +184,7 @@ export function PaginaReservaVenda({
       : [reservaNoCaminho];
     return (
       <>
-        <Caminho niveis={niveis} />
+        <Caminho niveis={[...doResultado, ...niveis]} direita={setasDoResultado} />
         <TelaReserva
           dados={reserva}
           vendaAberta={

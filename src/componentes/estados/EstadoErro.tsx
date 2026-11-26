@@ -2,13 +2,11 @@
 
 import { Copy, RotateCw, TriangleAlert } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import { Button, buttonVariants } from "@/componentes/ui/button";
 import type { ErroDaConsulta } from "@/lib/api/cliente";
 import { useParametros } from "@/lib/api/parametros";
 import { comTentarDeNovo, TEXTOS_ERRO, tipoComTexto } from "@/lib/api/textos-erro";
-
-const COPIADO_POR_MS = 2000;
+import { useCopiado } from "@/lib/copiar";
 
 /** O idreserva nunca aparece na tela (PRD 9.4); a cópia leva o detalhe inteiro, para o diagnóstico. */
 function semIdreserva(texto: string): string {
@@ -45,28 +43,8 @@ export function EstadoErro({
   const Titulo = nivelTitulo;
   const detalhe = JSON.stringify({ codigo: erro.codigo, detalhe: erro.detalhe }, null, 2);
 
-  const [copiado, setCopiado] = useState(false);
-  const espera = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(
-    () => () => {
-      if (espera.current !== null) clearTimeout(espera.current);
-    },
-    [],
-  );
-
-  function copiar() {
-    navigator.clipboard.writeText(detalhe).then(
-      () => {
-        if (espera.current !== null) clearTimeout(espera.current);
-        setCopiado(true);
-        espera.current = setTimeout(() => {
-          espera.current = null;
-          setCopiado(false);
-        }, COPIADO_POR_MS);
-      },
-      () => {}, // sem acesso à área de transferência, o detalhe segue à vista para copiar à mão
-    );
-  }
+  // Sem acesso à área de transferência, o detalhe segue à vista para copiar à mão.
+  const { copiado, copiar } = useCopiado();
 
   return (
     <div className="max-w-[760px]">
@@ -98,7 +76,7 @@ export function EstadoErro({
               </Button>
             )}
             {tipo === "formato" && (
-              <Button onClick={copiar}>
+              <Button onClick={() => copiar(detalhe)}>
                 <Copy className="size-[18px]" aria-hidden="true" />
                 {copiado ? "Copiado" : "Copiar detalhe"}
               </Button>

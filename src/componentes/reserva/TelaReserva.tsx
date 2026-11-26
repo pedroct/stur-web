@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { EstadoErro } from "@/componentes/estados/EstadoErro";
 import { FalhaAtualizar } from "@/componentes/estados/FalhaAtualizar";
 import { LinhaStatus } from "@/componentes/estados/LinhaStatus";
+import { CopiarDaReserva, CopiarDaVenda } from "@/componentes/venda/CopiarParaEnviar";
 import { EsqueletoVenda } from "@/componentes/venda/EsqueletoVenda";
 import { LinhaConsulta } from "@/componentes/venda/LinhaConsulta";
 import type { EstadoVenda } from "@/componentes/venda/useReservaVenda";
@@ -96,7 +97,8 @@ function VendaAbaixo({
  * A reserva com duas ou mais vendas (IA 6.10): cabeçalho, Financeiro e "Vendas desta reserva".
  * Sem venda aberta, a tabela inteira; com uma, a faixa do Financeiro, a barra de troca presa no
  * topo e a venda logo abaixo. A linha da consulta mostra o `consultadoEm` da venda aberta, que é o
- * mais novo, e o Atualizar espera a venda aberta chegar.
+ * mais novo, e o Atualizar espera a venda aberta chegar. O "Copiar para enviar" é um só: copia a
+ * venda aberta, quando ela já chegou, e a reserva nos outros casos (decisão 18).
  */
 export function TelaReserva({
   dados,
@@ -118,7 +120,11 @@ export function TelaReserva({
 
   return (
     <>
-      <CabecalhoReserva reserva={dados.reserva} hoje={hoje}>
+      <CabecalhoReserva
+        reserva={dados.reserva}
+        hoje={hoje}
+        acao={daVenda ? <CopiarDaVenda dados={daVenda} /> : <CopiarDaReserva dados={dados} />}
+      >
         <LinhaConsulta
           consultadoEm={consultadoEm}
           dadosDoSturAte={dadosDoSturAte}

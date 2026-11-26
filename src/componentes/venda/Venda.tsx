@@ -12,6 +12,7 @@ import { BlocoConta, GruposDoServico } from "./BlocoConta";
 import { CabecalhoVenda } from "./CabecalhoVenda";
 import { CodigosStur } from "./CodigosStur";
 import { ConteudoDoProduto } from "./ConteudoDoProduto";
+import { CopiarDaVenda } from "./CopiarParaEnviar";
 import { Financeiro } from "./Financeiro";
 import type { NivelDeTitulo } from "./GrupoDeCampos";
 import { Incentivo } from "./Incentivo";
@@ -69,7 +70,12 @@ export function Venda({
 
   return (
     <>
-      <CabecalhoVenda dados={dados} consulta={consulta} naReserva={naReserva} />
+      <CabecalhoVenda
+        dados={dados}
+        consulta={consulta}
+        naReserva={naReserva}
+        acaoPrincipal={naReserva ? undefined : <CopiarDaVenda dados={dados} />}
+      />
       <Avisos lista={avisosDaVenda(venda, calculos, dados.vinculos)} />
       {!comFinanceiro && <Incentivo dados={dados} nivelBase={nivelBase} />}
       {comFinanceiro && <Financeiro dados={dados} nivelBase={nivelBase} />}

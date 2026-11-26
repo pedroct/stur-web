@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { campoDoFormulario, FormularioConsulta } from "@/componentes/consulta/FormularioConsulta";
 import { PaginaInicial } from "@/componentes/consulta/PaginaInicial";
+import { lerOrigem, registrarOrigem } from "@/lib/armazenamento/origem";
 import { temPendente } from "@/lib/armazenamento/pendentes";
 import { CONSULTA_VAZIA } from "@/lib/consulta/consulta";
 import { definirEndereco, roteador } from "../../navegacao";
@@ -306,4 +307,16 @@ test("linha da data da cópia só aparece com a data", () => {
     parametros: { dadosDoSturAte: null },
   });
   expect(screen.queryByText(/Dados do Stur até/)).toBeNull();
+});
+
+test("consultar apaga a origem guardada do resultado antes de navegar (decisão 28)", async () => {
+  registrarOrigem({ enderecoResultado: "/consulta?de=2026-11-17", tituloCurto: "x", vendas: [] });
+  let origemAoNavegar: unknown = "não navegou";
+  roteador.push.mockImplementationOnce(() => {
+    origemAoNavegar = lerOrigem();
+  });
+  render(<FormularioConsulta inicial={CONSULTA_VAZIA} />);
+  await userEvent.type(screen.getByRole("textbox", NUMERO), "90000001{Enter}");
+  expect(roteador.push).toHaveBeenCalledExactlyOnceWith("/reservas/90000001");
+  expect(origemAoNavegar).toBeNull();
 });

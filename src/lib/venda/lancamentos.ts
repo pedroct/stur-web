@@ -8,6 +8,7 @@ import type {
   LancamentoCalculado,
   PagamentoAgi,
   RecebimentoAgi,
+  VendaConsultada,
 } from "@/contrato/tipos";
 import { formatarValor } from "@/lib/formatacao";
 import { preenchido } from "./campos";
@@ -124,4 +125,14 @@ export function fraseSemLancamentos(lado: "cliente" | "fornecedor"): string {
 /** Com mais de dois lançamentos num lado, as duas tabelas entram; com menos, os cartões bastam (decisão 8). */
 export function comTabelaDeLancamentos(recebimentos: number, pagamentos: number): boolean {
   return recebimentos > 2 || pagamentos > 2;
+}
+
+/** O crédito do fornecedor na venda de incentivo; sem ele, o primeiro pagamento (decisão 18). */
+export function lancamentoDoCredito(
+  dados: VendaConsultada,
+): { l: LancamentoCalculado; cru: PagamentoAgi } | null {
+  const { pagamentos } = dados.calculos;
+  const l = pagamentos.find((p) => p.ehCredito) ?? pagamentos[0];
+  const cru = l === undefined ? undefined : dados.venda.pagamentos?.[l.indice];
+  return l === undefined || cru === undefined ? null : { l, cru };
 }

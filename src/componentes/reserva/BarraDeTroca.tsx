@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { enderecoDaVenda } from "@/lib/venda/rota";
 import { cliqueSimples, pedirRolagem, TabelaVendas } from "./TabelaVendas";
 
-const SETA = cn(
+export const SETA = cn(
   "inline-flex size-alvo shrink-0 items-center justify-center rounded-pilula border border-borda bg-superficie text-texto-principal outline-0 transition-colors duration-150 hover:bg-superficie-sutil focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco",
   "aria-disabled:cursor-not-allowed aria-disabled:text-borda-controle aria-disabled:hover:bg-superficie",
 );
