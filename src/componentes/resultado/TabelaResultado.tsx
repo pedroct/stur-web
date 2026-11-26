@@ -235,7 +235,9 @@ export function TabelaResultado({
             {janelaLarga ? (
               <Cabeca>{rotulo}</Cabeca>
             ) : (
-              <Cabeca aria-sort="descending">{rotulo} ↓</Cabeca>
+              <Cabeca aria-sort="descending">
+                {rotulo} <span aria-hidden="true">↓</span>
+              </Cabeca>
             )}
             <Cabeca>Situação</Cabeca>
             <Cabeca className="text-right">Total cliente (R$)</Cabeca>

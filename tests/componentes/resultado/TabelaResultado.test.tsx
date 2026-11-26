@@ -62,7 +62,7 @@ test("colunas, legenda e ordem pelo tipo de data", () => {
     "Margem (R$)",
     "Conta",
   ]);
-  expect(screen.getByRole("columnheader", { name: "Emissão ↓" })).toHaveAttribute(
+  expect(screen.getByRole("columnheader", { name: "Emissão" })).toHaveAttribute(
     "aria-sort",
     "descending",
   );
@@ -72,7 +72,7 @@ test("tipoData confirmacao: coluna Confirmação, com a data de confirmação", 
   montar([linha({ dataEmissao: "2026-11-17T10:00:00", dataConfirmacao: "2026-11-20T10:00:00" })], {
     c: { ...consulta, tipoData: "confirmacao" },
   });
-  expect(screen.getByRole("columnheader", { name: "Confirmação ↓" })).toHaveAttribute(
+  expect(screen.getByRole("columnheader", { name: "Confirmação" })).toHaveAttribute(
     "aria-sort",
     "descending",
   );
