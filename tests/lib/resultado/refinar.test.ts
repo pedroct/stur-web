@@ -116,6 +116,13 @@ test("contagens: situação na ordem do Stur, nomes em ordem alfabética, sem no
     ["FUNDAÇÃO EXEMPLO", 1],
   ]);
   expect(contarOpcoes([linha({ situacao: "estranha" })]).situacao).toEqual([]);
+  const vazios = contarOpcoes([
+    linha({ cliente: "", emissor: "  ", fornecedor: " ", fornecedor2: "" }),
+    linha({ cliente: "  ", emissor: "", fornecedor: "FORNECEDOR EXEMPLO", fornecedor2: " " }),
+  ]);
+  expect(vazios.cliente).toEqual([]);
+  expect(vazios.emissor).toEqual([]);
+  expect(vazios.fornecedor).toEqual([["FORNECEDOR EXEMPLO", 1]]);
   const ordem = contarOpcoes([
     linha({ emissor: "ÁGATA EXEMPLO" }),
     linha({ emissor: "ZELIA EXEMPLO" }),

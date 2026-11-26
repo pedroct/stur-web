@@ -9,9 +9,11 @@ import {
   CLASSIFICACOES,
   type Classificacao,
   classificacaoDe,
+  lista,
   SITUACOES,
   type Situacao,
   situacaoDe,
+  textoOuNulo,
 } from "@/lib/consulta/consulta";
 import { somarDecimais } from "@/lib/decimal";
 import { contem } from "@/lib/textos";
@@ -35,16 +37,6 @@ export const REFINAMENTOS_VAZIOS: Refinamentos = {
   emissor: null,
   soNaoFecham: false,
 };
-
-function textoOuNulo(texto: string | null): string | null {
-  const aparado = texto?.trim() ?? "";
-  return aparado === "" ? null : aparado;
-}
-
-function lista<T extends string>(texto: string | null, validos: readonly T[]): T[] {
-  const pedidos = new Set((texto ?? "").split(",").map((v) => v.trim()));
-  return validos.filter((v) => pedidos.has(v));
-}
 
 export function lerRefinamentos(p: URLSearchParams): Refinamentos {
   return {
@@ -86,28 +78,34 @@ export function temRefinamento(r: Refinamentos): boolean {
   return escreverRefinamentos(r) !== "";
 }
 
+function casaComABusca(v: LinhaResultado, q: string): boolean {
+  if (q.trim() === "") return true;
+  const procuradas = [v.fornecedor, v.fornecedor2, v.cliente, v.emissor, v.produto];
+  return contem(String(v.numero), q) || procuradas.some((t) => contem(t, q));
+}
+
+function casaComAsListas(v: LinhaResultado, r: Refinamentos): boolean {
+  const situacao = situacaoDe(v.situacao);
+  if (r.situacao.length > 0 && (situacao === null || !r.situacao.includes(situacao))) return false;
+  const produto = classificacaoDe(v.classificacao);
+  return r.produto.length === 0 || (produto !== null && r.produto.includes(produto));
+}
+
+function casaComOsNomes(v: LinhaResultado, r: Refinamentos): boolean {
+  if (r.cliente !== null && v.cliente !== r.cliente) return false;
+  if (r.emissor !== null && v.emissor !== r.emissor) return false;
+  return r.fornecedor === null || v.fornecedor === r.fornecedor || v.fornecedor2 === r.fornecedor;
+}
+
 /** Mantém a ordem recebida. */
 export function refinar(vendas: LinhaResultado[], r: Refinamentos): LinhaResultado[] {
-  return vendas.filter((v) => {
-    if (r.q.trim() !== "") {
-      const procuradas = [v.fornecedor, v.fornecedor2, v.cliente, v.emissor, v.produto];
-      if (!contem(String(v.numero), r.q) && !procuradas.some((t) => contem(t, r.q))) return false;
-    }
-    if (r.situacao.length > 0) {
-      const situacao = situacaoDe(v.situacao);
-      if (situacao === null || !r.situacao.includes(situacao)) return false;
-    }
-    if (r.produto.length > 0) {
-      const produto = classificacaoDe(v.classificacao);
-      if (produto === null || !r.produto.includes(produto)) return false;
-    }
-    if (r.cliente !== null && v.cliente !== r.cliente) return false;
-    if (r.fornecedor !== null && v.fornecedor !== r.fornecedor && v.fornecedor2 !== r.fornecedor) {
-      return false;
-    }
-    if (r.emissor !== null && v.emissor !== r.emissor) return false;
-    return !(r.soNaoFecham && v.contaFecha);
-  });
+  return vendas.filter(
+    (v) =>
+      casaComABusca(v, r.q) &&
+      casaComAsListas(v, r) &&
+      casaComOsNomes(v, r) &&
+      !(r.soNaoFecham && v.contaFecha),
+  );
 }
 
 export interface OpcoesContadas {
@@ -144,7 +142,11 @@ export function contarOpcoes(vendas: LinhaResultado[]): OpcoesContadas {
   const situacoes = contar(vendas.map((v) => situacaoDe(v.situacao)));
   const produtos = contar(vendas.map((v) => classificacaoDe(v.classificacao)));
   // O fornecedor 2 igual ao 1 conta uma vez na venda.
-  const fornecedores = contar(vendas.flatMap((v) => [...new Set([v.fornecedor, v.fornecedor2])]));
+  const fornecedores = contar(
+    vendas.flatMap((v) => [
+      ...new Set([v.fornecedor, v.fornecedor2].map((nome) => textoOuNulo(nome))),
+    ]),
+  );
   return {
     situacao: naOrdem(
       situacoes,
@@ -154,9 +156,9 @@ export function contarOpcoes(vendas: LinhaResultado[]): OpcoesContadas {
       produtos,
       CLASSIFICACOES.map((c) => c.valor),
     ),
-    cliente: alfabetica(contar(vendas.map((v) => v.cliente))),
+    cliente: alfabetica(contar(vendas.map((v) => textoOuNulo(v.cliente)))),
     fornecedor: alfabetica(fornecedores),
-    emissor: alfabetica(contar(vendas.map((v) => v.emissor))),
+    emissor: alfabetica(contar(vendas.map((v) => textoOuNulo(v.emissor)))),
     total: vendas.length,
     naoFecham: vendas.filter((v) => !v.contaFecha).length,
   };

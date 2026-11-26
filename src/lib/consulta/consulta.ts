@@ -82,12 +82,12 @@ function diaValido(texto: string | null): string | null {
     : null;
 }
 
-function textoOuNulo(texto: string | null): string | null {
+export function textoOuNulo(texto: string | null): string | null {
   const aparado = texto?.trim() ?? "";
   return aparado === "" ? null : aparado;
 }
 
-function lista<T extends string>(texto: string | null, validos: readonly T[]): T[] {
+export function lista<T extends string>(texto: string | null, validos: readonly T[]): T[] {
   const pedidos = new Set((texto ?? "").split(",").map((v) => v.trim()));
   return validos.filter((v) => pedidos.has(v));
 }

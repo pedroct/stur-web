@@ -133,6 +133,37 @@ test("modo resultado: Só as que não fecham aparece com naoFecham e liga e desl
   expect(aoMudar).toHaveBeenLastCalledWith({ ...REFINAMENTOS_VAZIOS, soNaoFecham: true });
 });
 
+test("modo resultado: Só as que não fecham ligada desliga ao clicar", async () => {
+  const aoMudar = montar({ ...REFINAMENTOS_VAZIOS, soNaoFecham: true });
+  await userEvent.click(screen.getByRole("button", { name: "Só as que não fecham" }));
+  expect(aoMudar).toHaveBeenLastCalledWith({ ...REFINAMENTOS_VAZIOS, soNaoFecham: false });
+});
+
+test("modo resultado: marcado que o resultado não tem continua visível, com 0, e dá para desmarcar", async () => {
+  const valor = {
+    ...REFINAMENTOS_VAZIOS,
+    situacao: ["confirmada" as const],
+    produto: ["pacote" as const],
+    cliente: "GAMA AUSENTE",
+    fornecedor: "FORNECEDOR AUSENTE",
+    emissor: "EMISSOR AUSENTE",
+  };
+  const aoMudar = montar(valor);
+  const confirmada = screen.getByRole("button", { name: "Confirmada 0" });
+  expect(confirmada).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByRole("button", { name: "Pacote 0" })).toHaveAttribute("aria-pressed", "true");
+  expect(screen.getByLabelText("Cliente")).toHaveValue("GAMA AUSENTE");
+  expect(screen.getByRole("option", { name: "GAMA AUSENTE · 0" })).toBeInTheDocument();
+  expect(screen.getByLabelText("Fornecedor")).toHaveValue("FORNECEDOR AUSENTE");
+  expect(screen.getByLabelText("Emissor")).toHaveValue("EMISSOR AUSENTE");
+  await userEvent.click(confirmada);
+  expect(aoMudar).toHaveBeenLastCalledWith({ ...valor, situacao: [] });
+  await userEvent.click(screen.getByRole("button", { name: "Pacote 0" }));
+  expect(aoMudar).toHaveBeenLastCalledWith({ ...valor, produto: [] });
+  await userEvent.selectOptions(screen.getByLabelText("Cliente"), "Todos os clientes · 3");
+  expect(aoMudar).toHaveBeenLastCalledWith({ ...valor, cliente: null });
+});
+
 test("modo resultado: Só as que não fecham ligada fica pressionada", () => {
   montar({ ...REFINAMENTOS_VAZIOS, soNaoFecham: true });
   expect(screen.getByRole("button", { name: "Só as que não fecham" })).toHaveAttribute(

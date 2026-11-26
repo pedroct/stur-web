@@ -19,10 +19,11 @@ export function lerPagina(p: URLSearchParams): number {
 /** Página fora da faixa vai para a última válida; lista vazia tem uma página e `primeira = ultima = 0`. */
 export function paginar<T>(lista: T[], pagina: number, porPagina: number): Pagina<T> {
   const total = lista.length;
-  const paginas = Math.max(1, Math.ceil(total / porPagina));
+  const tamanho = Math.max(1, porPagina);
+  const paginas = Math.max(1, Math.ceil(total / tamanho));
   const atual = Math.min(Math.max(1, pagina), paginas);
-  const inicio = (atual - 1) * porPagina;
-  const itens = lista.slice(inicio, inicio + porPagina);
+  const inicio = (atual - 1) * tamanho;
+  const itens = lista.slice(inicio, inicio + tamanho);
   return {
     itens,
     primeira: total === 0 ? 0 : inicio + 1,

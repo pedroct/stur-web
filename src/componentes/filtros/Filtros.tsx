@@ -45,12 +45,13 @@ function GrupoDePilulas<T extends string>({
             key={valor}
             pressionada={marcadas.includes(valor)}
             onClick={() => aoAlternar(valor)}
+            className="gap-1.5"
           >
             {rotulo}
             {contagem !== undefined && (
               <>
                 {" "}
-                <span className="ml-1.5 font-normal text-texto-auxiliar">{contagem}</span>
+                <span className="font-normal text-texto-auxiliar">{contagem}</span>
               </>
             )}
           </Pilula>
@@ -222,6 +223,9 @@ function ListaDeSelecao({
             {nome} · {n}
           </option>
         ))}
+        {valor !== null && !opcoes.some(([nome]) => nome === valor) && (
+          <option value={valor}>{valor} · 0</option>
+        )}
       </select>
     </div>
   );
@@ -231,11 +235,17 @@ function ListaDeSelecao({
 function comContagem<T extends string>(
   rotulos: { valor: T; rotulo: string }[],
   contagens: [T, number][],
+  marcadas: readonly T[],
 ) {
-  return contagens.flatMap(([valor, contagem]) => {
+  const presentes = contagens.flatMap(([valor, contagem]) => {
     const achado = rotulos.find((r) => r.valor === valor);
     return achado ? [{ ...achado, contagem }] : [];
   });
+  // Marcada que o resultado não tem (endereço antigo): continua visível, com 0, para desmarcar.
+  const ausentes = rotulos
+    .filter((r) => marcadas.includes(r.valor) && !presentes.some((p) => p.valor === r.valor))
+    .map((r) => ({ ...r, contagem: 0 }));
+  return [...presentes, ...ausentes];
 }
 
 function FiltrosDoResultado({
@@ -273,13 +283,13 @@ function FiltrosDoResultado({
     >
       <GrupoDePilulas
         titulo="Situação no Stur"
-        opcoes={comContagem(SITUACOES, opcoes.situacao)}
+        opcoes={comContagem(SITUACOES, opcoes.situacao, valor.situacao)}
         marcadas={valor.situacao}
         aoAlternar={(s) => aoMudar({ ...valor, situacao: alternar(valor.situacao, s) })}
       />
       <GrupoDePilulas
         titulo="Produto"
-        opcoes={comContagem(CLASSIFICACOES, opcoes.produto)}
+        opcoes={comContagem(CLASSIFICACOES, opcoes.produto, valor.produto)}
         marcadas={valor.produto}
         aoAlternar={(c) => aoMudar({ ...valor, produto: alternar(valor.produto, c) })}
       />

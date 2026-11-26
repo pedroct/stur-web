@@ -43,3 +43,11 @@ test("página inválida vale 1", () => {
   expect(lerPagina(new URLSearchParams(""))).toBe(1);
   expect(lerPagina(new URLSearchParams("pagina=3"))).toBe(3);
 });
+
+test("porPagina menor que 1 não quebra a conta", () =>
+  expect(paginar([1, 2, 3], 1, 0)).toMatchObject({
+    paginas: 3,
+    itens: [1],
+    primeira: 1,
+    ultima: 1,
+  }));
