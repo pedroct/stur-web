@@ -25,9 +25,11 @@ test("link de período não consulta até o clique (critério 21)", async ({ pag
   api.responder(VENDAS, { corpo: resultado([linha()]) });
   await page.goto("/consulta?data=emissao&de=2026-11-17&ate=2026-11-24&fornecedor=EXEMPLO");
   await expect(page.getByRole("note")).toContainText("Este link trouxe uma consulta pronta");
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(0);
   await page.getByRole("button", { name: "Consultar" }).click();
   await expect(page.getByRole("table")).toBeVisible();
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(1);
 });
 
@@ -42,6 +44,7 @@ test("período longo recusado sem chamar a API (critério 12)", async ({ page, a
     ),
   ).toBeVisible();
   await expect(page).toHaveURL("/");
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(0);
 });
 
@@ -52,6 +55,7 @@ test("abrir a venda, voltar e recarregar não consultam de novo (P2)", async ({ 
   await page.getByLabel("Até", { exact: true }).fill("2026-11-24");
   await page.getByRole("button", { name: "Consultar" }).click();
   await expect(page.getByRole("table")).toBeVisible();
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(1);
 
   await page.getByRole("row").nth(1).getByRole("cell").nth(2).click();
@@ -59,10 +63,12 @@ test("abrir a venda, voltar e recarregar não consultam de novo (P2)", async ({ 
 
   await page.goBack();
   await expect(page.getByRole("table")).toBeVisible();
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(1);
 
   await page.reload();
   await expect(page.getByRole("table")).toBeVisible();
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(1);
 });
 
@@ -90,6 +96,7 @@ test("refinamento e página ficam no endereço", async ({ page, api }) => {
   await expect(page).toHaveURL(/[?&]pagina=2(&|$)/);
   await expect(page.getByLabel("Buscar no resultado")).toHaveValue("ALFA");
   await expect(page.getByText("21–30 de 30")).toBeVisible();
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(1);
 });
 
@@ -119,6 +126,7 @@ test("Atualizar que falha mantém a tabela (decisão 43)", async ({ page, api })
     page.getByRole("alert").filter({ hasText: "Não foi possível atualizar" }),
   ).toBeVisible();
   await expect(page.getByRole("table")).toBeVisible();
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(2);
 });
 
@@ -161,5 +169,6 @@ test("resultado guardado em formato inesperado: erro da aplicação uma vez; rec
 
   await page.reload();
   await expect(page.getByRole("note")).toContainText("Este link trouxe uma consulta pronta");
+  await api.ociosa();
   expect(api.chamadas(VENDAS)).toBe(0);
 });

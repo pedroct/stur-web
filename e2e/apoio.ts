@@ -13,6 +13,12 @@ export interface Api {
   responder(caminho: string, ...respostas: Resposta[]): void;
   /** Quantas chamadas o caminho já recebeu (do navegador, de qualquer carga da página). */
   chamadas(caminho: string): number;
+  /**
+   * Espera a API simulada ficar ociosa: nenhuma chamada em andamento e nenhuma nova por
+   * `quietoMs`, contados a partir do pedido. Contar depois disso pega também a chamada que
+   * viria atrasada.
+   */
+  ociosa(quietoMs?: number): Promise<void>;
 }
 
 const RAIZ = "/api/v1/";
@@ -24,12 +30,16 @@ const RAIZ = "/api/v1/";
 export async function simularApi(page: Page): Promise<Api> {
   const programadas = new Map<string, Resposta[]>();
   const contagem = new Map<string, number>();
+  let emAndamento = 0;
+  let ultimaEm = Date.now();
   programadas.set("/api/v1/parametros", [{ corpo: parametros() }]);
 
   await page.route(`**${RAIZ}**`, async (rota) => {
     const caminho = new URL(rota.request().url()).pathname;
     const vez = contagem.get(caminho) ?? 0;
     contagem.set(caminho, vez + 1);
+    emAndamento += 1;
+    ultimaEm = Date.now();
     const respostas = programadas.get(caminho);
     const resposta = respostas?.[Math.min(vez, respostas.length - 1)] ?? {
       status: 500,
@@ -44,6 +54,9 @@ export async function simularApi(page: Page): Promise<Api> {
       });
     } catch {
       // A página já abortou a chamada (Cancelar consulta) ou fechou: nada a responder.
+    } finally {
+      emAndamento -= 1;
+      ultimaEm = Date.now();
     }
   });
 
@@ -53,6 +66,13 @@ export async function simularApi(page: Page): Promise<Api> {
     },
     chamadas(caminho) {
       return contagem.get(caminho) ?? 0;
+    },
+    async ociosa(quietoMs = 750) {
+      // A janela quieta conta a partir do pedido: a chamada que ainda vai sair também entra.
+      const pedidaEm = Date.now();
+      while (emAndamento > 0 || Date.now() - Math.max(ultimaEm, pedidaEm) < quietoMs) {
+        await new Promise((resolver) => setTimeout(resolver, 50));
+      }
     },
   };
 }
