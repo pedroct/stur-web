@@ -37,7 +37,7 @@ jobs:
       - id: semantic
         uses: cycjimmy/semantic-release-action@16ca923e6ccbb50770c415a0ccd43709a8c5f7a4 # v4.2.2
         with:
-          semantic_version: 24
+          semantic_version: 24.2.9 # a última 24.x (npm, 26/11/2026); fixa como os plugins
           extra_plugins: |
             @semantic-release/changelog@6.0.3
             @semantic-release/git@10.0.1
