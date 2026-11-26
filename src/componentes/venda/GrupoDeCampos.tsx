@@ -224,8 +224,10 @@ function emBlocos(pares: Par[]): Par[][] {
 }
 
 /**
- * Um par de outra seção do Anexo B que o grupo mostra (a diária de balcão em "Tarifas de
- * referência", decisão 6) leva a marca da seção dele (Global Constraints, "Marca para o teste").
+ * Os pares como os do cartão e de Mais detalhes (IA 7.1): rótulo e valor lado a lado a partir de
+ * 720 px, empilhados abaixo disso. Um par de outra seção do Anexo B que o grupo mostra (a diária de
+ * balcão em "Tarifas de referência", decisão 6) leva a marca da seção dele (Global Constraints,
+ * "Marca para o teste").
  */
 function Pares({ blocos, secao }: Readonly<{ blocos: Par[][]; secao: number | undefined }>) {
   return (
@@ -235,7 +237,7 @@ function Pares({ blocos, secao }: Readonly<{ blocos: Par[][]; secao: number | un
           // biome-ignore lint/suspicious/noArrayIndexKey: os blocos não mudam de ordem
           key={i}
           className={cn(
-            "grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-x-6 gap-y-3",
+            "grid gap-y-3 text-sm leading-5 min-[720px]:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] min-[720px]:gap-x-4 min-[720px]:gap-y-2",
             i > 0 && "border-t border-borda pt-3",
           )}
         >
@@ -243,13 +245,11 @@ function Pares({ blocos, secao }: Readonly<{ blocos: Par[][]; secao: number | un
             <div
               // biome-ignore lint/suspicious/noArrayIndexKey: o rótulo se repete entre itens
               key={k}
-              className="min-w-0"
+              className="min-w-0 min-[720px]:contents"
               data-anexo-secao={par.secao === secao ? undefined : par.secao}
             >
-              <dt className="text-xs font-semibold tracking-[0.02em] text-texto-auxiliar">
-                {par.rotulo}
-              </dt>
-              <dd className="mt-0.5 text-sm leading-5 break-words tabular-nums">{par.valor}</dd>
+              <dt className="text-texto-auxiliar">{par.rotulo}</dt>
+              <dd className="mt-0.5 break-words tabular-nums min-[720px]:mt-0">{par.valor}</dd>
             </div>
           ))}
         </dl>

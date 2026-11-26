@@ -93,7 +93,7 @@ function Recebimento({
           campos={camposDosDetalhes(l, cru, "fornecedor", true)}
           venda={venda}
           indices={[l.indice]}
-          className="text-[13px] leading-[22px]"
+          className="mt-1"
         />
       )}
     </div>
