@@ -157,7 +157,7 @@ test("voltar a /reservas/n com a reserva na memória não chama a API", async ()
 
   act(() => roteador.back());
   await waitFor(() => expect(caminho()).toBe("Consulta › Reserva 90000001"));
-  expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
+  expect(screen.queryByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeNull();
   expect(requisicoesPara(CAMINHO)).toBe(1);
   expect(requisicoesPara(VENDA_1)).toBe(1);
 });
@@ -312,7 +312,7 @@ test("número com uma venda abre a venda (P7); duas abrem a reserva sem venda ab
   expect(caminho()).toBe("Consulta › Reserva 90000002");
   expect(screen.getByText("Reserva 90000002 · 2 vendas")).toBeVisible();
   expect(screen.getAllByRole("link", { name: /^Venda \d de 2/ })).toHaveLength(2);
-  expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
+  expect(screen.queryByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeNull();
   expect(roteador.replace).toHaveBeenCalledTimes(1);
   expect(lerRecentes()[0]).toMatchObject({
     endereco: "/reservas/90000002",
@@ -525,7 +525,9 @@ test("Atualizar sem venda aberta pede só a reserva, e as vendas guardadas saem"
   abrir("/reservas/90000001/vendas/1001");
   await esperarCliente(2);
   act(() => roteador.push("/reservas/90000001"));
-  await waitFor(() => expect(screen.queryByRole("heading", { level: 2 })).toBeNull());
+  await waitFor(() =>
+    expect(screen.queryByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeNull(),
+  );
   await userEvent.click(screen.getByRole("button", { name: "Atualizar" }));
   await waitFor(() => expect(requisicoesPara(CAMINHO)).toBe(1));
   await waitFor(() => expect(screen.getByRole("button", { name: "Atualizar" })).toBeEnabled());
@@ -578,7 +580,9 @@ test("busca do topo com o mesmo número consulta de novo", async () => {
   await userEvent.click(screen.getByRole("link", { name: "Venda 1 de 2 · HOTEL NAC" }));
   await esperarCliente(2);
   act(() => roteador.back());
-  await waitFor(() => expect(screen.queryByRole("heading", { level: 2 })).toBeNull());
+  await waitFor(() =>
+    expect(screen.queryByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeNull(),
+  );
   expect(requisicoesPara(CAMINHO)).toBe(1);
 
   registrarOrigem({ enderecoResultado: "/consulta?de=2026-11-17", tituloCurto: "x", vendas: [] });

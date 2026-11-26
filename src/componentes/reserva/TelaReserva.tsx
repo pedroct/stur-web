@@ -10,8 +10,10 @@ import { LinhaConsulta } from "@/componentes/venda/LinhaConsulta";
 import type { EstadoVenda } from "@/componentes/venda/useReservaVenda";
 import { type ConsultaDaVenda, Venda } from "@/componentes/venda/Venda";
 import type { ReservaConsultada } from "@/contrato/tipos";
-import { formatarHora } from "@/lib/tempo";
+import { diaEmFortaleza, formatarHora } from "@/lib/tempo";
 import { enderecoDaVenda } from "@/lib/venda/rota";
+import { CabecalhoReserva } from "./CabecalhoReserva";
+import { FinanceiroReserva } from "./FinanceiroReserva";
 
 export type VendaAberta = {
   idreserva: number;
@@ -45,8 +47,9 @@ function VendaAbaixo({
 }
 
 /**
- * A reserva com duas ou mais vendas. Casca: as Tasks 10 e 11 a completam. Com uma venda aberta,
- * a linha da consulta mostra o `consultadoEm` dela, que é o mais novo, e a venda vem embaixo.
+ * A reserva com duas ou mais vendas: cabeçalho, Financeiro e lançamentos (decisões 12 e 15). A
+ * lista de vendas é a da casca, até a Task 11 trocá-la pela tabela. Com uma venda aberta, a linha
+ * da consulta mostra o `consultadoEm` dela, que é o mais novo, e a venda vem embaixo.
  */
 export function TelaReserva({
   dados,
@@ -59,29 +62,21 @@ export function TelaReserva({
 }>) {
   const roteador = useRouter();
   const { numero, vendas } = dados.reserva;
-  const cliente = vendas.find((v) => v.resumo.cliente)?.resumo.cliente ?? `Reserva ${numero}`;
   const daVenda = vendaAberta?.estado.dados;
   const consultadoEm = daVenda?.consultadoEm ?? dados.consultadoEm;
   const dadosDoSturAte = daVenda ? daVenda.dadosDoSturAte : dados.dadosDoSturAte;
+  const hoje = diaEmFortaleza(consultadoEm);
 
   return (
     <>
-      <section className="mt-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div className="min-w-0 flex-[1_1_35rem]">
-          <span className="text-base font-semibold tabular-nums">
-            Reserva {numero} · {vendas.length} vendas
-          </span>
-          <h1 className="mt-3 text-4xl leading-11 font-bold tracking-[-0.01em]">{cliente}</h1>
-        </div>
-        <div className="flex flex-col items-end text-right">
-          <LinhaConsulta
-            consultadoEm={consultadoEm}
-            dadosDoSturAte={dadosDoSturAte}
-            atualizando={consulta.atualizando}
-            aoAtualizar={consulta.aoAtualizar}
-          />
-        </div>
-      </section>
+      <CabecalhoReserva reserva={dados.reserva} hoje={hoje}>
+        <LinhaConsulta
+          consultadoEm={consultadoEm}
+          dadosDoSturAte={dadosDoSturAte}
+          atualizando={consulta.atualizando}
+          aoAtualizar={consulta.aoAtualizar}
+        />
+      </CabecalhoReserva>
       {consulta.falha && (
         <div className="mt-4">
           <FalhaAtualizar
@@ -91,6 +86,8 @@ export function TelaReserva({
           />
         </div>
       )}
+
+      <FinanceiroReserva reserva={dados.reserva} hoje={hoje} vendaAberta={vendaAberta !== null} />
 
       <ul className="mt-6 flex flex-col gap-2 text-sm leading-5">
         {vendas.map(({ resumo, posicao }) => {
