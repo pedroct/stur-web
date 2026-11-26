@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, buttonVariants } from "@/componentes/ui/button";
 import type { ErroDaConsulta } from "@/lib/api/cliente";
 import { useParametros } from "@/lib/api/parametros";
-import { TEXTOS_ERRO, tipoComTexto } from "@/lib/api/textos-erro";
+import { comTentarDeNovo, TEXTOS_ERRO, tipoComTexto } from "@/lib/api/textos-erro";
 
 const COPIADO_POR_MS = 2000;
 
@@ -18,22 +18,31 @@ function semIdreserva(texto: string): string {
 /**
  * Tela 12: o erro no lugar do resultado, com as ações que cabem a cada tipo. O "Detalhe técnico"
  * só existe no formato desconhecido e mostra o `codigo` e o `detalhe` do backend (decisão 6).
+ * Dentro da reserva (12c), o título desce para h2, a `mensagem` diz qual venda não abriu e a
+ * `acaoExtra` volta para a tabela das vendas, como a de `NenhumaVenda`.
  */
 export function EstadoErro({
   erro,
   rodape,
   aoTentar,
   alterarHref,
+  nivelTitulo = "h1",
+  mensagem,
+  acaoExtra,
 }: Readonly<{
   erro: ErroDaConsulta;
   rodape?: string;
   aoTentar?: () => void;
   alterarHref: string;
+  nivelTitulo?: "h1" | "h2";
+  mensagem?: string;
+  acaoExtra?: { rotulo: string; aoClicar(): void };
 }>) {
   const { tempoLimiteSegundos } = useParametros();
   const tipo = tipoComTexto(erro.tipo);
   const textos = TEXTOS_ERRO[tipo];
-  const podeTentar = aoTentar !== undefined && (tipo === "sem_resposta" || tipo === "aplicacao");
+  const podeTentar = aoTentar !== undefined && comTentarDeNovo(tipo);
+  const Titulo = nivelTitulo;
   const detalhe = JSON.stringify({ codigo: erro.codigo, detalhe: erro.detalhe }, null, 2);
 
   const [copiado, setCopiado] = useState(false);
@@ -67,8 +76,10 @@ export function EstadoErro({
       >
         <TriangleAlert className="size-7 shrink-0 text-estado-erro" aria-hidden="true" />
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl leading-8 font-bold">{textos.titulo}</h1>
-          <p className="mt-2 text-base leading-6">{textos.mensagem(tempoLimiteSegundos)}</p>
+          <Titulo className="text-2xl leading-8 font-bold">{textos.titulo}</Titulo>
+          <p className="mt-2 text-base leading-6">
+            {mensagem ?? textos.mensagem(tempoLimiteSegundos)}
+          </p>
           {tipo === "formato" && (
             <details className="mt-4 rounded-pequeno border border-borda bg-superficie px-4 py-3">
               <summary className="cursor-pointer text-sm font-semibold outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco">
@@ -98,6 +109,11 @@ export function EstadoErro({
             >
               Alterar consulta
             </Link>
+            {acaoExtra && (
+              <Button variant="secundaria" size="compacto" onClick={acaoExtra.aoClicar}>
+                {acaoExtra.rotulo}
+              </Button>
+            )}
           </div>
         </div>
       </div>

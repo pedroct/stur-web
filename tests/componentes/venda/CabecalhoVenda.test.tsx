@@ -96,7 +96,7 @@ test("a venda tem um h1 só, com o Financeiro em h2", () => {
 test("dentro da reserva, o título desce para h2 e o Financeiro para h3", () => {
   render(<Venda dados={hotel()} naReserva nivelBase={2} consulta={CONSULTA} />);
   expect(screen.queryByRole("heading", { level: 1 })).toBeNull();
-  expect(screen.getByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeVisible();
+  expect(screen.getByRole("heading", { level: 2, name: "Venda 1 · HOTEL NAC" })).toBeVisible();
   expect(screen.getByRole("heading", { level: 3, name: "Financeiro" })).toBeInTheDocument();
 });
 

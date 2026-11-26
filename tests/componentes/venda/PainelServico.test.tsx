@@ -179,7 +179,7 @@ test("por link direto: uma chamada da venda, a venda atrás, e Fechar faz replac
   expect(within(painel).getByText("Serviço 2 de 3 · venda 1 de 2")).toBeVisible();
   // A venda continua atrás, com a lista dos serviços.
   expect(
-    screen.getByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA", hidden: true }),
+    screen.getByRole("heading", { level: 2, name: "Venda 1 · EVENTO", hidden: true }),
   ).toBeInTheDocument();
   expect(
     screen.getByRole("button", { name: "ITEM 1, PESSOA 1", hidden: true }),
@@ -193,7 +193,7 @@ test("por link direto: uma chamada da venda, a venda atrás, e Fechar faz replac
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   // Sem quem abriu, o foco vai para o título da venda.
   await waitFor(() =>
-    expect(screen.getByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toHaveFocus(),
+    expect(screen.getByRole("heading", { level: 2, name: "Venda 1 · EVENTO" })).toHaveFocus(),
   );
   expect(requisicoesPara(VENDA_1)).toBe(1);
 });
@@ -202,9 +202,7 @@ test("serviço fora da faixa faz replace para a venda", async () => {
   programar(duasVendas(), 3);
   abrir(`${VENDA}/servicos/99`);
   await waitFor(() => expect(roteador.replace).toHaveBeenCalledWith(VENDA, SEM_ROLAR));
-  expect(
-    await screen.findByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" }),
-  ).toBeVisible();
+  expect(await screen.findByRole("heading", { level: 2, name: "Venda 1 · EVENTO" })).toBeVisible();
   expect(screen.queryByRole("dialog")).toBeNull();
 });
 

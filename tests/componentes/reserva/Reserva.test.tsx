@@ -237,14 +237,15 @@ describe("reserva só com vendas canceladas", () => {
 });
 
 describe("TelaReserva", () => {
-  test("sem venda aberta: cabeçalho, Financeiro com a tabela aberta e a lista da casca", () => {
+  test("sem venda aberta: cabeçalho, Financeiro com a tabela aberta e a tabela das vendas", () => {
     render(<TelaReserva dados={dezVendas()} vendaAberta={null} consulta={SEM_CONSULTA} />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("CLIENTE EXEMPLO LTDA");
     expect(screen.getByRole("heading", { level: 2, name: /^Financeiro das 9/ })).toBeVisible();
     expect(
       screen.getByText("Recebimentos e pagamentos da reserva").closest("details"),
     ).toHaveAttribute("open");
-    expect(screen.getByRole("link", { name: /^Venda 1 de 10/ })).toBeVisible();
+    expect(screen.getByRole("table", { name: /^Vendas da reserva 90000001/ })).toBeVisible();
+    expect(screen.getByRole("link", { name: /venda 1 de 10$/ })).toBeVisible();
   });
 
   test("com venda aberta: a tabela de lançamentos fica recolhida", () => {

@@ -46,6 +46,13 @@ export function subtituloDaVenda(v: VendaAgi): string {
   return [comClassificacao, fornecedor, emissao].filter((p) => p !== null && p !== "").join(" · ");
 }
 
+/** O selo da origem na venda aberta dentro da reserva: lançada direto ou a integração (telas 4 e 7). */
+export function origemDaVenda(v: VendaAgi): string {
+  const sistema = texto(v.sistemaExterno?.sistema);
+  if (sistema !== null) return `Integração ${sistema}`;
+  return texto(v.sistemaExterno?.idVenda) === null ? "Lançada direto no Stur" : "Integração";
+}
+
 /** "Incentivo pago pelo fornecedor à A3 · lançado em {data}" (tela 17). */
 export function subtituloDoIncentivo(v: VendaAgi): string {
   const lancamento =

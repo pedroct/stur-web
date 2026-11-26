@@ -17,6 +17,9 @@ vi.mock("next/navigation", async () => {
   };
 });
 
+// O jsdom não rola a página; a tabela das vendas desce até a venda aberta com `scrollIntoView`.
+if (typeof Element !== "undefined") Element.prototype.scrollIntoView = () => {};
+
 beforeAll(() => servidor.listen({ onUnhandledRequest: "error" }));
 
 afterEach(() => {

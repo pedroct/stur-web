@@ -37,8 +37,9 @@ function duasVendas(numero = 90000001): ReservaConsultada {
 /** A venda como o backend a manda: com a reserva junto e a posição dela. */
 function vendaDe(r: ReservaConsultada, idreserva: number) {
   const posicao = r.reserva.vendas.findIndex((v) => v.resumo.idreserva === idreserva) + 1;
+  const produto = r.reserva.vendas[posicao - 1]?.resumo.produto ?? null;
   return vendaConsultada({
-    venda: vendaAgi({ reserva: r.numero, idreserva }),
+    venda: vendaAgi({ reserva: r.numero, idreserva, nomeproduto: produto }),
     reserva: r.reserva,
     posicao,
     consultadoEm: r.consultadoEm,
@@ -92,8 +93,24 @@ function caminho(): string {
   return screen.getByRole("navigation", { name: "Caminho" }).textContent ?? "";
 }
 
-async function esperarCliente(nivel = 1) {
-  return screen.findByRole("heading", { level: nivel, name: "CLIENTE EXEMPLO LTDA" });
+async function esperarCliente() {
+  return screen.findByRole("heading", { level: 1, name: "CLIENTE EXEMPLO LTDA" });
+}
+
+/** O título da venda aberta dentro da reserva (h2 "Venda {k} · {produto}"). */
+const VENDA_ABERTA = /^Venda \d+ · /;
+
+async function esperarVendaAberta() {
+  return screen.findByRole("heading", { level: 2, name: VENDA_ABERTA });
+}
+
+/** Clica na linha da venda na tabela; com uma venda aberta, reabre a tabela pela barra antes. */
+async function abrirNaTabela(produto: string, k: number) {
+  const resumo = screen.queryByText(/^Ver as \d+ vendas$/, { selector: "summary" });
+  if (resumo !== null && !resumo.closest("details")?.open) await userEvent.click(resumo);
+  await userEvent.click(
+    screen.getByRole("link", { name: new RegExp(`^${produto} venda ${k} de`) }),
+  );
 }
 
 // --- Rota única: o estado fica no layout (decisão 16) ---
@@ -101,12 +118,11 @@ async function esperarCliente(nivel = 1) {
 test("venda por endereço direto faz uma chamada só, e a reserva vem junto", async () => {
   programar(duasVendas());
   abrir("/reservas/90000001/vendas/1001");
-  await esperarCliente(2);
+  await esperarVendaAberta();
   expect(screen.getByText("Reserva 90000001 · 2 vendas")).toBeVisible();
-  expect(screen.getByRole("link", { name: "Venda 2 de 2 · SEGURO VIAGEM" })).toHaveAttribute(
-    "href",
-    "/reservas/90000001/vendas/1002",
-  );
+  expect(
+    screen.getByRole("link", { name: "Próxima venda: venda 2 de 2, SEGURO VIAGEM" }),
+  ).toHaveAttribute("href", "/reservas/90000001/vendas/1002");
   expect(caminho()).toBe("Consulta › Reserva 90000001 › Venda 1 de 2");
   expect(requisicoesPara(VENDA_1)).toBe(1);
   expect(requisicoesPara(CAMINHO)).toBe(0);
@@ -128,16 +144,16 @@ test("trocar o endereço para o serviço e voltar não chama a API", async () =>
 test("trocar para outra venda chama só a venda nova", async () => {
   programar(duasVendas());
   abrir("/reservas/90000001/vendas/1001");
-  await esperarCliente(2);
-  await userEvent.click(screen.getByRole("link", { name: "Venda 2 de 2 · SEGURO VIAGEM" }));
-  expect(roteador.push).toHaveBeenCalledWith("/reservas/90000001/vendas/1002");
+  await esperarVendaAberta();
+  await abrirNaTabela("SEGURO VIAGEM", 2);
+  expect(roteador.push).toHaveBeenCalledWith("/reservas/90000001/vendas/1002", { scroll: false });
   await waitFor(() => expect(caminho()).toBe("Consulta › Reserva 90000001 › Venda 2 de 2"));
-  await esperarCliente(2);
+  await esperarVendaAberta();
   expect(requisicoesPara(VENDA_2)).toBe(1);
 
   act(() => roteador.back());
   await waitFor(() => expect(caminho()).toBe("Consulta › Reserva 90000001 › Venda 1 de 2"));
-  expect(screen.getByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeVisible();
+  expect(screen.getByRole("heading", { level: 2, name: VENDA_ABERTA })).toBeVisible();
   expect(requisicoesPara(VENDA_1)).toBe(1);
   expect(requisicoesPara(VENDA_2)).toBe(1);
   expect(requisicoesPara(CAMINHO)).toBe(0);
@@ -148,8 +164,8 @@ test("voltar a /reservas/n com a reserva na memória não chama a API", async ()
   abrir("/reservas/90000001");
   await esperarCliente();
   expect(caminho()).toBe("Consulta › Reserva 90000001");
-  await userEvent.click(screen.getByRole("link", { name: "Venda 1 de 2 · HOTEL NAC" }));
-  await esperarCliente(2);
+  await abrirNaTabela("HOTEL NAC", 1);
+  await esperarVendaAberta();
   expect(screen.getByRole("link", { name: "Reserva 90000001" })).toHaveAttribute(
     "href",
     "/reservas/90000001",
@@ -157,7 +173,7 @@ test("voltar a /reservas/n com a reserva na memória não chama a API", async ()
 
   act(() => roteador.back());
   await waitFor(() => expect(caminho()).toBe("Consulta › Reserva 90000001"));
-  expect(screen.queryByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeNull();
+  expect(screen.queryByRole("heading", { level: 2, name: VENDA_ABERTA })).toBeNull();
   expect(requisicoesPara(CAMINHO)).toBe(1);
   expect(requisicoesPara(VENDA_1)).toBe(1);
 });
@@ -244,14 +260,21 @@ test("erro de outra venda dentro da reserva fica no lugar da venda, com Tentar d
   );
   abrir("/reservas/90000001");
   await esperarCliente();
-  await userEvent.click(screen.getByRole("link", { name: "Venda 2 de 2 · SEGURO VIAGEM" }));
+  await abrirNaTabela("SEGURO VIAGEM", 2);
   const alerta = await screen.findByRole("alert");
-  // A reserva segue à vista, com a lista das vendas.
+  // A reserva segue à vista, com a barra já na venda 2 e o erro em h2 (12c).
   expect(screen.getByRole("heading", { level: 1, name: "CLIENTE EXEMPLO LTDA" })).toBeVisible();
-  expect(screen.getByRole("link", { name: "Venda 1 de 2 · HOTEL NAC" })).toBeVisible();
+  expect(screen.getByText("Venda 2 de 2 · SEGURO VIAGEM")).toBeVisible();
+  expect(
+    screen.getByRole("link", { name: "Venda anterior: venda 1 de 2, HOTEL NAC" }),
+  ).toBeVisible();
+  expect(within(alerta).getByRole("heading", { level: 2 })).toHaveTextContent(
+    "A API do Stur não respondeu",
+  );
+  expect(alerta).toHaveTextContent("A venda 2 não abriu: a API do Stur não respondeu");
   expect(caminho()).toBe("Consulta › Reserva 90000001 › Venda 2 de 2");
   await userEvent.click(within(alerta).getByRole("button", { name: "Tentar de novo" }));
-  await esperarCliente(2);
+  await esperarVendaAberta();
   expect(screen.queryByRole("alert")).toBeNull();
   expect(requisicoesPara(VENDA_2)).toBe(2);
   expect(requisicoesPara(CAMINHO)).toBe(1);
@@ -311,8 +334,8 @@ test("número com uma venda abre a venda (P7); duas abrem a reserva sem venda ab
   await esperarCliente();
   expect(caminho()).toBe("Consulta › Reserva 90000002");
   expect(screen.getByText("Reserva 90000002 · 2 vendas")).toBeVisible();
-  expect(screen.getAllByRole("link", { name: /^Venda \d de 2/ })).toHaveLength(2);
-  expect(screen.queryByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeNull();
+  expect(screen.getAllByRole("link", { name: / venda \d de 2$/ })).toHaveLength(2);
+  expect(screen.queryByRole("heading", { level: 2, name: VENDA_ABERTA })).toBeNull();
   expect(roteador.replace).toHaveBeenCalledTimes(1);
   expect(lerRecentes()[0]).toMatchObject({
     endereco: "/reservas/90000002",
@@ -459,7 +482,7 @@ test("no modo estrito, uma requisição só", async () => {
   unmount();
 
   abrir("/reservas/90000001/vendas/1002", { estrito: true });
-  await esperarCliente(2);
+  await esperarVendaAberta();
   expect(requisicoesPara(VENDA_2)).toBe(1);
   expect(requisicoesPara(CAMINHO)).toBe(1);
 });
@@ -503,7 +526,7 @@ test("Atualizar com venda aberta pede só a venda; se falha, mantém os dados (1
     () => HttpResponse.json(erroApi("api_stur_sem_resposta"), { status: 504 }),
   );
   abrir("/reservas/90000001/vendas/1001");
-  await esperarCliente(2);
+  await esperarVendaAberta();
   const atualizar = screen.getByRole("button", { name: "Atualizar" });
   expect(atualizar).toHaveAttribute("title", "Atualizar (u)");
   expect(atualizar).toHaveAttribute("aria-keyshortcuts", "u");
@@ -515,7 +538,7 @@ test("Atualizar com venda aberta pede só a venda; se falha, mantém os dados (1
   expect(alerta).toHaveTextContent(
     "Não foi possível atualizar. A API do Stur não respondeu em 30 segundos. Os dados abaixo são da consulta das 22h48.",
   );
-  expect(screen.getByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeVisible();
+  expect(screen.getByRole("heading", { level: 2, name: VENDA_ABERTA })).toBeVisible();
   expect(requisicoesPara(VENDA_1)).toBe(2);
   expect(requisicoesPara(CAMINHO)).toBe(0);
 });
@@ -523,10 +546,10 @@ test("Atualizar com venda aberta pede só a venda; se falha, mantém os dados (1
 test("Atualizar sem venda aberta pede só a reserva, e as vendas guardadas saem", async () => {
   programar(duasVendas());
   abrir("/reservas/90000001/vendas/1001");
-  await esperarCliente(2);
+  await esperarVendaAberta();
   act(() => roteador.push("/reservas/90000001"));
   await waitFor(() =>
-    expect(screen.queryByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeNull(),
+    expect(screen.queryByRole("heading", { level: 2, name: VENDA_ABERTA })).toBeNull(),
   );
   await userEvent.click(screen.getByRole("button", { name: "Atualizar" }));
   await waitFor(() => expect(requisicoesPara(CAMINHO)).toBe(1));
@@ -534,10 +557,45 @@ test("Atualizar sem venda aberta pede só a reserva, e as vendas guardadas saem"
   expect(requisicoesPara(VENDA_1)).toBe(1);
 
   // A venda 1 saiu da memória: abri-la de novo a pede de novo.
-  await userEvent.click(screen.getByRole("link", { name: "Venda 1 de 2 · HOTEL NAC" }));
-  await esperarCliente(2);
+  await abrirNaTabela("HOTEL NAC", 1);
+  await esperarVendaAberta();
   expect(requisicoesPara(VENDA_1)).toBe(2);
   expect(requisicoesPara(CAMINHO)).toBe(1);
+});
+
+test("a venda aberta mais nova que a reserva: a linha da consulta e a reserva vêm dela", async () => {
+  const antes = duasVendas();
+  // A venda chega depois, com a reserva como o Stur a tem agora: o total da venda 1 mudou.
+  const depois = reserva(90000001, [
+    resumoVenda({ idreserva: 1001, produto: "HOTEL NAC", totalCliente: "1500.00" }),
+    resumoVenda({ idreserva: 1002, produto: "SEGURO VIAGEM", classificacao: "Diversos" }),
+  ]);
+  servidor.use(
+    http.get(`*${CAMINHO}`, () =>
+      HttpResponse.json({ ...antes, consultadoEm: "2026-11-24T10:00:00.000001-03:00" }),
+    ),
+    http.get(`*${VENDA_2}`, () =>
+      HttpResponse.json({ ...vendaDe(depois, 1002), consultadoEm: "2026-11-24T11:15:00-03:00" }),
+    ),
+  );
+  abrir("/reservas/90000001");
+  await esperarCliente();
+  expect(screen.getByText(/^Consultado às 10h00/)).toBeVisible();
+  expect(screen.getByText("Total das 2 vendas ativas").closest("tr")).toHaveTextContent("2.000,00");
+
+  await abrirNaTabela("SEGURO VIAGEM", 2);
+  await esperarVendaAberta();
+  expect(screen.getByText(/^Consultado às 11h15/)).toBeVisible();
+
+  // De volta à reserva, sem chamar a API: ela é a que veio com a venda.
+  act(() => roteador.back());
+  await waitFor(() =>
+    expect(screen.queryByRole("heading", { level: 2, name: VENDA_ABERTA })).toBeNull(),
+  );
+  expect(screen.getByText(/^Consultado às 11h15/)).toBeVisible();
+  expect(screen.getByText("Total das 2 vendas ativas").closest("tr")).toHaveTextContent("2.500,00");
+  expect(requisicoesPara(CAMINHO)).toBe(1);
+  expect(requisicoesPara(VENDA_2)).toBe(1);
 });
 
 test("Atualizar que dá certo tira o aviso da falha", async () => {
@@ -564,7 +622,7 @@ test("Atualizar que dá certo tira o aviso da falha", async () => {
 test("abrir pela venda registra a recente da reserva", async () => {
   programar(duasVendas());
   abrir("/reservas/90000001/vendas/1002");
-  await esperarCliente(2);
+  await esperarVendaAberta();
   expect(lerRecentes()).toHaveLength(1);
   expect(lerRecentes()[0]).toMatchObject({
     endereco: "/reservas/90000001",
@@ -577,11 +635,11 @@ test("busca do topo com o mesmo número consulta de novo", async () => {
   programar(duasVendas());
   const { unmount } = abrir("/reservas/90000001", { moldura: true });
   await esperarCliente();
-  await userEvent.click(screen.getByRole("link", { name: "Venda 1 de 2 · HOTEL NAC" }));
-  await esperarCliente(2);
+  await abrirNaTabela("HOTEL NAC", 1);
+  await esperarVendaAberta();
   act(() => roteador.back());
   await waitFor(() =>
-    expect(screen.queryByRole("heading", { level: 2, name: "CLIENTE EXEMPLO LTDA" })).toBeNull(),
+    expect(screen.queryByRole("heading", { level: 2, name: VENDA_ABERTA })).toBeNull(),
   );
   expect(requisicoesPara(CAMINHO)).toBe(1);
 
@@ -593,8 +651,8 @@ test("busca do topo com o mesmo número consulta de novo", async () => {
   expect(requisicoesPara(VENDA_1)).toBe(1);
   expect(lerOrigem()).toBeNull();
   // As vendas guardadas saíram: abrir a venda 1 a pede de novo.
-  await userEvent.click(screen.getByRole("link", { name: "Venda 1 de 2 · HOTEL NAC" }));
-  await esperarCliente(2);
+  await abrirNaTabela("HOTEL NAC", 1);
+  await esperarVendaAberta();
   expect(requisicoesPara(VENDA_1)).toBe(2);
   unmount();
 
@@ -658,11 +716,11 @@ test("venda que carrega dentro da reserva liga a faixa sem ocupar a página", as
   );
   abrir("/reservas/90000001", { moldura: true });
   await esperarCliente();
-  await userEvent.click(screen.getByRole("link", { name: "Venda 2 de 2 · SEGURO VIAGEM" }));
+  await abrirNaTabela("SEGURO VIAGEM", 2);
   await waitFor(() => expect(screen.getByRole("button", { name: "Buscando…" })).toBeDisabled());
   expect(screen.getByRole("main")).not.toHaveAttribute("aria-busy");
   segura.soltar();
-  await esperarCliente(2);
+  await esperarVendaAberta();
   await waitFor(() => expect(screen.getByRole("button", { name: "Buscar" })).toBeEnabled());
 });
 

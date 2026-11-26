@@ -29,10 +29,9 @@ export type ConsultaDaVenda = {
 /**
  * A venda, na ordem da IA 6.1: cabeçalho, avisos, Financeiro (ou Incentivo), conteúdo do produto,
  * pessoa e conta, recebimentos e pagamentos, vínculos, Mais detalhes e Códigos do Stur. Sozinha
- * (`nivelBase` 1), o cabeçalho é o dela, com o título em h1 e a linha da consulta; dentro da
- * reserva (`naReserva`, `nivelBase` 2), o título desce para h2 e a linha da consulta, com o
- * Atualizar, fica na reserva, acima da lista (a Task 11 troca este cabeçalho pelo da venda aberta,
- * que mantém o `data-titulo-venda`).
+ * (`nivelBase` 1), o cabeçalho é o da página, com o cliente em h1 e a linha da consulta; aberta
+ * dentro da reserva (`naReserva`, `nivelBase` 2), é o da venda aberta, com "Venda {k} · {produto}"
+ * em h2, e tudo desce um nível (IA 6.10). A linha da consulta, com o Atualizar, fica na reserva.
  */
 export function Venda({
   dados,
@@ -70,13 +69,7 @@ export function Venda({
 
   return (
     <>
-      {naReserva ? (
-        <div className="mt-10">
-          <CabecalhoVenda dados={dados} consulta={consulta} naReserva />
-        </div>
-      ) : (
-        <CabecalhoVenda dados={dados} consulta={consulta} />
-      )}
+      <CabecalhoVenda dados={dados} consulta={consulta} naReserva={naReserva} />
       <Avisos lista={avisosDaVenda(venda, calculos, dados.vinculos)} />
       {!comFinanceiro && <Incentivo dados={dados} nivelBase={nivelBase} />}
       {comFinanceiro && <Financeiro dados={dados} nivelBase={nivelBase} />}
