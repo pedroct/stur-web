@@ -218,9 +218,12 @@ test("a linha leva à venda e registra a origem", async () => {
   // Sem o roteador do Next, o Link deixa o jsdom tentar a navegação de verdade.
   const naoNavegar = (evento: Event) => evento.preventDefault();
   document.addEventListener("click", naoNavegar);
-  link.focus();
-  await user.keyboard("{Enter}");
-  document.removeEventListener("click", naoNavegar);
+  try {
+    link.focus();
+    await user.keyboard("{Enter}");
+  } finally {
+    document.removeEventListener("click", naoNavegar);
+  }
   expect(lerOrigem()?.vendas).toHaveLength(3);
   // o clique no link não passa também pela linha: nenhuma navegação em dobro
   expect(roteador.push).not.toHaveBeenCalled();

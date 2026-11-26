@@ -1,6 +1,6 @@
 import type { QueryVendas, ReservaConsultada, ResultadoConsulta } from "@/contrato/tipos";
 import type { Consulta } from "@/lib/consulta/consulta";
-import { TEXTOS_ERRO } from "./textos-erro";
+import { textosDoErro } from "./textos-erro";
 
 export type TipoErro =
   | "sem_resposta"
@@ -19,9 +19,7 @@ type Opcoes = { sinal?: AbortSignal };
 
 function mensagemPadrao(tipo: TipoErro): string {
   if (tipo === "cancelada") return "Consulta cancelada.";
-  const texto =
-    tipo in TEXTOS_ERRO ? TEXTOS_ERRO[tipo as keyof typeof TEXTOS_ERRO] : TEXTOS_ERRO.aplicacao;
-  return texto.mensagem(TEMPO_LIMITE_PADRAO_S);
+  return textosDoErro(tipo).mensagem(TEMPO_LIMITE_PADRAO_S);
 }
 
 export class ErroDaConsulta extends Error {

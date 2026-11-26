@@ -136,6 +136,19 @@ test("período que passa da cópia: a data vai no aviso, uma vez só (decisão 8
   expect(screen.getAllByText(/Dados do Stur até/)).toHaveLength(1);
 });
 
+test("o aviso de falha vem logo abaixo do cabeçalho, antes do aviso da cópia", () => {
+  montar(tres, {
+    falhaAtualizar: new ErroDaConsulta("sem_resposta"),
+    campos: { periodoPassaDaCopia: true },
+  });
+  const falha = screen.getByRole("alert");
+  const copia = screen.getByRole("note");
+  const titulo = screen.getByRole("heading", { level: 1 });
+  expect(titulo.compareDocumentPosition(falha) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(falha.compareDocumentPosition(copia) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(copia.compareDocumentPosition(resumo()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
 test("sem a data da cópia, o cabeçalho não a cita e o aviso não aparece", () => {
   montar(tres, { campos: { dadosDoSturAte: null, periodoPassaDaCopia: true } });
   expect(screen.getByText("Sem filtros na consulta · Consultado às 22h58")).toBeInTheDocument();
@@ -165,6 +178,7 @@ test("resumo: números do backend, link das que não fecham", async () => {
   await user.click(botao);
   expect(roteador.replace).toHaveBeenLastCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24&f.contas=nao-fecham",
+    { scroll: false },
   );
   expect(within(resumo()).getByRole("button", { name: "2" })).toHaveAttribute(
     "aria-pressed",
@@ -178,6 +192,7 @@ test("resumo: números do backend, link das que não fecham", async () => {
   await user.click(within(resumo()).getByRole("button", { name: "2" }));
   expect(roteador.replace).toHaveBeenLastCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24",
+    { scroll: false },
   );
 });
 
@@ -312,6 +327,7 @@ test("linha com refinamento diz quantas, o total e a margem delas", () => {
   expect(roteador.replace).toHaveBeenCalledTimes(1);
   expect(roteador.replace).toHaveBeenCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24&q=EXEMPLO",
+    { scroll: false },
   );
   expect(screen.getByText(/^Mostrando 2 de 3 vendas/)).toHaveTextContent(
     "Mostrando 2 de 3 vendas · Total cliente R$ 150,00 · Margem R$ 15,00",
@@ -322,6 +338,7 @@ test("linha com refinamento diz quantas, o total e a margem delas", () => {
   fireEvent.click(screen.getByRole("button", { name: "Limpar filtros" }));
   expect(roteador.replace).toHaveBeenLastCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24",
+    { scroll: false },
   );
   expect(busca()).toHaveValue("");
   expect(screen.getByText("Mostrando as 3 vendas do resultado.")).toBeInTheDocument();
@@ -345,6 +362,7 @@ test("cada tecla reinicia a espera, e só o último texto vai ao endereço", () 
   expect(roteador.replace).toHaveBeenCalledTimes(1);
   expect(roteador.replace).toHaveBeenCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24&q=ALFA",
+    { scroll: false },
   );
   expect(busca()).toHaveValue("ALFA");
 });
@@ -358,6 +376,7 @@ test("busca só de espaços não vai ao endereço e o campo não é zerado", () 
   });
   expect(roteador.replace).toHaveBeenCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24",
+    { scroll: false },
   );
   expect(busca()).toHaveValue("  ");
 });
@@ -397,6 +416,7 @@ test("paginação: Por página volta à 1, as setas param nas pontas e por invá
   await user.click(screen.getByRole("button", { name: "Próxima página" }));
   expect(roteador.replace).toHaveBeenLastCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24&pagina=2",
+    { scroll: false },
   );
   expect(screen.getByText("21–40 de 54")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Página anterior" })).toBeEnabled();
@@ -408,6 +428,7 @@ test("paginação: Por página volta à 1, as setas param nas pontas e por invá
   await user.selectOptions(screen.getByLabelText("Por página"), "50");
   expect(roteador.replace).toHaveBeenLastCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24&por=50",
+    { scroll: false },
   );
   expect(screen.getByText("1–50 de 54")).toBeInTheDocument();
   expect(screen.getByLabelText("Por página")).toHaveValue("50");
@@ -426,5 +447,6 @@ test("trocar um refinamento volta à página 1", async () => {
   await user.click(within(resumo()).getByRole("button", { name: "2" }));
   expect(roteador.replace).toHaveBeenLastCalledWith(
     "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24&f.contas=nao-fecham",
+    { scroll: false },
   );
 });

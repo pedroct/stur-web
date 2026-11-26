@@ -29,3 +29,8 @@ export const TEXTOS_ERRO: Record<
     frase: () => "Algo deu errado nesta aplicação, não na API do Stur.",
   },
 };
+
+/** Os textos do erro; os tipos sem texto próprio (cancelada, inválida, não encontrada) valem como erro da aplicação. */
+export function textosDoErro(tipo: TipoErro): (typeof TEXTOS_ERRO)[TipoComTexto] {
+  return tipo in TEXTOS_ERRO ? TEXTOS_ERRO[tipo as TipoComTexto] : TEXTOS_ERRO.aplicacao;
+}

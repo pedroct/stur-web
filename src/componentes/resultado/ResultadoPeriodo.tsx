@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { Aviso } from "@/componentes/comum/Aviso";
 import { FalhaAtualizar } from "@/componentes/estados/FalhaAtualizar";
 import { LinhaStatus } from "@/componentes/estados/LinhaStatus";
 import { Filtros } from "@/componentes/filtros/Filtros";
@@ -11,8 +12,8 @@ import type { ErroDaConsulta } from "@/lib/api/cliente";
 import { useParametros } from "@/lib/api/parametros";
 import { useAtalho } from "@/lib/atalhos";
 import type { Consulta } from "@/lib/consulta/consulta";
-import { textoCarregando } from "@/lib/consulta/descricao";
-import { formatarMoeda } from "@/lib/formatacao";
+import { participio, textoCarregando } from "@/lib/consulta/descricao";
+import { formatarDadosAte, formatarMoeda } from "@/lib/formatacao";
 import { lerPagina, paginar } from "@/lib/resultado/paginar";
 import {
   contarOpcoes,
@@ -91,6 +92,9 @@ export function ResultadoPeriodo({
   const enderecoDe = (r: Refinamentos, numeroDaPagina: number, porPagina: number) =>
     escreverEnderecoResultado(consulta, r, numeroDaPagina, porPagina, linhasPorPagina);
 
+  // Sem rolar: mudar só a query faria o Next levar a página ao topo a cada refinamento.
+  const irPara = (endereco: string) => roteador.replace(endereco, { scroll: false });
+
   // A busca espera a pessoa parar de digitar; o refinamento mais recente vem de uma ref, porque
   // um filtro marcado no meio da espera não pode ser desfeito quando a busca for escrita.
   const [busca, setBusca] = useState(refinamentos.q);
@@ -120,7 +124,7 @@ export function ResultadoPeriodo({
   }
 
   function refinarPor(novos: Refinamentos) {
-    roteador.replace(enderecoDe(novos, 1, por));
+    irPara(enderecoDe(novos, 1, por));
   }
 
   function digitar(texto: string) {
@@ -161,6 +165,12 @@ export function ResultadoPeriodo({
             aoTentar={aoAtualizar}
           />
         </div>
+      )}
+      {resultado.periodoPassaDaCopia && resultado.dadosDoSturAte !== null && (
+        <Aviso tom="info" className="mt-4">
+          Dados do Stur até {formatarDadosAte(resultado.dadosDoSturAte)}. Vendas{" "}
+          {participio(consulta.tipoData, "plural")} depois disso não aparecem neste resultado.
+        </Aviso>
       )}
       <ResumoResultado
         resumo={resultado.resumo}
@@ -223,8 +233,8 @@ export function ResultadoPeriodo({
                 pagina={pagina}
                 por={por}
                 opcoes={opcoesPorPagina}
-                aoMudarPor={(novo) => roteador.replace(enderecoDe(refinamentos, 1, novo))}
-                aoIrPara={(numero) => roteador.replace(enderecoDe(refinamentos, numero, por))}
+                aoMudarPor={(novo) => irPara(enderecoDe(refinamentos, 1, novo))}
+                aoIrPara={(numero) => irPara(enderecoDe(refinamentos, numero, por))}
               />
             </div>
           </>

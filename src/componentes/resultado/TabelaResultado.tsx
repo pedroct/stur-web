@@ -207,9 +207,11 @@ export function TabelaResultado({
   const rotulo = janelaLarga ? "Emissão" : rotuloDaData(tipo);
   const campo = janelaLarga ? "dataEmissao" : campoDaData(tipo);
   const formatar = comAno(consulta, janelaLarga) ? formatarData : formatarDiaMes;
-  const legenda = janelaLarga
-    ? `Reserva ${consulta.reserva}, na ordem de lançamento das vendas`
-    : `${tituloConsulta(consulta)}, da ${rotulo.toLowerCase()} mais recente para a mais antiga`;
+  const reserva = resultado.consulta.reserva ?? consulta.reserva;
+  const legenda =
+    janelaLarga && reserva !== null
+      ? `Reserva ${reserva}, na ordem de lançamento das vendas`
+      : `${tituloConsulta(consulta)}, da ${rotulo.toLowerCase()} mais recente para a mais antiga`;
 
   function abrir(linha: LinhaResultado, navegar: boolean) {
     registrarOrigem({

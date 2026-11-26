@@ -4,7 +4,7 @@ import { Aviso } from "@/componentes/comum/Aviso";
 import { Button } from "@/componentes/ui/button";
 import type { ErroDaConsulta } from "@/lib/api/cliente";
 import { useParametros } from "@/lib/api/parametros";
-import { TEXTOS_ERRO } from "@/lib/api/textos-erro";
+import { textosDoErro } from "@/lib/api/textos-erro";
 
 /** Falha ao atualizar: os dados da consulta anterior seguem à vista, abaixo deste aviso (decisão 43). */
 export function FalhaAtualizar({
@@ -17,10 +17,7 @@ export function FalhaAtualizar({
   aoTentar: () => void;
 }) {
   const { tempoLimiteSegundos } = useParametros();
-  const textos =
-    erro.tipo in TEXTOS_ERRO
-      ? TEXTOS_ERRO[erro.tipo as keyof typeof TEXTOS_ERRO]
-      : TEXTOS_ERRO.aplicacao;
+  const textos = textosDoErro(erro.tipo);
   return (
     <Aviso tom="atencao">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">

@@ -1,19 +1,13 @@
 import Link from "next/link";
-import { Aviso } from "@/componentes/comum/Aviso";
 import { Caminho } from "@/componentes/moldura/Caminho";
 import { Button, buttonVariants } from "@/componentes/ui/button";
 import type { ResultadoConsulta } from "@/contrato/tipos";
 import { type Consulta, escreverConsulta } from "@/lib/consulta/consulta";
-import {
-  descreverFiltros,
-  participio,
-  tituloConsulta,
-  tituloCurto,
-} from "@/lib/consulta/descricao";
+import { descreverFiltros, tituloConsulta, tituloCurto } from "@/lib/consulta/descricao";
 import { formatarDadosAte } from "@/lib/formatacao";
 import { formatarHora } from "@/lib/tempo";
 
-/** Caminho, título, a linha do que foi consultado e as ações; abaixo, o aviso da cópia (decisão 8). */
+/** Caminho, título, a linha do que foi consultado e as ações. */
 export function CabecalhoResultado({
   consulta,
   resultado,
@@ -58,12 +52,6 @@ export function CabecalhoResultado({
           </Button>
         </div>
       </section>
-      {periodoPassaDaCopia && dadosDoSturAte !== null && (
-        <Aviso tom="info" className="mt-4">
-          Dados do Stur até {formatarDadosAte(dadosDoSturAte)}. Vendas{" "}
-          {participio(consulta.tipoData, "plural")} depois disso não aparecem neste resultado.
-        </Aviso>
-      )}
     </>
   );
 }
