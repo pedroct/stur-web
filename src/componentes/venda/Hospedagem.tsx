@@ -45,8 +45,8 @@ export function Hospedagem({
       .filter((parte) => parte !== null)
       .join(" · ");
     return (
-      <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase}>
-        {hotel !== null && <p className="mt-2 text-base leading-6 font-semibold">{hotel}</p>}
+      <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase} cartao>
+        {hotel !== null && <p className="text-base leading-6 font-semibold">{hotel}</p>}
         {linha !== "" && <p className="mt-0.5 text-base leading-6 tabular-nums">{linha}</p>}
       </SecaoDoProduto>
     );
@@ -111,8 +111,8 @@ export function Hospedagem({
       : caminhosDaConta(conta, servico, venda.classificacaoproduto ?? null);
 
   return (
-    <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase}>
-      {hotel !== null && <p className="mt-2 text-base leading-6 font-semibold">{hotel}</p>}
+    <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase} cartao>
+      {hotel !== null && <p className="text-base leading-6 font-semibold">{hotel}</p>}
       {linhaDoPeriodo !== "" && (
         <p className="mt-0.5 text-base leading-6 tabular-nums">{linhaDoPeriodo}</p>
       )}

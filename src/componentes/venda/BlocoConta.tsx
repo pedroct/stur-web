@@ -26,6 +26,7 @@ import {
   somarContas,
 } from "@/lib/venda/conta";
 import { GrupoDeCampos, type NivelDeTitulo, temCampos } from "./GrupoDeCampos";
+import { CARTAO } from "./produto-comum";
 
 const NOMES: Record<Lado, { titulo: string; total: string; grupo: string }> = {
   cliente: { titulo: "Cliente", total: "Total do cliente", grupo: "Conta do cliente" },
@@ -158,8 +159,10 @@ function LadoDaConta({
  * A conta do serviço (IA 6.6 e 6.10; decisões 5 a 7 e 23): cliente e fornecedor lado a lado, termo
  * a termo, com "Total do cliente" e "Custo do fornecedor" em destaque, e a frase das comissões,
  * das referências e dos zerados. Com uma conta, os campos dos grupos "Conta do cliente" e "Conta
- * do fornecedor" que ela não mostra vêm embaixo de cada lado; com várias, a soma da decisão 23. No
- * painel (`noPainel`), recebe só a conta do serviço aberto e fica sem o título da seção.
+ * do fornecedor" que ela não mostra vêm embaixo de cada lado; com várias, a soma da decisão 23. Na
+ * página, a conta fica num cartão com borda (telas 2 e 3); `emColuna` é a conta ao lado da
+ * hospedagem ou do veículo (telas 3 e 9), com os lados um embaixo do outro. No painel
+ * (`noPainel`), recebe só a conta do serviço aberto e fica sem o título da seção nem o cartão.
  */
 export function BlocoConta({
   contas,
@@ -169,6 +172,7 @@ export function BlocoConta({
   venda,
   nivelBase = 1,
   noPainel = false,
+  emColuna = false,
 }: Readonly<{
   contas: ContaServico[];
   servicos: ServicoAgi[];
@@ -178,6 +182,7 @@ export function BlocoConta({
   venda: VendaAgi;
   nivelBase?: 1 | 2;
   noPainel?: boolean;
+  emColuna?: boolean;
 }>) {
   const [primeira] = contas;
   const [servico] = servicos;
@@ -252,23 +257,25 @@ export function BlocoConta({
           )}
         </Titulo>
       )}
-      <div
-        className={cn(
-          "grid gap-x-10 gap-y-8",
-          noPainel ? "grid-cols-1" : "mt-4 min-[900px]:grid-cols-2",
-        )}
-      >
-        {lado("cliente")}
-        {lado("fornecedor")}
+      <div className={noPainel ? undefined : CARTAO}>
+        <div
+          className={cn(
+            "grid gap-x-10 gap-y-8",
+            noPainel || emColuna ? "grid-cols-1" : "min-[900px]:grid-cols-2",
+          )}
+        >
+          {lado("cliente")}
+          {lado("fornecedor")}
+        </div>
+        <p className="mt-5 text-[13px] leading-5 text-texto-auxiliar tabular-nums">
+          {frases.map((f, i) => (
+            <span key={f.texto} data-anexo-secao={f.secao === 5 ? undefined : f.secao}>
+              {i > 0 && " "}
+              {f.texto}
+            </span>
+          ))}
+        </p>
       </div>
-      <p className="mt-5 text-[13px] leading-5 text-texto-auxiliar tabular-nums">
-        {frases.map((f, i) => (
-          <span key={f.texto} data-anexo-secao={f.secao === 5 ? undefined : f.secao}>
-            {i > 0 && " "}
-            {f.texto}
-          </span>
-        ))}
-      </p>
     </section>
   );
 }

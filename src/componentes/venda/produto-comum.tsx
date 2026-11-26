@@ -11,17 +11,24 @@ export function texto(valor: string | null | undefined, caminho?: string): strin
   return valor.trim() === "" ? null : valor.trim();
 }
 
-/** A raiz de uma seção do conteúdo do produto (Anexo B, seção 3), com o título no nível da seção. */
+/** O cartão com borda da hospedagem, do veículo e da conta (telas 2, 3 e 9). */
+export const CARTAO = "mt-4 rounded-grande border border-borda p-5";
+
+/**
+ * A raiz de uma seção do conteúdo do produto (Anexo B, seção 3), com o título no nível da seção.
+ * `cartao`: o conteúdo num cartão com borda, embaixo do título (a hospedagem e o veículo).
+ */
 export function SecaoDoProduto({
   titulo,
   nivelBase,
+  cartao = false,
   children,
-}: Readonly<{ titulo: string; nivelBase: 1 | 2; children: ReactNode }>) {
+}: Readonly<{ titulo: string; nivelBase: 1 | 2; cartao?: boolean; children: ReactNode }>) {
   const Titulo = nivelBase === 1 ? "h2" : "h3";
   return (
     <section data-anexo-secao="3" className="mt-10">
       <Titulo className="text-xl leading-7 font-semibold">{titulo}</Titulo>
-      {children}
+      {cartao ? <div className={CARTAO}>{children}</div> : children}
     </section>
   );
 }

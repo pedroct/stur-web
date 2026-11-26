@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { VendaConsultada } from "@/contrato/tipos";
 import type { ErroDaConsulta } from "@/lib/api/cliente";
 import { classificacaoDe } from "@/lib/consulta/consulta";
@@ -23,6 +24,18 @@ import { VerDadoCru } from "./PainelDadoCru";
 import { Pessoa } from "./Pessoa";
 import { usePainel } from "./painel-contexto";
 import { SecaoVinculos } from "./SecaoVinculos";
+
+/**
+ * O conteúdo do produto e a conta: lado a lado a partir de 1.100 px quando `lado` (a hospedagem
+ * ou o veículo de um serviço só, telas 3 e 9), empilhados abaixo disso (IA 14); senão, um embaixo
+ * do outro.
+ */
+function ProdutoEConta({ lado, children }: Readonly<{ lado: boolean; children: ReactNode }>) {
+  if (!lado) return <>{children}</>;
+  return (
+    <div className="grid gap-x-6 min-[1100px]:grid-cols-2 min-[1100px]:items-start">{children}</div>
+  );
+}
 
 export type ConsultaDaVenda = {
   atualizando: boolean;
@@ -63,6 +76,8 @@ export function Venda({
   const classe = classificacaoDe(classificacao) ?? "";
   // O card da hospedagem e o do veículo já trazem a pessoa como par.
   const cardComPessoa = ["hotelaria", "locacao"].includes(classe);
+  // Com um serviço, o card e a conta ficam lado a lado (telas 3 e 9).
+  const lado = cardComPessoa && umServico;
   // A observação do serviço único de Diversos e Pacote já está embaixo da tabela.
   const naPagina =
     umServico && servico !== undefined && conta !== undefined
@@ -84,26 +99,31 @@ export function Venda({
       <Avisos lista={avisosDaVenda(venda, calculos, dados.vinculos)} />
       {!comFinanceiro && <Incentivo dados={dados} nivelBase={nivelBase} />}
       {comFinanceiro && <Financeiro dados={dados} nivelBase={nivelBase} />}
-      {comFinanceiro && <ConteudoDoProduto dados={dados} nivelBase={nivelBase} />}
-      {comFinanceiro && umServico && (
-        <Pessoa
-          venda={venda}
-          indice={0}
-          classificacao={classificacao}
-          localizador={primeiroLocalizador(venda.trechos ?? [])}
-          nivel={(nivelBase + 2) as NivelDeTitulo}
-          semLinha={cardComPessoa}
-        />
-      )}
       {comFinanceiro && (
-        <BlocoConta
-          contas={calculos.servicos}
-          servicos={servicos}
-          classificacao={classificacao}
-          situacao={venda.status ?? null}
-          venda={venda}
-          nivelBase={nivelBase}
-        />
+        <ProdutoEConta lado={lado}>
+          <div>
+            <ConteudoDoProduto dados={dados} nivelBase={nivelBase} />
+            {umServico && (
+              <Pessoa
+                venda={venda}
+                indice={0}
+                classificacao={classificacao}
+                localizador={primeiroLocalizador(venda.trechos ?? [])}
+                nivel={(nivelBase + 2) as NivelDeTitulo}
+                semLinha={cardComPessoa}
+              />
+            )}
+          </div>
+          <BlocoConta
+            contas={calculos.servicos}
+            servicos={servicos}
+            classificacao={classificacao}
+            situacao={venda.status ?? null}
+            venda={venda}
+            nivelBase={nivelBase}
+            emColuna={lado}
+          />
+        </ProdutoEConta>
       )}
       {comFinanceiro && naPagina !== null && conta !== undefined && (
         <GruposDoServico

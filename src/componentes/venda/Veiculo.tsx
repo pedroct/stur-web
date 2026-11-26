@@ -63,9 +63,9 @@ export function Veiculo({
       .filter((parte) => parte !== null)
       .join(" · ");
     return (
-      <SecaoDoProduto titulo="Veículo" nivelBase={nivelBase}>
+      <SecaoDoProduto titulo="Veículo" nivelBase={nivelBase} cartao>
         {veiculos.size === 1 && unico !== null && unico !== undefined && (
-          <p className="mt-2 text-base leading-6 font-semibold">{unico}</p>
+          <p className="text-base leading-6 font-semibold">{unico}</p>
         )}
         {linha !== "" && <p className="mt-0.5 text-base leading-6 tabular-nums">{linha}</p>}
       </SecaoDoProduto>
@@ -116,8 +116,8 @@ export function Veiculo({
   const veiculo = texto(servico.veiculo);
 
   return (
-    <SecaoDoProduto titulo="Veículo" nivelBase={nivelBase}>
-      {veiculo !== null && <p className="mt-2 text-base leading-6 font-semibold">{veiculo}</p>}
+    <SecaoDoProduto titulo="Veículo" nivelBase={nivelBase} cartao>
+      {veiculo !== null && <p className="text-base leading-6 font-semibold">{veiculo}</p>}
       {linhaDoPeriodo !== "" && (
         <p className="mt-0.5 text-base leading-6 tabular-nums">{linhaDoPeriodo}</p>
       )}
