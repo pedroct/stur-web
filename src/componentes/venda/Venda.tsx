@@ -12,6 +12,7 @@ import { CabecalhoVenda } from "./CabecalhoVenda";
 import { ConteudoDoProduto } from "./ConteudoDoProduto";
 import { Financeiro } from "./Financeiro";
 import type { NivelDeTitulo } from "./GrupoDeCampos";
+import { Incentivo } from "./Incentivo";
 import { Pessoa } from "./Pessoa";
 
 export type ConsultaDaVenda = {
@@ -21,7 +22,7 @@ export type ConsultaDaVenda = {
 };
 
 /**
- * A venda. Casca: as Tasks 8 e 9 a completam (o conteúdo do produto, a pessoa e a conta já estão
+ * A venda. Casca: a Task 9 a completa (o conteúdo do produto, a pessoa e a conta já estão
  * aqui). Sozinha (`nivelBase` 1), o cabeçalho é o dela, com o título em h1 e a linha da consulta;
  * dentro da reserva (`naReserva`, `nivelBase` 2), o título desce para h2 e a linha da consulta,
  * com o Atualizar, fica na reserva, acima da lista (a Task 11 troca este título pelo cabeçalho da
@@ -41,7 +42,8 @@ export function Venda({
   const { venda, calculos } = dados;
   const numero = dados.reserva.numero;
   const cliente = venda.nomecliente ?? `Reserva ${numero}`;
-  // O Financeiro e o conteúdo da venda de incentivo são outros: a Task 8 os monta no lugar destes.
+  // A venda de incentivo tem o `Incentivo` no lugar do Financeiro, do conteúdo do produto, da
+  // pessoa e da conta (tela 17).
   const comFinanceiro = calculos.tipo !== "incentivo";
   // Com um serviço só, a pessoa e os grupos da seção 5 ficam na página; com vários, no painel de
   // cada serviço, e a conta da página é a soma (decisões 22 e 23).
@@ -78,6 +80,7 @@ export function Venda({
         <CabecalhoVenda dados={dados} consulta={consulta} />
       )}
       <Avisos lista={avisosDaVenda(venda, calculos, dados.vinculos)} />
+      {!comFinanceiro && <Incentivo dados={dados} nivelBase={nivelBase} />}
       {comFinanceiro && <Financeiro dados={dados} nivelBase={nivelBase} />}
       {comFinanceiro && <ConteudoDoProduto dados={dados} nivelBase={nivelBase} />}
       {comFinanceiro && umServico && (

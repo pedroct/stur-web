@@ -1,9 +1,11 @@
 import type { AvisoApi, Vinculos } from "@/contrato/tipos";
 import {
+  apoioDoIncentivo,
   avisosDaVenda,
   fraseDaReceita,
   nomeDoProduto,
   subtituloDaVenda,
+  subtituloDoIncentivo,
 } from "@/lib/venda/cabecalho";
 import { calculos, vendaAgi } from "../../fabrica";
 
@@ -148,4 +150,29 @@ test("aviso com código desconhecido é ignorado, e os outros vêm na ordem", ()
   expect(
     avisosDaVenda(vendaAgi({ status: "CANCELADA" }), c, SEM_VINCULOS).map((a) => a.tom),
   ).toEqual(["info", "neutro"]);
+});
+
+describe("incentivo", () => {
+  test("subtítulo com a data do lançamento", () => {
+    expect(subtituloDoIncentivo(vendaAgi({ dtemissao: "2026-11-11 00:00:00" }))).toBe(
+      "Incentivo pago pelo fornecedor à A3 · lançado em 11/11/2026",
+    );
+  });
+
+  test("sem data, ou com a data vazia do Stur, só a primeira parte", () => {
+    expect(subtituloDoIncentivo(vendaAgi({ dtemissao: null }))).toBe(
+      "Incentivo pago pelo fornecedor à A3",
+    );
+    expect(subtituloDoIncentivo(vendaAgi({ dtemissao: "1899-12-30T00:00:00" }))).toBe(
+      "Incentivo pago pelo fornecedor à A3",
+    );
+  });
+
+  test("frase de apoio com o cliente que o Stur registra", () => {
+    expect(apoioDoIncentivo(vendaAgi({ nomecliente: "CLIENTE EXEMPLO LTDA" }))).toBe(
+      "Não há venda a cliente: o Stur registra a própria CLIENTE EXEMPLO LTDA como cliente.",
+    );
+    expect(apoioDoIncentivo(vendaAgi({ nomecliente: "  " }))).toBe("Não há venda a cliente.");
+    expect(apoioDoIncentivo(vendaAgi({ nomecliente: null }))).toBe("Não há venda a cliente.");
+  });
 });

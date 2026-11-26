@@ -1,12 +1,12 @@
 import type { LucideIcon } from "lucide-react";
-import { Calendar, Check, Clock } from "lucide-react";
+import { Calendar, Check, Clock, Info } from "lucide-react";
 import type { ReactNode } from "react";
 import { dadosDoSeloTexto, Selo } from "@/componentes/comum/Selo";
 import { FalhaAtualizar } from "@/componentes/estados/FalhaAtualizar";
 import type { EstadoServico, VendaConsultada } from "@/contrato/tipos";
 import { situacaoDe } from "@/lib/consulta/consulta";
 import { diaEmFortaleza, formatarHora } from "@/lib/tempo";
-import { subtituloDaVenda } from "@/lib/venda/cabecalho";
+import { apoioDoIncentivo, subtituloDaVenda, subtituloDoIncentivo } from "@/lib/venda/cabecalho";
 import { fraseDoEstado, textoDoEstado } from "@/lib/venda/estado";
 import { seloTextoDaSituacao } from "@/lib/venda/situacao";
 import { LinhaConsulta } from "./LinhaConsulta";
@@ -55,7 +55,9 @@ export function CabecalhoVenda({
   const situacao = seloTextoDaSituacao(venda.status ?? null);
   const dadosDaSituacao = situacao === null ? null : dadosDoSeloTexto(situacao);
   const estado = calculos.estadoServico;
-  const mostraEstado = estado !== null && situacaoDe(venda.status ?? null) !== "cancelada";
+  const incentivo = calculos.tipo === "incentivo";
+  const mostraEstado =
+    !incentivo && estado !== null && situacaoDe(venda.status ?? null) !== "cancelada";
 
   return (
     <>
@@ -68,10 +70,15 @@ export function CabecalhoVenda({
             <span className="text-base font-semibold tabular-nums">
               Reserva {dados.reserva.numero}
             </span>
+            {incentivo && (
+              <Selo tom="info" icone={Info}>
+                Incentivo de fornecedor
+              </Selo>
+            )}
             {dadosDaSituacao !== null && (
               <Selo {...dadosDaSituacao}>{dadosDaSituacao.texto} no Stur</Selo>
             )}
-            <SeloDoEstado dados={dados} />
+            {!incentivo && <SeloDoEstado dados={dados} />}
           </div>
           {/* O foco volta para cá ao fechar um painel que veio por link (decisão 20). */}
           <h1
@@ -79,11 +86,17 @@ export function CabecalhoVenda({
             tabIndex={-1}
             className="mt-3 text-4xl leading-11 font-bold tracking-[-0.01em] outline-0"
           >
-            {venda.nomecliente ?? `Reserva ${dados.reserva.numero}`}
+            {(incentivo ? venda.nomefornec : venda.nomecliente) ??
+              `Reserva ${dados.reserva.numero}`}
           </h1>
           <p className="mt-1.5 text-base leading-6 text-texto-auxiliar">
-            {subtituloDaVenda(venda)}
+            {incentivo ? subtituloDoIncentivo(venda) : subtituloDaVenda(venda)}
           </p>
+          {incentivo && (
+            <p className="mt-1 text-[13px] leading-5 text-texto-auxiliar">
+              {apoioDoIncentivo(venda)}
+            </p>
+          )}
           {mostraEstado && (
             <p className="mt-1 text-[13px] leading-5 text-texto-auxiliar">
               {fraseDoEstado(estado, venda.classificacaoproduto ?? null, venda.nomeproduto ?? null)}

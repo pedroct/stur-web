@@ -13,7 +13,8 @@ import { enderecoDaVenda } from "./rota";
 export type AvisoDaTela = { tom: "atencao" | "info" | "neutro"; texto: string; link?: string };
 
 function texto(valor: string | null | undefined): string | null {
-  return preenchido(valor) && valor ? valor.trim() : null;
+  if (!preenchido(valor) || !valor) return null;
+  return valor.trim() === "" ? null : valor.trim();
 }
 
 /** "HOTEL NAC" e "Nacional" dão "Hotel nacional" (decisão 24). */
@@ -43,6 +44,23 @@ export function subtituloDaVenda(v: VendaAgi): string {
       ? `emitida em ${formatarData(v.dtemissao)}`
       : null;
   return [comClassificacao, fornecedor, emissao].filter((p) => p !== null && p !== "").join(" · ");
+}
+
+/** "Incentivo pago pelo fornecedor à A3 · lançado em {data}" (tela 17). */
+export function subtituloDoIncentivo(v: VendaAgi): string {
+  const lancamento =
+    preenchido(v.dtemissao, "dtemissao") && v.dtemissao
+      ? `lançado em ${formatarData(v.dtemissao)}`
+      : null;
+  return ["Incentivo pago pelo fornecedor à A3", lancamento].filter((p) => p !== null).join(" · ");
+}
+
+/** A frase de apoio do incentivo: o Stur registra a própria A3 como cliente. */
+export function apoioDoIncentivo(v: VendaAgi): string {
+  const cliente = texto(v.nomecliente);
+  return cliente === null
+    ? "Não há venda a cliente."
+    : `Não há venda a cliente: o Stur registra a própria ${cliente} como cliente.`;
 }
 
 function zero(valor: string | null | undefined): boolean {

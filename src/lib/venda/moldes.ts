@@ -48,6 +48,19 @@ const semAno = (formatado: string) => formatado.slice(0, 5);
 
 const reais = (formatado: string) => `R$ ${formatado}`;
 
+/** O que a venda de incentivo mostra no "Datas e nome no serviço", recolhido (tela 17). */
+export const DATAS_E_NOME_NO_SERVICO = [
+  "detalheItem[].dtInicio",
+  "detalheItem[].dtTermino",
+  "detalheItem[].nomePax",
+  "detalheItem[].nomePaxCompleto",
+];
+
+function rotuloDoAnexo(caminho: string): CampoDoMolde {
+  const campo = CAMPOS_ANEXO_B.find((c) => c.caminho === caminho);
+  return { caminho, naTela: { tipo: "rotulo", texto: campo?.rotulo ?? caminho } };
+}
+
 export const MOLDES: Record<Molde, CampoDoMolde[]> = {
   // O cabeçalho junta vários campos em frases (o subtítulo, o selo da situação): cada um aparece
   // dentro do texto que o contém.
@@ -192,7 +205,24 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
   vinculos: [],
   "mais-detalhes": [],
   codigos: [],
-  incentivo: [],
+  // A venda de incentivo (Task 8; `componentes/venda/Incentivo.tsx`): o cabeçalho com a frase do
+  // lançamento, os três cartões, a conta do Stur e o serviço lançado. O resto dos grupos aparece
+  // pelo `GrupoDeCampos`.
+  incentivo: [
+    valor("nomefornec"),
+    valor("nomecliente"),
+    valor("dtemissao", (f) => `lançado em ${f}`),
+    valor("totalCliente"),
+    valor("totalFornecedor"),
+    valor("margemLucroBruta", reais),
+    valor("pagamentos[].valor", reais),
+    valor("pagamentos[].dtVencto"),
+    valor("detalheItem[].descricao"),
+    valor("detalheItem[].observacao", (f) => `"${f}"`),
+    valor("detalheItem[].vlrTarifaTotalp"),
+    valor("detalheItem[].numeroOS"),
+    ...DATAS_E_NOME_NO_SERVICO.map(rotuloDoAnexo),
+  ],
 };
 
 /** Os campos do grupo que nenhum dos moldes declarou, na ordem do Anexo B, sem os contêineres. */
