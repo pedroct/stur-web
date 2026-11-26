@@ -29,7 +29,9 @@ test("todo caminho declarado num molde é do Anexo B", () => {
 
 test("sem nada declarado, o grupo mostra todos os campos dele, na ordem do Anexo B", () => {
   const hospedagem = camposSemMolde("Hospedagem (hotelaria)", ["hospedagem"]);
-  const doGrupo = CAMPOS_ANEXO_B.filter((c) => c.grupo === "Hospedagem (hotelaria)");
+  const doGrupo = CAMPOS_ANEXO_B.filter(
+    (c) => c.grupo === "Hospedagem (hotelaria)" && !c.conteiner,
+  );
   const declarados = new Set(MOLDES.hospedagem.map((d) => d.caminho));
   expect(hospedagem).toEqual(doGrupo.filter((c) => !declarados.has(c.caminho)));
   expect(camposSemMolde("Grupo que não existe", TODOS)).toEqual([]);
@@ -51,4 +53,17 @@ test("o campo que um dos moldes declara sai do grupo", () => {
   } finally {
     lista.pop();
   }
+});
+
+test("os contêineres de lista nunca aparecem como valor do grupo", () => {
+  const itinerario = camposSemMolde("Itinerário (aéreo e rodoviário)", []).map((c) => c.caminho);
+  expect(itinerario).not.toContain("trechos");
+  expect(itinerario).toContain("trechos[].cia");
+  const conta = camposSemMolde("Conta do cliente", []).map((c) => c.caminho);
+  expect(conta).not.toContain("detalheItem[].taxas");
+  expect(conta).toContain("detalheItem[].taxas[].vlrCliente");
+  const todos = [...new Set(CAMPOS_ANEXO_B.map((c) => c.grupo))].flatMap((g) =>
+    camposSemMolde(g, []),
+  );
+  expect(todos.filter((c) => c.conteiner)).toEqual([]);
 });

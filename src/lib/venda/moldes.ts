@@ -44,8 +44,10 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
   incentivo: [],
 };
 
-/** Os campos do grupo que nenhum dos moldes declarou, na ordem do Anexo B. */
+/** Os campos do grupo que nenhum dos moldes declarou, na ordem do Anexo B, sem os contêineres. */
 export function camposSemMolde(grupo: string, moldes: Molde[]): CampoAnexo[] {
   const declarados = new Set(moldes.flatMap((m) => MOLDES[m].map((c) => c.caminho)));
-  return CAMPOS_ANEXO_B.filter((c) => c.grupo === grupo && !declarados.has(c.caminho));
+  return CAMPOS_ANEXO_B.filter(
+    (c) => c.grupo === grupo && !c.conteiner && !declarados.has(c.caminho),
+  );
 }

@@ -36,7 +36,7 @@ export function linhaDaPessoa(
   s: ServicoAgi,
   classificacao: string | null,
   localizador: string | null,
-  produto: string | null = null,
+  produto: string | null,
 ): string | null {
   const completo = texto(s.nomePaxCompleto);
   const doLancamento = texto(s.nomePax);

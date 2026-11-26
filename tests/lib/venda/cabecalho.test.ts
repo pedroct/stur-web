@@ -136,3 +136,16 @@ test("fee com a venda vinculada desta reserva, e sem ela", () => {
     { tom: "info", texto: "Esta venda é o fee de uma venda que não está nesta reserva." },
   ]);
 });
+
+test("aviso com código desconhecido é ignorado, e os outros vêm na ordem", () => {
+  const c = calculos({
+    avisos: [
+      { codigo: "venda_cancelada", siglas: [] },
+      { codigo: "codigo_novo_da_api", siglas: [] } as unknown as AvisoApi,
+      { codigo: "moeda_cambio_1", siglas: ["US$"] },
+    ],
+  });
+  expect(
+    avisosDaVenda(vendaAgi({ status: "CANCELADA" }), c, SEM_VINCULOS).map((a) => a.tom),
+  ).toEqual(["info", "neutro"]);
+});

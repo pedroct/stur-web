@@ -114,6 +114,8 @@ function avisoDaTela(a: AvisoApi, v: VendaAgi, vinculos: Vinculos): AvisoDaTela 
         texto:
           "Venda reservada, ainda sem confirmação no Stur. O Stur só gera os títulos a receber e a pagar e só apura as comissões quando a venda é confirmada. Até lá, os valores abaixo são os previstos.",
       };
+    default: // código novo da API, que esta versão não conhece: sem aviso
+      return null;
   }
 }
 
