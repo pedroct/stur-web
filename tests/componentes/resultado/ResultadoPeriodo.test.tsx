@@ -174,6 +174,7 @@ test("resumo: números do backend, link das que não fecham", async () => {
   expect(resumo()).toHaveTextContent("Contas que não fecham 2");
 
   const botao = within(resumo()).getByRole("button", { name: "2" });
+  expect(botao).toHaveAccessibleDescription("Contas que não fecham");
   expect(botao).toHaveAttribute("aria-pressed", "false");
   await user.click(botao);
   expect(roteador.replace).toHaveBeenLastCalledWith(

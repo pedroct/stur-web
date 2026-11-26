@@ -1,15 +1,17 @@
 import { Info } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 import { Pilula } from "@/componentes/comum/Pilula";
 import { Selo } from "@/componentes/comum/Selo";
 import type { LinhaResultado, ResumoResultado as Resumo } from "@/contrato/tipos";
 import { situacaoDe } from "@/lib/consulta/consulta";
 import { formatarMoeda, formatarPercentual } from "@/lib/formatacao";
 
-function Par({ rotulo, children }: { rotulo: string; children: ReactNode }) {
+function Par({ rotulo, id, children }: { rotulo: string; id?: string; children: ReactNode }) {
   return (
     <div>
-      <span className="text-xs font-semibold tracking-[0.02em] text-texto-auxiliar">{rotulo}</span>{" "}
+      <span id={id} className="text-xs font-semibold tracking-[0.02em] text-texto-auxiliar">
+        {rotulo}
+      </span>{" "}
       {children}
     </div>
   );
@@ -83,6 +85,8 @@ export function ResumoResultado({
   aoAlternarNaoFecham: () => void;
 }) {
   const percentual = formatarPercentual(resumo.percentualLucro);
+  // O nome do botão é o número, como no canvas; o rótulo ao lado o descreve.
+  const idNaoFecham = useId();
   return (
     <>
       <section
@@ -104,9 +108,10 @@ export function ResumoResultado({
             </>
           )}
         </Par>
-        <Par rotulo="Contas que não fecham">
+        <Par rotulo="Contas que não fecham" id={idNaoFecham}>
           {resumo.naoFecham > 0 ? (
             <Pilula
+              aria-describedby={idNaoFecham}
               pressionada={soNaoFecham}
               onClick={aoAlternarNaoFecham}
               className="align-middle text-xl font-semibold"
