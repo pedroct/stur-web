@@ -113,7 +113,7 @@ function levaSigla(campo: CampoAnexo): boolean {
   return campo.formato === "dinheiro" && campo.caminho.endsWith("MoedaOriginal");
 }
 
-type Par = { rotulo: string; valor: string; bloco: string };
+type Par = { rotulo: string; valor: string; bloco: string; secao: CampoAnexo["secao"] };
 
 /** Os índices de cada item das listas que `indices` não cobre: um por combinação de itens. */
 function itensDasListas(venda: VendaAgi, caminho: string, indices: number[]): number[][] {
@@ -160,8 +160,55 @@ function paresDoGrupo(
           rotulo: campo.rotulo,
           valor: formatarCampo(campo, valor, sigla),
           bloco: extras.length === 0 ? "" : `${lista}:${extras.join(",")}`,
+          secao: campo.secao,
         },
       ];
+    });
+  });
+}
+
+/** Algum campo do grupo tem valor: o `GrupoDeCampos` desenha alguma coisa. */
+export function temCampos(
+  campos: CampoAnexo[],
+  venda: VendaAgi,
+  calculos?: CalculosVenda,
+  indices: number[] = [],
+): boolean {
+  return paresDoGrupo(campos, venda, calculos, indices).length > 0;
+}
+
+/** O item de cada lista no rótulo de um par solto: "serviço 2", "recebimento 1". */
+const ITEM_DA_LISTA: Record<string, string> = {
+  detalheItem: "serviço",
+  apartamentos: "apartamento",
+  taxas: "extra",
+  trechos: "trecho",
+  recebimentos: "recebimento",
+  pagamentos: "pagamento",
+  reembolsoVinculado: "reembolso",
+  contasPagar: "título",
+  contasReceber: "título",
+};
+
+/**
+ * Os pares de campos fora de um grupo com título (Mais detalhes, Códigos do Stur): o rótulo do
+ * Anexo B e, num campo de lista, um par por item, com o item no rótulo ("Id do serviço, serviço
+ * 2"), porque os pares não têm blocos.
+ */
+export function paresComItem(
+  campos: CampoAnexo[],
+  venda: VendaAgi,
+): { rotulo: string; valor: string }[] {
+  return campos.flatMap((campo) => {
+    const listas = campo.caminho
+      .split(".")
+      .filter((parte) => parte.endsWith("[]"))
+      .map((parte) => ITEM_DA_LISTA[parte.slice(0, -2)] ?? "item");
+    return itensDasListas(venda, campo.caminho, []).flatMap((indices) => {
+      const valor = valorDoCampo(venda, campo.caminho, indices);
+      if (!preenchido(valor, campo.caminho)) return [];
+      const itens = indices.map((k, i) => `, ${listas[i]} ${k + 1}`).join("");
+      return [{ rotulo: `${campo.rotulo}${itens}`, valor: formatarCampo(campo, valor) }];
     });
   });
 }
@@ -173,7 +220,11 @@ function emBlocos(pares: Par[]): Par[][] {
   return [...blocos.values()];
 }
 
-function Pares({ blocos }: Readonly<{ blocos: Par[][] }>) {
+/**
+ * Um par de outra seção do Anexo B que o grupo mostra (a diária de balcão em "Tarifas de
+ * referência", decisão 6) leva a marca da seção dele (Global Constraints, "Marca para o teste").
+ */
+function Pares({ blocos, secao }: Readonly<{ blocos: Par[][]; secao: number | undefined }>) {
   return (
     <div className="space-y-3">
       {blocos.map((pares, i) => (
@@ -186,8 +237,12 @@ function Pares({ blocos }: Readonly<{ blocos: Par[][] }>) {
           )}
         >
           {pares.map((par, k) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: o rótulo se repete entre itens
-            <div key={k} className="min-w-0">
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: o rótulo se repete entre itens
+              key={k}
+              className="min-w-0"
+              data-anexo-secao={par.secao === secao ? undefined : par.secao}
+            >
               <dt className="text-xs font-semibold tracking-[0.02em] text-texto-auxiliar">
                 {par.rotulo}
               </dt>
@@ -233,7 +288,8 @@ export function GrupoDeCampos({
 }>) {
   const pares = paresDoGrupo(campos, venda, calculos, indices);
   if (pares.length === 0) return null;
-  const blocos = <Pares blocos={emBlocos(pares)} />;
+  // A seção do grupo é a do primeiro campo, quando quem chama não a diz.
+  const blocos = <Pares blocos={emBlocos(pares)} secao={secao ?? campos[0]?.secao} />;
 
   if (recolhido) {
     return (

@@ -159,7 +159,8 @@ function Observacao({ linhas }: Readonly<{ linhas: Linha[] }>) {
   const [unica] = comNota;
   if (comNota.length !== 1 || unica === undefined) return null;
   return (
-    <div className="mt-4 rounded-medio bg-superficie-sutil px-4 py-3">
+    // A observação é da seção 5 do Anexo B (Observações), dentro da seção do produto.
+    <div data-anexo-secao="5" className="mt-4 rounded-medio bg-superficie-sutil px-4 py-3">
       <p className="text-xs leading-4 font-semibold tracking-[0.02em] text-texto-auxiliar">
         Observação do serviço{unica.pessoa === null ? "" : ` de ${unica.pessoa}`}
       </p>

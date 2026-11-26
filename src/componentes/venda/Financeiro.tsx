@@ -6,6 +6,7 @@ import { formatarMoeda, formatarPercentual } from "@/lib/formatacao";
 import { diaEmFortaleza } from "@/lib/tempo";
 import { fraseDaReceita } from "@/lib/venda/cabecalho";
 import { preenchido } from "@/lib/venda/campos";
+import { comTabelaDeLancamentos } from "@/lib/venda/lancamentos";
 import { camposSemMolde } from "@/lib/venda/moldes";
 import { CartaoLancamentos } from "./CartaoLancamentos";
 import { GrupoDeCampos, type NivelDeTitulo } from "./GrupoDeCampos";
@@ -99,6 +100,11 @@ export function Financeiro({
   const nivel = (nivelBase + 2) as NivelDeTitulo;
   const percentual = formatarPercentual(calculos.percentualLucro);
   const frase = fraseDaReceita(venda, calculos);
+  // Com as tabelas de recebimentos e pagamentos, os detalhes de cada lançamento ficam nelas.
+  const comDetalhes = !comTabelaDeLancamentos(
+    calculos.recebimentos.length,
+    calculos.pagamentos.length,
+  );
 
   return (
     <section data-anexo-secao="2" className="mt-6">
@@ -119,6 +125,7 @@ export function Financeiro({
             venda={venda}
             hoje={hoje}
             nivel={nivel}
+            comDetalhes={comDetalhes}
           />
         </Cartao>
         <Cartao rotulo="Fornecedor">
@@ -137,6 +144,7 @@ export function Financeiro({
             venda={venda}
             hoje={hoje}
             nivel={nivel}
+            comDetalhes={comDetalhes}
           />
         </Cartao>
         <Cartao rotulo="Receita">

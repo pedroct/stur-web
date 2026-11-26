@@ -7,6 +7,7 @@
 import { maiuscula } from "@/lib/consulta/descricao";
 import { CAMPOS_ANEXO_B, type CampoAnexo } from "./anexo-b";
 import { nomeDoProduto } from "./cabecalho";
+import { CODIGOS_DO_STUR, GRUPOS_MAIS_DETALHES, type Par } from "./campos";
 
 export type Molde =
   | "cabecalho"
@@ -56,6 +57,18 @@ export const DATAS_E_NOME_NO_SERVICO = [
   "detalheItem[].nomePaxCompleto",
 ];
 
+/**
+ * Os campos da seção que os pares do canvas usam (`GRUPOS_MAIS_DETALHES`, `CODIGOS_DO_STUR`): o
+ * valor de cada um aparece dentro do valor do par, às vezes junto com outros ("4813 · 200 ·
+ * 11165"). Os campos de outras seções que um par lê (o cliente, o fornecedor) ficam com a seção
+ * deles.
+ */
+function dosPares(grupos: { pares: Par[] }[], secao: number): CampoDoMolde[] {
+  const daSecao = new Set(CAMPOS_ANEXO_B.filter((c) => c.secao === secao).map((c) => c.caminho));
+  const caminhos = grupos.flatMap((g) => g.pares.flatMap((p) => p.campos));
+  return valores(...new Set(caminhos.filter((c) => daSecao.has(c))));
+}
+
 function rotuloDoAnexo(caminho: string): CampoDoMolde {
   const campo = CAMPOS_ANEXO_B.find((c) => c.caminho === caminho);
   return { caminho, naTela: { tipo: "rotulo", texto: campo?.rotulo ?? caminho } };
@@ -89,12 +102,19 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
     valor("taxasAdministrativas", reais),
   ],
   // O que a linha do cartão mostra: a forma em minúsculas e o valor. O vencimento só entra no selo
-  // dos em aberto, e os documentos e o cartão saem de outros campos: eles ficam nos detalhes.
+  // dos em aberto, e os documentos e o cartão saem de outros campos: eles ficam nos detalhes. Na
+  // tabela (Task 9; decisão 8), a forma, o vencimento e o valor vão nas colunas.
   lancamento: [
     valor("recebimentos[].descricaoForma", (f) => f.toLowerCase()),
     valor("recebimentos[].valor", reais),
     valor("pagamentos[].descricaoForma", (f) => f.toLowerCase()),
     valor("pagamentos[].valor", reais),
+    coluna("recebimentos[].descricaoForma", "Forma"),
+    coluna("recebimentos[].dtVencto", "Vencimento"),
+    coluna("recebimentos[].valor", "Valor (R$)"),
+    coluna("pagamentos[].descricaoForma", "Forma"),
+    coluna("pagamentos[].dtVencto", "Vencimento"),
+    coluna("pagamentos[].valor", "Valor (R$)"),
   ],
   // O itinerário: a frase mostra as cidades; a tabela, o resto. No rodoviário, a tabela não tem
   // voo, companhia, classe nem base tarifária, e esses campos vão para o grupo com o rótulo.
@@ -141,7 +161,8 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
     "detalheItem[].numerodeconfirmacao",
     "detalheItem[].numeroVC",
   ),
-  // A tabela de Diversos e Pacote: a descrição leva a OS e a confirmação na segunda linha.
+  // A tabela de Diversos e Pacote: a descrição leva a OS e a confirmação na segunda linha, e a
+  // observação de um serviço só vai na caixa embaixo da tabela.
   servicos: [
     ...valores(
       "detalheItem[].descricao",
@@ -149,6 +170,7 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
       "detalheItem[].dtTermino",
       "detalheItem[].numeroOS",
       "detalheItem[].numerodeconfirmacao",
+      "detalheItem[].observacao",
     ),
     coluna("detalheItem[].qtde", "Qtde"),
   ],
@@ -202,9 +224,18 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
     "detalheItem[].apartamentos[].vlrBalcao",
     "detalheItem[].vlrTarifaCheia",
   ),
-  vinculos: [],
-  "mais-detalhes": [],
-  codigos: [],
+  // Vínculos (Task 9; `componentes/venda/SecaoVinculos.tsx`): o par do fee (decisão 26) e a
+  // frase de cada pedido de reembolso. Os títulos vêm pelo `GrupoDeCampos`.
+  vinculos: [
+    {
+      caminho: "idreservavinculadafee",
+      naTela: { tipo: "rotulo", texto: "Venda de fee vinculada" },
+    },
+    ...valores("reembolsoVinculado[].numeroSR", "reembolsoVinculado[].nomePax"),
+  ],
+  // Os pares do canvas; o resto dos grupos vem com o rótulo do Anexo B (Task 9).
+  "mais-detalhes": dosPares(GRUPOS_MAIS_DETALHES, 8),
+  codigos: dosPares(CODIGOS_DO_STUR, 9),
   // A venda de incentivo (Task 8; `componentes/venda/Incentivo.tsx`): o cabeçalho com a frase do
   // lançamento, os três cartões, a conta do Stur e o serviço lançado. O resto dos grupos aparece
   // pelo `GrupoDeCampos`.

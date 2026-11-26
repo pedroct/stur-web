@@ -120,3 +120,8 @@ export function fraseSemLancamentos(lado: "cliente" | "fornecedor"): string {
     ? "A API não trouxe nenhuma forma de recebimento nesta venda."
     : "A API não trouxe nenhuma forma de pagamento ao fornecedor nesta venda.";
 }
+
+/** Com mais de dois lançamentos num lado, as duas tabelas entram; com menos, os cartões bastam (decisão 8). */
+export function comTabelaDeLancamentos(recebimentos: number, pagamentos: number): boolean {
+  return recebimentos > 2 || pagamentos > 2;
+}

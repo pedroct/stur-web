@@ -693,9 +693,14 @@ function gravar(alvo: Objeto, partes: string[], valor: unknown): void {
 /**
  * Uma venda com cada campo do Anexo B da classificação preenchido com um valor distinto (pelo
  * índice do campo), em moeda estrangeira, e os cálculos que combinam com ela. Os campos que nunca
- * vieram preenchidos na base ficam fora (as classes deles são vazias).
+ * vieram preenchidos na base ficam fora (as classes deles são vazias), a menos que
+ * `nuncaPreenchidos` os peça (os fusos dos trechos dão dois trechos à venda).
  */
-export function vendaCheia(classificacao: Classificacao, servicos = 1): VendaConsultada {
+export function vendaCheia(
+  classificacao: Classificacao,
+  servicos = 1,
+  { nuncaPreenchidos = false }: { nuncaPreenchidos?: boolean } = {},
+): VendaConsultada {
   const venda: Objeto = {
     ...vendaAgi(),
     detalheItem: Array.from({ length: servicos }, servicoVazio),
@@ -705,7 +710,8 @@ export function vendaCheia(classificacao: Classificacao, servicos = 1): VendaCon
     reembolsoVinculado: [],
   };
   CAMPOS_ANEXO_B.forEach((c, i) => {
-    if (!c.conteiner && c.classes.includes(classificacao)) {
+    const nunca = nuncaPreenchidos && c.classes.length === 0;
+    if (!c.conteiner && (nunca || c.classes.includes(classificacao))) {
       gravar(venda, c.caminho.split("."), valorDeTeste(c, i));
     }
   });
@@ -768,10 +774,17 @@ export function vendaCheia(classificacao: Classificacao, servicos = 1): VendaCon
     margem: v.margemLucroBruta ?? "0.00",
   };
   const totalPagamentos = somarDecimais(pagamentos.map((p) => p.valorExibido));
-  const comTrechos = classificacao === "aereo" || classificacao === "rodoviario";
-  const itinerario: Itinerario | null = comTrechos
-    ? { forma: "com_horario", trajetos: [{ trechos: [0, 1], esperas: [] }], estadias: [] }
-    : null;
+  // Como o backend, que monta o itinerário sempre que há trechos: sem datas fora do aéreo e do
+  // rodoviário (só os fusos dos campos que nunca vieram preenchidos).
+  const comHorario = classificacao === "aereo" || classificacao === "rodoviario";
+  const itinerario: Itinerario | null =
+    (v.trechos ?? []).length === 0
+      ? null
+      : {
+          forma: comHorario ? "com_horario" : "sem_dados",
+          trajetos: [{ trechos: [0, 1], esperas: [] }],
+          estadias: [],
+        };
 
   return vendaConsultada({
     venda: v,

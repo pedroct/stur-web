@@ -6,14 +6,19 @@ import { classificacaoDe } from "@/lib/consulta/consulta";
 import { avisosDaVenda } from "@/lib/venda/cabecalho";
 import { caminhosDaConta } from "@/lib/venda/conta";
 import { primeiroLocalizador } from "@/lib/venda/itinerario";
+import { comTabelaDeLancamentos } from "@/lib/venda/lancamentos";
 import { Avisos } from "./Avisos";
 import { BlocoConta, GruposDoServico } from "./BlocoConta";
 import { CabecalhoVenda } from "./CabecalhoVenda";
+import { CodigosStur } from "./CodigosStur";
 import { ConteudoDoProduto } from "./ConteudoDoProduto";
 import { Financeiro } from "./Financeiro";
 import type { NivelDeTitulo } from "./GrupoDeCampos";
 import { Incentivo } from "./Incentivo";
+import { Lancamentos } from "./Lancamentos";
+import { MaisDetalhes } from "./MaisDetalhes";
 import { Pessoa } from "./Pessoa";
+import { SecaoVinculos } from "./SecaoVinculos";
 
 export type ConsultaDaVenda = {
   atualizando: boolean;
@@ -22,11 +27,12 @@ export type ConsultaDaVenda = {
 };
 
 /**
- * A venda. Casca: a Task 9 a completa (o conteúdo do produto, a pessoa e a conta já estão
- * aqui). Sozinha (`nivelBase` 1), o cabeçalho é o dela, com o título em h1 e a linha da consulta;
- * dentro da reserva (`naReserva`, `nivelBase` 2), o título desce para h2 e a linha da consulta,
- * com o Atualizar, fica na reserva, acima da lista (a Task 11 troca este título pelo cabeçalho da
- * venda aberta, que mantém o `data-titulo-venda`).
+ * A venda, na ordem da IA 6.1: cabeçalho, avisos, Financeiro (ou Incentivo), conteúdo do produto,
+ * pessoa e conta, recebimentos e pagamentos, vínculos, Mais detalhes e Códigos do Stur. Sozinha
+ * (`nivelBase` 1), o cabeçalho é o dela, com o título em h1 e a linha da consulta; dentro da
+ * reserva (`naReserva`, `nivelBase` 2), o título desce para h2 e a linha da consulta, com o
+ * Atualizar, fica na reserva, acima da lista (a Task 11 troca este cabeçalho pelo da venda aberta,
+ * que mantém o `data-titulo-venda`).
  */
 export function Venda({
   dados,
@@ -40,8 +46,6 @@ export function Venda({
   consulta: ConsultaDaVenda;
 }>) {
   const { venda, calculos } = dados;
-  const numero = dados.reserva.numero;
-  const cliente = venda.nomecliente ?? `Reserva ${numero}`;
   // A venda de incentivo tem o `Incentivo` no lugar do Financeiro, do conteúdo do produto, da
   // pessoa e da conta (tela 17).
   const comFinanceiro = calculos.tipo !== "incentivo";
@@ -67,15 +71,9 @@ export function Venda({
   return (
     <>
       {naReserva ? (
-        <section className="mt-10">
-          <h2
-            data-titulo-venda
-            tabIndex={-1}
-            className="text-[30px] leading-[38px] font-bold tracking-[-0.01em] outline-0"
-          >
-            {cliente}
-          </h2>
-        </section>
+        <div className="mt-10">
+          <CabecalhoVenda dados={dados} consulta={consulta} naReserva />
+        </div>
       ) : (
         <CabecalhoVenda dados={dados} consulta={consulta} />
       )}
@@ -112,6 +110,14 @@ export function Venda({
           excluir={naPagina}
         />
       )}
+      {/* O incentivo não tem os cartões com os detalhes: a seção 6 vem sempre em tabela. */}
+      {(!comFinanceiro ||
+        comTabelaDeLancamentos(calculos.recebimentos.length, calculos.pagamentos.length)) && (
+        <Lancamentos dados={dados} nivelBase={nivelBase} />
+      )}
+      <SecaoVinculos dados={dados} nivelBase={nivelBase} />
+      <MaisDetalhes dados={dados} nivelBase={nivelBase} />
+      <CodigosStur dados={dados} nivelBase={nivelBase} />
     </>
   );
 }

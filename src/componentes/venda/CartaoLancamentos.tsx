@@ -39,7 +39,8 @@ function caminhosDaLinha(
 
 /**
  * As linhas de um cartão do Financeiro (decisão 3): o selo, o texto e, recolhidos, os detalhes do
- * lançamento, com os campos da seção 6 que a linha não mostra (decisão 8).
+ * lançamento, com os campos da seção 6 que a linha não mostra (decisão 8). Com as tabelas de
+ * recebimentos e pagamentos na página (`comDetalhes` falso), os detalhes ficam só nelas.
  */
 export function CartaoLancamentos({
   lado,
@@ -47,12 +48,14 @@ export function CartaoLancamentos({
   venda,
   hoje,
   nivel,
+  comDetalhes = true,
 }: Readonly<{
   lado: Lado;
   lancamentos: LancamentoCalculado[];
   venda: VendaAgi;
   hoje: string;
   nivel: NivelDeTitulo;
+  comDetalhes?: boolean;
 }>) {
   const lista = lado === "cliente" ? venda.recebimentos : venda.pagamentos;
   const fornecedor = fornecedoresDe(texto(venda.nomefornec), texto(venda.nomefornec2)).principal;
@@ -81,23 +84,25 @@ export function CartaoLancamentos({
             !mostrados.has(c.caminho),
         );
         return (
-          <li key={l.indice} data-anexo-secao="6">
+          <li key={l.indice} data-anexo-secao={comDetalhes ? "6" : undefined}>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <Selo {...selo} borda={selo.borda || selo.tom === "neutro"}>
                 {selo.texto}
               </Selo>
               <span>{textoDoLancamento(l, cru, mostrarValor, fornecedor, hoje)}</span>
             </div>
-            <GrupoDeCampos
-              titulo="Detalhes do lançamento"
-              recolhido
-              secao={6}
-              nivel={nivel}
-              campos={detalhes}
-              venda={venda}
-              indices={[l.indice]}
-              className="text-texto-principal"
-            />
+            {comDetalhes && (
+              <GrupoDeCampos
+                titulo="Detalhes do lançamento"
+                recolhido
+                secao={6}
+                nivel={nivel}
+                campos={detalhes}
+                venda={venda}
+                indices={[l.indice]}
+                className="text-texto-principal"
+              />
+            )}
           </li>
         );
       })}

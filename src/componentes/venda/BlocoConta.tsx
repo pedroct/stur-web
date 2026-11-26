@@ -25,7 +25,7 @@ import {
   rotuloDoTermoSomado,
   somarContas,
 } from "@/lib/venda/conta";
-import { GrupoDeCampos, type NivelDeTitulo } from "./GrupoDeCampos";
+import { GrupoDeCampos, type NivelDeTitulo, temCampos } from "./GrupoDeCampos";
 
 const NOMES: Record<Lado, { titulo: string; total: string; grupo: string }> = {
   cliente: { titulo: "Cliente", total: "Total do cliente", grupo: "Conta do cliente" },
@@ -288,6 +288,12 @@ export function GruposDoServico({
   const balcao = CAMPOS_ANEXO_B.filter(
     (c) => c.caminho === "detalheItem[].apartamentos[].vlrBalcao",
   );
+  const referencia = [...camposDoGrupo("Tarifas de referência"), ...balcao];
+  const repasses = doGrupo("Repasses e faturamento");
+  // Sem nenhum dos dois recolhidos, o invólucro deles não fica vazio na página.
+  const recolhidos = [referencia, repasses].some((campos) =>
+    temCampos(campos, venda, calculos, [indice]),
+  );
   return (
     <div data-anexo-secao="5" className="mt-6 space-y-6 empty:hidden">
       <GrupoDeCampos titulo="Observações" campos={doGrupo("Observações")} {...comuns} />
@@ -296,20 +302,12 @@ export function GruposDoServico({
         campos={doGrupo("Comissões da equipe")}
         {...comuns}
       />
-      <div className="space-y-1 empty:hidden">
-        <GrupoDeCampos
-          titulo="Tarifas de referência"
-          campos={[...camposDoGrupo("Tarifas de referência"), ...balcao]}
-          recolhido
-          {...comuns}
-        />
-        <GrupoDeCampos
-          titulo="Repasses e faturamento"
-          campos={doGrupo("Repasses e faturamento")}
-          recolhido
-          {...comuns}
-        />
-      </div>
+      {recolhidos && (
+        <div className="space-y-1">
+          <GrupoDeCampos titulo="Tarifas de referência" campos={referencia} recolhido {...comuns} />
+          <GrupoDeCampos titulo="Repasses e faturamento" campos={repasses} recolhido {...comuns} />
+        </div>
+      )}
       <GrupoDeCampos
         titulo="Valores na moeda original"
         campos={doGrupo("Valores na moeda original")}

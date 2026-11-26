@@ -467,8 +467,11 @@ describe("rodapé do Financeiro", () => {
 });
 
 describe("molde do Financeiro e do lançamento", () => {
+  // O valor que a linha do cartão mostra; as colunas da tabela (Task 9) são de outra tela.
   function declarado(caminho: string) {
-    return [...MOLDES.financeiro, ...MOLDES.lancamento].find((d) => d.caminho === caminho);
+    return [...MOLDES.financeiro, ...MOLDES.lancamento].find(
+      (d) => d.caminho === caminho && d.naTela.tipo === "valor",
+    );
   }
 
   function esperado(caminho: string, dados: VendaConsultada, indices: number[]): string {
