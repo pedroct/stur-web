@@ -56,12 +56,7 @@ export function BuscaCompacta() {
         }}
         className="w-50 rounded-pilula text-sm"
       />
-      <Button
-        type="submit"
-        variant="secundaria"
-        disabled={consultando}
-        className="px-4 text-sm font-medium"
-      >
+      <Button type="submit" variant="secundaria" disabled={consultando} size="compacto">
         {consultando ? "Buscando…" : "Buscar"}
       </Button>
     </form>

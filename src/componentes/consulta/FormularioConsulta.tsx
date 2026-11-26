@@ -328,7 +328,7 @@ export function FormularioConsulta({
                 key={atalho}
                 type="button"
                 variant="secundaria"
-                className="px-4 text-sm font-medium"
+                size="compacto"
                 onClick={() => mudar(periodoDoAtalho(atalho, hojeEmFortaleza(new Date())))}
               >
                 {rotulo}

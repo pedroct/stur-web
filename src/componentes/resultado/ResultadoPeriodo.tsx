@@ -208,11 +208,7 @@ export function ResultadoPeriodo({
             {textoDaContagem(refinadas.length, total, refinando, soma)}
           </p>
           {refinando && (
-            <Button
-              variant="secundaria"
-              className="px-4 text-sm font-medium"
-              onClick={limparFiltros}
-            >
+            <Button variant="secundaria" size="compacto" onClick={limparFiltros}>
               Limpar filtros
             </Button>
           )}

@@ -10,7 +10,7 @@ export function LinhaStatus({ texto, aoCancelar }: { texto: string; aoCancelar?:
         {texto}
       </p>
       {aoCancelar && (
-        <Button variant="secundaria" className="px-4 text-sm font-medium" onClick={aoCancelar}>
+        <Button variant="secundaria" size="compacto" onClick={aoCancelar}>
           Cancelar consulta
         </Button>
       )}

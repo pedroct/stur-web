@@ -101,10 +101,7 @@ export function EstadoErro({
             )}
             <Link
               href={alterarHref}
-              className={buttonVariants({
-                variant: "secundaria",
-                className: "px-4 text-sm font-medium",
-              })}
+              className={buttonVariants({ variant: "secundaria", size: "compacto" })}
             >
               Alterar consulta
             </Link>

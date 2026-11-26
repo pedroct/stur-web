@@ -38,12 +38,13 @@ export function CabecalhoResultado({
         <div className="flex gap-2">
           <Link
             href={`/?${escreverConsulta(consulta)}`}
-            className={buttonVariants({ variant: "secundaria" })}
+            className={buttonVariants({ variant: "secundaria", size: "compacto" })}
           >
             Alterar consulta
           </Link>
           <Button
             variant="secundaria"
+            size="compacto"
             title="Atualizar (u)"
             aria-keyshortcuts="u"
             onClick={aoAtualizar}
