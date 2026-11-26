@@ -7,7 +7,7 @@ import { avisosDaVenda } from "@/lib/venda/cabecalho";
 import { caminhosDaConta } from "@/lib/venda/conta";
 import { idDaVenda } from "@/lib/venda/copia";
 import { primeiroLocalizador } from "@/lib/venda/itinerario";
-import { comTabelaDeLancamentos } from "@/lib/venda/lancamentos";
+import { comTabelaDeLancamentos, incentivoComTabela } from "@/lib/venda/lancamentos";
 import { Avisos } from "./Avisos";
 import { BlocoConta, GruposDoServico } from "./BlocoConta";
 import { CabecalhoVenda } from "./CabecalhoVenda";
@@ -114,10 +114,11 @@ export function Venda({
           excluir={naPagina}
         />
       )}
-      {/* O incentivo não tem os cartões com os detalhes: a seção 6 vem sempre em tabela. */}
-      {(!comFinanceiro ||
-        comTabelaDeLancamentos(calculos.recebimentos.length, calculos.pagamentos.length)) && (
-        <Lancamentos dados={dados} nivelBase={nivelBase} />
+      {/* No incentivo, o cartão Recebimento mostra um lançamento; a tabela, quando há mais. */}
+      {(comFinanceiro
+        ? comTabelaDeLancamentos(calculos.recebimentos.length, calculos.pagamentos.length)
+        : incentivoComTabela(calculos.recebimentos.length, calculos.pagamentos.length)) && (
+        <Lancamentos dados={dados} nivelBase={nivelBase} semClienteVazio={!comFinanceiro} />
       )}
       <SecaoVinculos dados={dados} nivelBase={nivelBase} />
       <MaisDetalhes dados={dados} nivelBase={nivelBase} />

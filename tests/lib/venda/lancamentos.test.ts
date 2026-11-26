@@ -1,6 +1,8 @@
 import type { LancamentoCalculado } from "@/contrato/tipos";
 import {
+  comTabelaDeLancamentos,
   fraseSemLancamentos,
+  incentivoComTabela,
   type SeloTexto,
   seloDoLancamento,
   textoDoLancamento,
@@ -150,4 +152,16 @@ test("fraseSemLancamentos é a de vazio da IA 9.3, por lado", () => {
   expect(fraseSemLancamentos("fornecedor")).toBe(
     "A API não trouxe nenhuma forma de pagamento ao fornecedor nesta venda.",
   );
+});
+
+test("a tabela de lançamentos: com mais de dois num lado; no incentivo, também com o que o cartão não mostra", () => {
+  expect(comTabelaDeLancamentos(2, 2)).toBe(false);
+  expect(comTabelaDeLancamentos(3, 0)).toBe(true);
+  expect(comTabelaDeLancamentos(0, 3)).toBe(true);
+  // O cartão Recebimento do incentivo mostra só o crédito (ou o primeiro pagamento).
+  expect(incentivoComTabela(0, 1)).toBe(false);
+  expect(incentivoComTabela(0, 0)).toBe(false);
+  expect(incentivoComTabela(0, 2)).toBe(true);
+  expect(incentivoComTabela(1, 1)).toBe(true);
+  expect(incentivoComTabela(0, 3)).toBe(true);
 });

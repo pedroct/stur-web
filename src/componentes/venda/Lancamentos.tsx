@@ -166,18 +166,21 @@ function TabelaDoLado({
 /**
  * Recebimentos e pagamentos (IA 6.7; decisão 8): uma tabela por lado, com a forma, o documento,
  * o vencimento, o valor e a situação, e os detalhes de cada lançamento recolhidos na linha de
- * baixo. Sem lançamentos num lado, a frase da IA 9.3.
+ * baixo. Sem lançamentos num lado, a frase da IA 9.3; no incentivo (`semClienteVazio`), que não
+ * tem venda a cliente, o lado do cliente sem lançamentos não aparece.
  */
 export function Lancamentos({
   dados,
   nivelBase,
-}: Readonly<{ dados: VendaConsultada; nivelBase: 1 | 2 }>) {
+  semClienteVazio = false,
+}: Readonly<{ dados: VendaConsultada; nivelBase: 1 | 2; semClienteVazio?: boolean }>) {
   const Titulo = nivelBase === 1 ? "h2" : "h3";
   const nivel = (nivelBase + 2) as NivelDeTitulo;
+  const semCliente = semClienteVazio && dados.calculos.recebimentos.length === 0;
   return (
     <section data-anexo-secao="6" className="mt-10">
       <Titulo className="text-xl leading-7 font-semibold">Recebimentos e pagamentos</Titulo>
-      <TabelaDoLado lado="cliente" dados={dados} nivel={nivel} />
+      {!semCliente && <TabelaDoLado lado="cliente" dados={dados} nivel={nivel} />}
       <TabelaDoLado lado="fornecedor" dados={dados} nivel={nivel} />
     </section>
   );

@@ -278,6 +278,19 @@ function incentivo(): VendaConsultada {
   };
 }
 
+/** O incentivo como a AGI o manda: sem recebimento e só o crédito, sem a tabela (decisão 8). */
+function incentivoSoComCredito(): VendaConsultada {
+  const base = incentivo();
+  const credito = base.venda.pagamentos?.[1];
+  const calculado = base.calculos.pagamentos[1];
+  if (credito === undefined || calculado === undefined) throw new Error("sem o crédito");
+  return {
+    ...base,
+    venda: { ...base.venda, recebimentos: [], pagamentos: [credito] },
+    calculos: { ...base.calculos, recebimentos: [], pagamentos: [{ ...calculado, indice: 0 }] },
+  };
+}
+
 const DO_PAINEL = new Set([3, 4, 5]);
 
 function doServico({ campo }: Campo): boolean {
@@ -335,6 +348,13 @@ describe("critério 8: todo campo preenchido tem lugar na seção dele", () => {
   test("venda de incentivo", async () => {
     const dados = incentivo();
     await abrirVenda(dados);
+    expect(faltando(document, dados, camposPreenchidos(dados))).toEqual([]);
+  });
+
+  test("venda de incentivo só com o crédito: os campos do lançamento no cartão Recebimento", async () => {
+    const dados = incentivoSoComCredito();
+    await abrirVenda(dados);
+    expect(screen.queryByRole("heading", { name: "Recebimentos e pagamentos" })).toBeNull();
     expect(faltando(document, dados, camposPreenchidos(dados))).toEqual([]);
   });
 
@@ -442,6 +462,7 @@ function gravarNoCaminho(alvo: unknown, partes: string[], valor: unknown): void 
 const CASOS: [string, () => VendaConsultada][] = [
   ...CLASSIFICACOES.map((c): [string, () => VendaConsultada] => [c, () => vendaCheia(c)]),
   ["incentivo", incentivo],
+  ["incentivo só com o crédito", incentivoSoComCredito],
 ];
 
 describe("o critério 8 acusa o campo que some da venda", () => {

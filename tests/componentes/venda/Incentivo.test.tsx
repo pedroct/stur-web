@@ -441,6 +441,68 @@ describe("Serviço lançado", () => {
   });
 });
 
+describe("Recebimentos e pagamentos do incentivo (decisão 8)", () => {
+  test("só o crédito: sem a tabela, e os detalhes do lançamento no cartão Recebimento", async () => {
+    const { container } = render(
+      <Venda
+        dados={incentivo({
+          venda: {
+            pagamentos: [
+              pagamento({
+                valor: "3698.14",
+                descricaoForma: "Crédito",
+                nomeBenificiario: "FORNECEDOR EXEMPLO BENEFICIARIO",
+              }),
+            ],
+          },
+        })}
+        naReserva={false}
+        nivelBase={1}
+        consulta={CONSULTA}
+      />,
+    );
+    expect(screen.queryByRole("heading", { name: "Recebimentos e pagamentos" })).toBeNull();
+    expect(screen.queryByRole("table", { name: /Pagamentos ao fornecedor/ })).toBeNull();
+    expect(container).not.toHaveTextContent("A API não trouxe nenhuma forma de recebimento");
+    const recebimento = cartao("Recebimento");
+    const resumo = within(recebimento).getByText("Detalhes do lançamento");
+    const detalhes = resumo.closest("details");
+    if (detalhes === null) throw new Error("sem os detalhes do lançamento");
+    expect(detalhes.closest('[data-anexo-secao="6"]')).not.toBeNull();
+    await userEvent.click(resumo);
+    expect(within(detalhes).getByText("FORNECEDOR EXEMPLO BENEFICIARIO")).toBeVisible();
+  });
+
+  test("com mais de dois pagamentos, a tabela entra, sem a frase de vazio do cliente", () => {
+    const tres = [0, 1, 2].map((indice) =>
+      lancamento({ indice, ehCredito: indice === 0, situacao: "em_aberto" }),
+    );
+    render(
+      <Venda
+        dados={incentivo({
+          venda: {
+            pagamentos: [
+              pagamento({ valor: "3698.14", descricaoForma: "Crédito" }),
+              pagamento({ valor: "1.00", descricaoForma: "Faturado" }),
+              pagamento({ valor: "2.00", descricaoForma: "Faturado" }),
+            ],
+          },
+          calculos: { pagamentos: tres },
+        })}
+        naReserva={false}
+        nivelBase={1}
+        consulta={CONSULTA}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "Recebimentos e pagamentos" })).toBeVisible();
+    expect(screen.getByRole("table", { name: "Pagamentos ao fornecedor" })).toBeVisible();
+    expect(screen.queryByText("Recebimentos do cliente")).toBeNull();
+    expect(screen.queryByText(/A API não trouxe nenhuma forma de recebimento/)).toBeNull();
+    // Os detalhes ficam só na tabela.
+    expect(within(cartao("Recebimento")).queryByText("Detalhes do lançamento")).toBeNull();
+  });
+});
+
 describe("Venda de incentivo", () => {
   test("troca o Financeiro e a conta pelo Incentivo", () => {
     render(<Venda dados={incentivo()} naReserva={false} nivelBase={1} consulta={CONSULTA} />);

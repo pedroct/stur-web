@@ -10,12 +10,14 @@ import { CAMPOS_ANEXO_B, type Formato } from "@/lib/venda/anexo-b";
 import { preenchido, valorDoCampo } from "@/lib/venda/campos";
 import {
   fraseSemLancamentos,
+  incentivoComTabela,
   lancamentoDoCredito,
   seloDoLancamento,
   textoDoLancamento,
   textoDosDocumentos,
 } from "@/lib/venda/lancamentos";
 import { camposSemMolde, DATAS_E_NOME_NO_SERVICO } from "@/lib/venda/moldes";
+import { camposDosDetalhes } from "./CartaoLancamentos";
 import { VerificacaoDaConta } from "./Financeiro";
 import { formatarCampo, GrupoDeCampos, type NivelDeTitulo } from "./GrupoDeCampos";
 import { RestoDoGrupo } from "./produto-comum";
@@ -49,7 +51,17 @@ function Cartao({ rotulo, children }: Readonly<{ rotulo: string; children: React
 const DESTAQUE = "mt-0.5 text-[22px] leading-7 font-semibold tabular-nums";
 const APOIO = "mt-1 text-[13px] leading-[22px] text-texto-auxiliar";
 
-function Recebimento({ dados, hoje }: Readonly<{ dados: VendaConsultada; hoje: string }>) {
+/**
+ * O crédito (ou o primeiro pagamento) no cartão. Sem a tabela de recebimentos e pagamentos
+ * (`comDetalhes`), os campos da seção 6 que a linha não mostra ficam nos detalhes do lançamento,
+ * como nos cartões do Financeiro.
+ */
+function Recebimento({
+  dados,
+  hoje,
+  comDetalhes,
+  nivel,
+}: Readonly<{ dados: VendaConsultada; hoje: string; comDetalhes: boolean; nivel: NivelDeTitulo }>) {
   const { venda } = dados;
   const alvo = lancamentoDoCredito(dados);
   if (alvo === null) {
@@ -62,8 +74,9 @@ function Recebimento({ dados, hoje }: Readonly<{ dados: VendaConsultada; hoje: s
   const descricao = l.ehCredito
     ? [`crédito com ${fornecedor ?? "o fornecedor"}`, documentos].filter((p) => p !== "").join(", ")
     : textoDoLancamento(l, cru, false, fornecedor, hoje);
+  // Sem a tabela, o lançamento é a seção 6 aqui, como a linha de um cartão do Financeiro.
   return (
-    <>
+    <div data-anexo-secao={comDetalhes ? "6" : undefined}>
       <p className={DESTAQUE}>{reais(cru.valor)}</p>
       <p className={APOIO}>
         <Selo {...selo} borda={selo.borda || selo.tom === "neutro"}>
@@ -71,7 +84,19 @@ function Recebimento({ dados, hoje }: Readonly<{ dados: VendaConsultada; hoje: s
         </Selo>{" "}
         {descricao}
       </p>
-    </>
+      {comDetalhes && (
+        <GrupoDeCampos
+          titulo="Detalhes do lançamento"
+          recolhido
+          secao={6}
+          nivel={nivel}
+          campos={camposDosDetalhes(l, cru, "fornecedor", true)}
+          venda={venda}
+          indices={[l.indice]}
+          className="text-[13px] leading-[22px]"
+        />
+      )}
+    </div>
   );
 }
 
@@ -265,7 +290,17 @@ export function Incentivo({
             <p className={APOIO}>receita da A3, sem custo</p>
           </Cartao>
           <Cartao rotulo="Recebimento">
-            <Recebimento dados={dados} hoje={hoje} />
+            <Recebimento
+              dados={dados}
+              hoje={hoje}
+              comDetalhes={
+                !incentivoComTabela(
+                  dados.calculos.recebimentos.length,
+                  dados.calculos.pagamentos.length,
+                )
+              }
+              nivel={nivel}
+            />
           </Cartao>
           <Cartao rotulo="Referência no Stur">
             <p className="mt-0.5 font-mono text-[17px] leading-7 font-semibold break-words">

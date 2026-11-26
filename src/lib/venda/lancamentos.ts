@@ -127,6 +127,15 @@ export function comTabelaDeLancamentos(recebimentos: number, pagamentos: number)
   return recebimentos > 2 || pagamentos > 2;
 }
 
+/**
+ * No incentivo, o cartão Recebimento mostra um lançamento só, o crédito (ou o primeiro pagamento).
+ * A tabela entra com mais de dois lançamentos num lado (decisão 8) e também quando há lançamento que
+ * o cartão não mostra: um recebimento ou um segundo pagamento, que senão sumiria da tela (RF-04).
+ */
+export function incentivoComTabela(recebimentos: number, pagamentos: number): boolean {
+  return comTabelaDeLancamentos(recebimentos, pagamentos) || recebimentos > 0 || pagamentos > 1;
+}
+
 /** O crédito do fornecedor na venda de incentivo; sem ele, o primeiro pagamento (decisão 18). */
 export function lancamentoDoCredito(
   dados: VendaConsultada,

@@ -1,6 +1,6 @@
 import { dadosDoSeloTexto, Selo } from "@/componentes/comum/Selo";
 import type { LancamentoCalculado, PagamentoAgi, RecebimentoAgi, VendaAgi } from "@/contrato/tipos";
-import { CAMPOS_ANEXO_B } from "@/lib/venda/anexo-b";
+import { CAMPOS_ANEXO_B, type CampoAnexo } from "@/lib/venda/anexo-b";
 import { fornecedoresDe, preenchido } from "@/lib/venda/campos";
 import { fraseSemLancamentos, seloDoLancamento, textoDoLancamento } from "@/lib/venda/lancamentos";
 import { GrupoDeCampos, type NivelDeTitulo } from "./GrupoDeCampos";
@@ -19,7 +19,7 @@ function texto(valor: string | null | undefined): string | null {
  * não vão na linha do cartão repassado, e o crédito não leva a forma; o vencimento só vai no selo
  * do que está em aberto e no texto do cartão repassado.
  */
-function caminhosDaLinha(
+export function caminhosDaLinha(
   l: LancamentoCalculado,
   cru: RecebimentoAgi | PagamentoAgi,
   lado: Lado,
@@ -35,6 +35,23 @@ function caminhosDaLinha(
   const naLinha = l.cartaoRepassado || l.situacao === "em_aberto";
   if (naLinha && preenchido(vencimento, "vencimento")) mostrados.add(`${prefixo}dtVencto`);
   return mostrados;
+}
+
+/** Os campos da seção 6 do lançamento que a linha do cartão não mostra (decisão 8). */
+export function camposDosDetalhes(
+  l: LancamentoCalculado,
+  cru: RecebimentoAgi | PagamentoAgi,
+  lado: Lado,
+  mostrarValor: boolean,
+): CampoAnexo[] {
+  const mostrados = caminhosDaLinha(l, cru, lado, mostrarValor);
+  return CAMPOS_ANEXO_B.filter(
+    (c) =>
+      c.secao === 6 &&
+      c.caminho.startsWith(PREFIXO[lado]) &&
+      !c.conteiner &&
+      !mostrados.has(c.caminho),
+  );
 }
 
 /**
@@ -75,14 +92,7 @@ export function CartaoLancamentos({
         const cru = lista?.[l.indice];
         if (cru === undefined) return null;
         const selo = dadosDoSeloTexto(seloDoLancamento(l, lado, hoje));
-        const mostrados = caminhosDaLinha(l, cru, lado, mostrarValor);
-        const detalhes = CAMPOS_ANEXO_B.filter(
-          (c) =>
-            c.secao === 6 &&
-            c.caminho.startsWith(PREFIXO[lado]) &&
-            !c.conteiner &&
-            !mostrados.has(c.caminho),
-        );
+        const detalhes = camposDosDetalhes(l, cru, lado, mostrarValor);
         return (
           <li key={l.indice} data-anexo-secao={comDetalhes ? "6" : undefined}>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
