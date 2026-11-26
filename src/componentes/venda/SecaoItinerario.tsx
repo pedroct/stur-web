@@ -264,9 +264,8 @@ export function SecaoItinerario({
         <p className={NOTA}>O Stur não informa data, voo, classe nem localizador neste bilhete.</p>
       )}
       <RestoDoGrupo
+        grupo={GRUPO}
         campos={restantes}
-        titulo="Outros dados do itinerário"
-        tituloRecolhido="Conexão e fuso horário"
         venda={venda}
         calculos={calculos}
         indices={[]}

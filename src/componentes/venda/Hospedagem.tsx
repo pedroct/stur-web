@@ -88,17 +88,16 @@ export function Hospedagem({
       )}
       <ParesDoCartao pares={pares} />
       <RestoDoGrupo
+        grupo="Hospedagem (hotelaria)"
         campos={camposSemMolde("Hospedagem (hotelaria)", ["hospedagem"])}
-        titulo="Outros dados da hospedagem"
-        tituloRecolhido="Rota do produto"
         venda={venda}
         calculos={calculos}
         indices={[0]}
         nivel={nivel}
       />
       <RestoDoGrupo
+        grupo="Confirmação do fornecedor"
         campos={camposSemMolde("Confirmação do fornecedor", ["hospedagem"])}
-        titulo="Confirmação do fornecedor"
         venda={venda}
         calculos={calculos}
         indices={[0]}

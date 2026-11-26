@@ -212,6 +212,7 @@ export function GrupoDeCampos({
   calculos,
   indices = [],
   recolhido = false,
+  semTitulo = false,
   nivel,
   secao,
   className,
@@ -223,6 +224,8 @@ export function GrupoDeCampos({
   calculos?: CalculosVenda;
   indices?: number[];
   recolhido?: boolean;
+  /** Os pares sem o título, quando o título da seção em que o grupo está já é o dele. */
+  semTitulo?: boolean;
   nivel: NivelDeTitulo;
   /** `data-anexo-secao` da raiz do grupo (Global Constraints, "Marca para o teste"). */
   secao?: number;
@@ -244,6 +247,14 @@ export function GrupoDeCampos({
         </summary>
         <div className="pt-2 pb-3 pl-6">{blocos}</div>
       </details>
+    );
+  }
+
+  if (semTitulo) {
+    return (
+      <div className={className} data-anexo-secao={secao}>
+        {blocos}
+      </div>
     );
   }
 

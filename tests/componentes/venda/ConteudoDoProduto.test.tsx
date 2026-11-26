@@ -276,6 +276,17 @@ describe("Itinerário", () => {
     expect(screen.getByText("Cia").nextElementSibling).toHaveTextContent("EMPRESA EXEMPLO");
   });
 
+  test("conexão e fuso ficam num details chamado Itinerário; o visível vira par sem título", async () => {
+    const trechos = VOO.map((t) => ({ ...t, status: "HK", conexao: "CONEXAO EXEMPLO" }));
+    montar(dadosDe({ ...AEREO, trechos }, { itinerario: ITINERARIO_DO_VOO }));
+    expect(screen.getAllByText("Status do trecho", { selector: "dt" }).length).toBeGreaterThan(0);
+    expect(screen.queryAllByRole("heading", { level: 3 })).toHaveLength(0);
+    const resumo = screen.getByText("Itinerário", { selector: "summary" });
+    expect(resumo.closest("details")).not.toHaveAttribute("open");
+    await userEvent.click(resumo);
+    expect(screen.getAllByText("Conexão", { selector: "dt" }).length).toBeGreaterThan(0);
+  });
+
   test("o título desce um nível dentro da reserva", () => {
     montar(dadosDe({ ...AEREO, trechos: VOO }, { itinerario: ITINERARIO_DO_VOO }), 2);
     expect(screen.getByRole("heading", { level: 3, name: "Itinerário" })).toBeVisible();
@@ -320,21 +331,33 @@ describe("Hospedagem", () => {
     expect(screen.getByText("20/11 a 22/11/2026 · 2 diárias · não vai acontecer")).toBeVisible();
   });
 
-  test("os campos do grupo que o molde não mostra vão num grupo no fim da seção", () => {
+  test("o campo visível que o molde não mostra vira par na seção, sem título novo", () => {
     montar(
       dadosDe(HOTEL, {}, [
         servicoAgi({ ...HOSPEDE, numeroOS: "OS0001", confirmadopor: "ATENDENTE EXEMPLO" }),
       ]),
     );
-    expect(
-      screen.getByRole("heading", { level: 3, name: "Confirmação do fornecedor" }),
-    ).toBeVisible();
     expect(screen.getByText("Confirmado por").nextElementSibling).toHaveTextContent(
       "ATENDENTE EXEMPLO",
     );
     expect(screen.getByText("Nº da OS").nextElementSibling).toHaveTextContent("OS0001");
-    // O que o card mostra não se repete no grupo.
+    // O título da seção já é o do grupo: nenhum h3 novo.
+    expect(screen.queryAllByRole("heading", { level: 3 })).toHaveLength(0);
+    expect(screen.getAllByRole("heading")).toHaveLength(1);
+    // O que o card mostra não se repete.
     expect(screen.getAllByText("Regime", { selector: "dt" })).toHaveLength(1);
+  });
+
+  test("o campo recolhido vai num details com o nome do grupo no Anexo B", async () => {
+    montar(dadosDe(HOTEL, {}, [servicoAgi({ ...HOSPEDE, rotaProdutoFT: "ROTA EXEMPLO" })]));
+    const detalhes = screen.getByText("Hospedagem", { selector: "summary" }).closest("details");
+    expect(detalhes).not.toHaveAttribute("open");
+    expect(screen.getByText("ROTA EXEMPLO")).not.toBeVisible();
+    await userEvent.click(screen.getByText("Hospedagem", { selector: "summary" }));
+    expect(screen.getByText("Rota do produto").nextElementSibling).toHaveTextContent(
+      "ROTA EXEMPLO",
+    );
+    expect(screen.getByText("ROTA EXEMPLO")).toBeVisible();
   });
 
   test("com mais de um serviço, a tabela lista as pessoas e o card não traz o hóspede", () => {

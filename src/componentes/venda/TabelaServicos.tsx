@@ -259,8 +259,8 @@ export function TabelaServicos({
       <Observacao linhas={linhas} />
       {itens && servicos.length === 1 && (
         <RestoDoGrupo
+          grupo="Confirmação do fornecedor"
           campos={camposSemMolde("Confirmação do fornecedor", ["servicos"])}
-          titulo="Confirmação do fornecedor"
           venda={venda}
           calculos={calculos}
           indices={[0]}

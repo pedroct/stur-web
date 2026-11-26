@@ -56,38 +56,41 @@ export function parDaPessoa(venda: VendaAgi, servico: ServicoAgi): ParDoCartao |
   return { rotulo: linha.slice(0, corte), valor: linha.slice(corte + 1), secao: 4 };
 }
 
+/** O nome do grupo no Anexo B sem a anotação entre parênteses: "Itinerário (aéreo e rodoviário)" vira "Itinerário". */
+export function nomeDoGrupo(grupo: string): string {
+  return grupo.replace(/\s*\(.*\)\s*$/, "");
+}
+
 /**
  * O que o molde não mostra de um grupo do Anexo B, logo depois dele (cobertura do Anexo B): os
- * campos visíveis num grupo e os recolhidos noutro.
+ * campos visíveis como pares, sem título novo (o da seção já é o do grupo), e os recolhidos num
+ * `details` com o nome do grupo.
  */
 export function RestoDoGrupo({
+  grupo,
   campos,
-  titulo,
-  tituloRecolhido = titulo,
   venda,
   calculos,
   indices,
   nivel,
 }: Readonly<{
+  grupo: string;
   campos: CampoAnexo[];
-  titulo: string;
-  tituloRecolhido?: string;
   venda: VendaAgi;
   calculos: CalculosVenda;
   indices: number[];
   nivel: NivelDeTitulo;
 }>) {
-  const comuns = { venda, calculos, indices, nivel };
+  const comuns = { titulo: nomeDoGrupo(grupo), venda, calculos, indices, nivel };
   return (
     <>
       <GrupoDeCampos
-        titulo={titulo}
         campos={campos.filter((c) => c.aparece !== "recolhido")}
+        semTitulo
         className="mt-6"
         {...comuns}
       />
       <GrupoDeCampos
-        titulo={tituloRecolhido}
         campos={campos.filter((c) => c.aparece === "recolhido")}
         recolhido
         className="mt-2"

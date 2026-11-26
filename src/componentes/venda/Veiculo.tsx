@@ -104,16 +104,16 @@ export function Veiculo({
       />
       <p className="mt-3 text-[13px] leading-5 text-texto-auxiliar">Horários locais.</p>
       <RestoDoGrupo
+        grupo="Veículo (locação)"
         campos={camposSemMolde("Veículo (locação)", ["veiculo"])}
-        titulo="Outros dados do veículo"
         venda={venda}
         calculos={calculos}
         indices={[0]}
         nivel={nivel}
       />
       <RestoDoGrupo
+        grupo="Confirmação do fornecedor"
         campos={camposSemMolde("Confirmação do fornecedor", ["veiculo"])}
-        titulo="Confirmação do fornecedor"
         venda={venda}
         calculos={calculos}
         indices={[0]}
