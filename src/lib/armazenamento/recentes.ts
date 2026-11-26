@@ -14,11 +14,17 @@ export interface Recente {
   quando: string;
 }
 
+/** Só endereços desta aplicação viram link: a consulta por período ou a reserva. */
+function ehEnderecoDaConsulta(endereco: string): boolean {
+  return endereco.startsWith("/consulta?") || endereco.startsWith("/reservas/");
+}
+
 function ehRecente(valor: unknown): valor is Recente {
   if (typeof valor !== "object" || valor === null) return false;
   const r = valor as Record<string, unknown>;
   return (
     typeof r.endereco === "string" &&
+    ehEnderecoDaConsulta(r.endereco) &&
     typeof r.descricao === "string" &&
     typeof r.detalhe === "string" &&
     typeof r.quando === "string" &&

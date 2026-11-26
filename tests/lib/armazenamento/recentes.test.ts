@@ -54,6 +54,27 @@ test("descarta item cujo quando não é um instante válido", () => {
   expect(lerRecentes()).toEqual([bom]);
 });
 
+test("descarta item cujo endereço não é de uma consulta ou de uma reserva", () => {
+  const quando = "2026-11-25T17:00:00.000Z";
+  const consulta = {
+    ...registro(1),
+    endereco: "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24",
+    quando,
+  };
+  const reserva = { ...registro(2), endereco: "/reservas/90000001", quando };
+  const fora = [
+    "https://exemplo.invalid/consulta?de=2026-11-17",
+    "//exemplo.invalid/reservas/90000001",
+    "javascript:alert(1)",
+    "/consultas?de=2026-11-17",
+    "/consulta",
+    "/reservas",
+    "/",
+  ].map((endereco, i) => ({ ...registro(3 + i), endereco, quando }));
+  localStorage.setItem("stur-web:recentes", JSON.stringify([...fora, consulta, reserva]));
+  expect(lerRecentes()).toEqual([consulta, reserva]);
+});
+
 test.each([
   ["2026-11-25T13:59:40-03:00", "agora"],
   ["2026-11-25T13:58:00-03:00", "há 2 min"],
