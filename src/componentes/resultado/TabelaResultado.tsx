@@ -3,14 +3,13 @@
 import { Info, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
 import { Selo, seloDaSituacao } from "@/componentes/comum/Selo";
+import { Cabeca, CELULA, FOCO } from "@/componentes/comum/tabela";
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/componentes/ui/table";
@@ -23,12 +22,8 @@ import { cn } from "@/lib/utils";
 import { fornecedoresDe } from "@/lib/venda/campos";
 import { enderecoDaVenda } from "@/lib/venda/rota";
 
-const CABECALHO = "h-auto px-4 py-2.5 text-xs font-semibold text-texto-auxiliar";
-const CELULA = "px-4 py-3 align-top text-sm leading-5 whitespace-normal";
 // Duas linhas no máximo, com reticências só depois delas; o nome inteiro segue no texto e no title.
 const DUAS_LINHAS = "line-clamp-2 [overflow-wrap:anywhere]";
-const FOCO =
-  "rounded-pequeno outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco";
 
 /** Sem ano quando o período cabe num ano só; com a janela larga ou o ano trocando, sempre com ele. */
 function comAno(consulta: Consulta, janelaLarga: boolean): boolean {
@@ -150,22 +145,6 @@ function Linha({
         )}
       </TableCell>
     </TableRow>
-  );
-}
-
-function Cabeca({
-  children,
-  className,
-  ...props
-}: Readonly<{
-  children: ReactNode;
-  className?: string;
-  "aria-sort"?: "descending";
-}>) {
-  return (
-    <TableHead scope="col" className={cn(CABECALHO, className)} {...props}>
-      {children}
-    </TableHead>
   );
 }
 

@@ -39,16 +39,19 @@ test("sem nada declarado, o grupo mostra todos os campos dele, na ordem do Anexo
 
 test("o campo que um dos moldes declara sai do grupo", () => {
   const lista = MOLDES.hospedagem;
-  lista.push({ caminho: "detalheItem[].regime", naTela: { tipo: "rotulo", texto: "Regime" } });
+  lista.push({
+    caminho: "detalheItem[].rotaProdutoFT",
+    naTela: { tipo: "rotulo", texto: "Rota do produto" },
+  });
   try {
     const caminhos = camposSemMolde("Hospedagem (hotelaria)", ["conta", "hospedagem"]).map(
       (c) => c.caminho,
     );
-    expect(caminhos).not.toContain("detalheItem[].regime");
-    expect(caminhos).toContain("detalheItem[].dtEntrada");
+    expect(caminhos).not.toContain("detalheItem[].rotaProdutoFT");
+    expect(caminhos).toContain("detalheItem[].apartamentos[].qtde");
     // Um molde que não está na casa não tira o campo.
     expect(camposSemMolde("Hospedagem (hotelaria)", ["conta"]).map((c) => c.caminho)).toContain(
-      "detalheItem[].regime",
+      "detalheItem[].rotaProdutoFT",
     );
   } finally {
     lista.pop();

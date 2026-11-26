@@ -34,6 +34,18 @@ function valor(caminho: string, transformar?: (formatado: string) => string): Ca
   return { caminho, naTela: { tipo: "valor", transformar } };
 }
 
+function coluna(caminho: string, texto: string): CampoDoMolde {
+  return { caminho, naTela: { tipo: "coluna", texto } };
+}
+
+/** Os caminhos que mostram o valor como veio, na ordem dada. */
+function valores(...caminhos: string[]): CampoDoMolde[] {
+  return caminhos.map((caminho) => valor(caminho));
+}
+
+/** O período "20/11 a 22/11/2026" só tem o ano no fim: o início aparece como dd/mm. */
+const semAno = (formatado: string) => formatado.slice(0, 5);
+
 const reais = (formatado: string) => `R$ ${formatado}`;
 
 export const MOLDES: Record<Molde, CampoDoMolde[]> = {
@@ -71,11 +83,69 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
     valor("pagamentos[].descricaoForma", (f) => f.toLowerCase()),
     valor("pagamentos[].valor", reais),
   ],
-  itinerario: [],
-  hospedagem: [],
-  veiculo: [],
-  servicos: [],
-  pessoa: [],
+  // O itinerário: a frase mostra as cidades; a tabela, o resto. No rodoviário, a tabela não tem
+  // voo, companhia, classe nem base tarifária, e esses campos vão para o grupo com o rótulo.
+  itinerario: [
+    ...valores(
+      "trechos[].origem.sigla",
+      "trechos[].origem.cidade",
+      "trechos[].origem.aeroporto",
+      "trechos[].destino.sigla",
+      "trechos[].destino.cidade",
+      "trechos[].destino.aeroporto",
+      "trechos[].cia",
+      "trechos[].voo",
+      "trechos[].classe",
+      "trechos[].farebase",
+      "trechos[].localizador",
+    ),
+    coluna("trechos[].dtPartida", "Partida"),
+    coluna("trechos[].dtChegada", "Chegada"),
+  ],
+  // O hotel, o período com as diárias e os pares do card; o resto do grupo vem pelo `GrupoDeCampos`.
+  hospedagem: [
+    valor("detalheItem[].dtEntrada", semAno),
+    ...valores(
+      "detalheItem[].dtSaida",
+      "detalheItem[].categHotel",
+      "detalheItem[].regime",
+      "detalheItem[].acomodacoesePassageiros",
+      "detalheItem[].apartamentos[].tipoApartamento",
+      "detalheItem[].apartamentos[].qtdeDiarias",
+      "detalheItem[].numerodeconfirmacao",
+      "detalheItem[].numeroVC",
+    ),
+  ],
+  veiculo: valores(
+    "detalheItem[].veiculo",
+    "detalheItem[].dtRetirada",
+    "detalheItem[].horaRetirada",
+    "detalheItem[].localRetirada",
+    "detalheItem[].dtDevolucao",
+    "detalheItem[].horaDevolucao",
+    "detalheItem[].localDevolucao",
+    "detalheItem[].qtdeDiarias",
+    "detalheItem[].numerodeconfirmacao",
+    "detalheItem[].numeroVC",
+  ),
+  // A tabela de Diversos e Pacote: a descrição leva a OS e a confirmação na segunda linha.
+  servicos: [
+    ...valores(
+      "detalheItem[].descricao",
+      "detalheItem[].dtInicio",
+      "detalheItem[].dtTermino",
+      "detalheItem[].numeroOS",
+      "detalheItem[].numerodeconfirmacao",
+    ),
+    coluna("detalheItem[].qtde", "Qtde"),
+  ],
+  // A linha da pessoa; "Documentos e contato" e "Viagem corporativa" vêm pelo `GrupoDeCampos`.
+  pessoa: valores(
+    "detalheItem[].nomePax",
+    "detalheItem[].nomePaxCompleto",
+    "detalheItem[].descricaoSiglaTipoPax",
+    "detalheItem[].bilhete",
+  ),
   conta: [],
   vinculos: [],
   "mais-detalhes": [],
