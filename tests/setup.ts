@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll, vi } from "vitest";
+import { zerarRolagem } from "@/componentes/reserva/TabelaVendas";
 import { zerarParametros } from "@/lib/api/parametros";
 import { zerarPendentes } from "@/lib/armazenamento/pendentes";
 import { zerarResultadosEmMemoria } from "@/lib/armazenamento/resultados";
@@ -20,6 +21,10 @@ vi.mock("next/navigation", async () => {
 // O jsdom não rola a página; a tabela das vendas desce até a venda aberta com `scrollIntoView`.
 if (typeof Element !== "undefined") Element.prototype.scrollIntoView = () => {};
 
+// A venda inteira (portão do Anexo B, tabelas, painéis) demora a montar sob carga: `findBy*` e
+// `waitFor` esperam 5 s, e não 1 s.
+configure({ asyncUtilTimeout: 5000 });
+
 beforeAll(() => servidor.listen({ onUnhandledRequest: "error" }));
 
 afterEach(() => {
@@ -28,6 +33,7 @@ afterEach(() => {
   zerarNavegacao();
   zerarParametros();
   zerarPendentes();
+  zerarRolagem();
   zerarResultadosEmMemoria();
   vi.useRealTimers();
   if (typeof window !== "undefined") {

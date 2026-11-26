@@ -51,6 +51,11 @@ export function pedirRolagem(idreserva: number, seRolou = false): void {
   rolagemPedida = { idreserva, seRolou };
 }
 
+/** Só para os testes: esquece a descida pedida. */
+export function zerarRolagem(): void {
+  rolagemPedida = null;
+}
+
 /** Na seção da venda aberta: desce até ela quando a venda que chegou é a que pediu. */
 export function useRolagemAteAVenda(idreserva: number): void {
   useEffect(() => {
