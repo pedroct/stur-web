@@ -1,26 +1,127 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "../styles/tokens.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* O tema é o data-theme do DS (sem ele, o do sistema operacional); a variante dark: dos
+   componentes do shadcn segue a mesma regra dos tokens. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* O next/font registra a Rubik em --font-rubik (classe no <html>); o tokens.css escreve
+   "Rubik" pelo nome, que não casa com o que o next/font entrega. */
+:root {
+  --font-base: var(--font-rubik), "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius: var(--raio-medio);
+}
+
+/* Controles nativos (type="date", select, barras de rolagem) seguem o tema escolhido. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-*: initial;
+  --radius-*: initial;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-marca-laranja: var(--marca-laranja);
+  --color-marca-noite: var(--marca-noite);
+  --color-texto-sobre-noite: var(--texto-sobre-noite);
+  --color-sobreposicao-foto: var(--sobreposicao-foto);
+  --color-fundo: var(--fundo);
+  --color-superficie: var(--superficie);
+  --color-superficie-sutil: var(--superficie-sutil);
+  --color-borda: var(--borda);
+  --color-borda-controle: var(--borda-controle);
+  --color-texto-principal: var(--texto-principal);
+  --color-texto-auxiliar: var(--texto-auxiliar);
+  --color-acao-primaria: var(--acao-primaria);
+  --color-acao-primaria-pressionada: var(--acao-primaria-pressionada);
+  --color-texto-sobre-acao: var(--texto-sobre-acao);
+  --color-acao-fundo: var(--acao-fundo);
+  --color-link: var(--link);
+  --color-foco: var(--foco);
+  --color-foco-sobre-noite: var(--foco-sobre-noite);
+  --color-whatsapp: var(--whatsapp);
+  --color-texto-sobre-whatsapp: var(--texto-sobre-whatsapp);
+  --color-estado-sucesso: var(--estado-sucesso);
+  --color-estado-sucesso-fundo: var(--estado-sucesso-fundo);
+  --color-estado-atencao: var(--estado-atencao);
+  --color-estado-atencao-fundo: var(--estado-atencao-fundo);
+  --color-estado-erro: var(--estado-erro);
+  --color-estado-erro-fundo: var(--estado-erro-fundo);
+  --color-estado-info: var(--estado-info);
+  --color-estado-info-fundo: var(--estado-info-fundo);
+
+  --radius-pequeno: var(--raio-pequeno);
+  --radius-medio: var(--raio-medio);
+  --radius-grande: var(--raio-grande);
+  --radius-pilula: var(--raio-pilula);
+
+  --shadow-flutuante: var(--sombra-flutuante);
+
+  --font-sans: var(--font-base);
+  --spacing: 0.25rem;
+  --spacing-alvo: var(--alvo-minimo);
+}
+
+/* Faixa de consulta (FaixaCarregando): a barra corre da esquerda para a direita. */
+@theme {
+  --animate-corre: corre 1.4s ease-in-out infinite;
+
+  @keyframes corre {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(250%);
+    }
+  }
+}
+
+/* Pontes do shadcn (tabela "Como cada stack consome" do DS). Ficam depois do bloco acima,
+   senão o --color-*: initial as apagaria. */
+@theme inline {
+  --color-background: var(--fundo);
+  --color-foreground: var(--texto-principal);
+  --color-card: var(--superficie);
+  --color-card-foreground: var(--texto-principal);
+  --color-popover: var(--superficie);
+  --color-popover-foreground: var(--texto-principal);
+  --color-muted: var(--superficie-sutil);
+  --color-muted-foreground: var(--texto-auxiliar);
+  --color-secondary: var(--superficie-sutil);
+  --color-secondary-foreground: var(--texto-principal);
+  --color-primary: var(--acao-primaria);
+  --color-primary-foreground: var(--texto-sobre-acao);
+  --color-accent: var(--acao-fundo);
+  --color-accent-foreground: var(--texto-principal);
+  --color-border: var(--borda);
+  --color-input: var(--borda-controle);
+  --color-ring: var(--foco);
+  --color-destructive: var(--estado-erro);
+  --color-destructive-foreground: var(--texto-sobre-acao);
+}
+
+@layer base {
+  * {
+    @apply border-borda outline-foco;
+  }
+  body {
+    @apply bg-fundo font-sans text-texto-principal antialiased;
+  }
 }

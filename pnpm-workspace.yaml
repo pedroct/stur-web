@@ -1,3 +1,10 @@
 allowBuilds:
+  msw: true
   sharp: false
   unrs-resolver: false
+minimumReleaseAgeExclude:
+  - lucide-react@1.80.0
+# openapi-typescript 7.13.0 (a última) declara typescript ^5.x, mas gera os mesmos tipos com o 6.
+peerDependencyRules:
+  allowedVersions:
+    openapi-typescript>typescript: "6"

@@ -81,6 +81,8 @@ export function main(argumentos) {
   return problemas.length > 0 ? 1 : 0;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+// O Node resolve `import.meta.url` pelo caminho real; `process.argv[1]` não passa por esse passo.
+// Sem o `realpathSync`, a chamada por um caminho com symlink não rodaria o `main` e sairia com 0.
+if (process.argv[1] && import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href) {
   process.exit(main());
 }

@@ -1,3 +1,10 @@
+import { Suspense } from "react";
+import { PaginaInicial } from "@/componentes/consulta/PaginaInicial";
+
 export default function Home() {
-  return <main>Consulta de reserva</main>;
+  return (
+    <Suspense>
+      <PaginaInicial />
+    </Suspense>
+  );
 }

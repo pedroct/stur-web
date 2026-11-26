@@ -5,6 +5,9 @@ const apiInterna = process.env.STUR_API_INTERNO ?? "http://localhost:8000";
 const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
+  // O next dev (16.3+) escreve um AGENTS.md na raiz quando detecta um agente de IA; o repositório
+  // não o quer (também fica no .gitignore, para versões que ignorem a opção).
+  agentRules: false,
   experimental: {
     // O proxy do Next corta em 30 s por padrão; uma consulta real pode passar disso,
     // e o 504 do backend tem de chegar ao navegador.

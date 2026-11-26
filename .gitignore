@@ -39,3 +39,6 @@ dados_brutos/
 reservas_*.json
 PAGAR_*.json
 RECEBER_*.json
+
+# Instruções que o next dev gera para agentes de IA (agentRules: false no next.config.ts)
+AGENTS.md
