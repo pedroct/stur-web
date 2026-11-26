@@ -316,6 +316,28 @@ describe("lançamentos", () => {
     expect(within(segundo).getByText("Cliente Pagador", { exact: true })).toBeInTheDocument();
   });
 
+  test("lado sem lançamentos mostra a frase de vazio, e não uma lista vazia", () => {
+    render(
+      <Financeiro
+        dados={dados({
+          venda: { recebimentos: [], pagamentos: [] },
+          calculos: { recebimentos: [], pagamentos: [] },
+        })}
+      />,
+    );
+    expect(
+      within(cartao("Cliente")).getByText(
+        "A API não trouxe nenhuma forma de recebimento nesta venda.",
+      ),
+    ).toBeVisible();
+    expect(
+      within(cartao("Fornecedor")).getByText(
+        "A API não trouxe nenhuma forma de pagamento ao fornecedor nesta venda.",
+      ),
+    ).toBeVisible();
+    expect(screen.queryByRole("list")).toBeNull();
+  });
+
   test("o lançamento sem nenhum campo a mais não leva detalhes", () => {
     render(
       <Financeiro

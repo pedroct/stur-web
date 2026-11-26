@@ -113,3 +113,10 @@ export function textoDoLancamento(
   if (l.situacao !== "previsto" || l.cartaoRepassado) return texto;
   return texto === "" ? "título ainda não gerado" : `${texto}; título ainda não gerado`;
 }
+
+/** O vazio de um lado dos lançamentos (IA 9.3). */
+export function fraseSemLancamentos(lado: "cliente" | "fornecedor"): string {
+  return lado === "cliente"
+    ? "A API não trouxe nenhuma forma de recebimento nesta venda."
+    : "A API não trouxe nenhuma forma de pagamento ao fornecedor nesta venda.";
+}

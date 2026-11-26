@@ -2,7 +2,7 @@ import { dadosDoSeloTexto, Selo } from "@/componentes/comum/Selo";
 import type { LancamentoCalculado, PagamentoAgi, RecebimentoAgi, VendaAgi } from "@/contrato/tipos";
 import { CAMPOS_ANEXO_B } from "@/lib/venda/anexo-b";
 import { fornecedoresDe, preenchido } from "@/lib/venda/campos";
-import { seloDoLancamento, textoDoLancamento } from "@/lib/venda/lancamentos";
+import { fraseSemLancamentos, seloDoLancamento, textoDoLancamento } from "@/lib/venda/lancamentos";
 import { GrupoDeCampos, type NivelDeTitulo } from "./GrupoDeCampos";
 
 type Lado = "cliente" | "fornecedor";
@@ -57,6 +57,14 @@ export function CartaoLancamentos({
   const lista = lado === "cliente" ? venda.recebimentos : venda.pagamentos;
   const fornecedor = fornecedoresDe(texto(venda.nomefornec), texto(venda.nomefornec2)).principal;
   const mostrarValor = lancamentos.length > 1;
+
+  if (lancamentos.length === 0) {
+    return (
+      <p className="mt-2 text-[13px] leading-[22px] text-texto-auxiliar">
+        {fraseSemLancamentos(lado)}
+      </p>
+    );
+  }
 
   return (
     <ul className="mt-2 flex flex-col gap-2 text-[13px] leading-[22px] text-texto-auxiliar">

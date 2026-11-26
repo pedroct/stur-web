@@ -1,5 +1,6 @@
 import type { LancamentoCalculado } from "@/contrato/tipos";
 import {
+  fraseSemLancamentos,
   type SeloTexto,
   seloDoLancamento,
   textoDoLancamento,
@@ -140,4 +141,13 @@ test("documentos unidos por ponto, o recibo com o nome", () => {
     ]),
   ).toBe("recibo RC1 · ND1 · OS1");
   expect(textoDosDocumentos([])).toBe("");
+});
+
+test("fraseSemLancamentos é a de vazio da IA 9.3, por lado", () => {
+  expect(fraseSemLancamentos("cliente")).toBe(
+    "A API não trouxe nenhuma forma de recebimento nesta venda.",
+  );
+  expect(fraseSemLancamentos("fornecedor")).toBe(
+    "A API não trouxe nenhuma forma de pagamento ao fornecedor nesta venda.",
+  );
 });
