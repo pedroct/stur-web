@@ -25,3 +25,21 @@ test("igual ao computador segue o sistema", async ({ browser, baseURL }) => {
     await contexto.close();
   }
 });
+
+test("no menu do tema, a opção destacada pelo teclado tem o anel de foco", async ({ page }) => {
+  await simularApi(page);
+  await page.goto("/");
+  const botao = page.getByRole("button", { name: /Trocar o tema/ });
+  await botao.focus();
+  await page.keyboard.press("Enter");
+  const menu = page.getByRole("menu", { name: "Tema" });
+  await expect(menu).toBeVisible();
+  await page.keyboard.press("ArrowDown");
+  const destacada = menu.locator("[data-highlighted]");
+  await expect(destacada).toHaveCount(1);
+  const anel = await destacada.evaluate((e) => {
+    const estilo = getComputedStyle(e);
+    return { estilo: estilo.outlineStyle, largura: estilo.outlineWidth };
+  });
+  expect(anel).toEqual({ estilo: "solid", largura: "2px" });
+});

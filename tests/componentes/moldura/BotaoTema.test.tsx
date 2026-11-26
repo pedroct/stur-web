@@ -49,3 +49,20 @@ test("Esc fecha o menu e devolve o foco", async () => {
   await waitFor(() => expect(screen.queryByRole("menu")).toBeNull());
   expect(screen.getByRole("button", { name: /Trocar o tema/ })).toHaveFocus();
 });
+
+test("a opção destacada pelo teclado ganha o anel de foco, que a marcada não tem", async () => {
+  render(<BotaoTema />);
+  await userEvent.click(screen.getByRole("button", { name: /Trocar o tema/ }));
+  const opcao = await screen.findByRole("menuitemradio", { name: "Claro" });
+  const classes = opcao.className.split(/\s+/);
+  expect(classes).toEqual(
+    expect.arrayContaining([
+      "outline-0",
+      "outline-foco",
+      "data-[highlighted]:outline-2",
+      "data-[highlighted]:-outline-offset-2",
+    ]),
+  );
+  expect(classes).not.toContain("outline-none");
+  expect(classes.some((c) => c.startsWith("data-[checked]:outline"))).toBe(false);
+});

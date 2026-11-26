@@ -68,7 +68,7 @@ export function BotaoTema() {
                     key={valor}
                     value={valor}
                     closeOnClick
-                    className="flex min-h-alvo cursor-pointer items-center gap-3 rounded-pequeno px-3 text-sm font-medium outline-none data-[highlighted]:bg-superficie-sutil data-[checked]:bg-superficie-sutil"
+                    className="flex min-h-alvo cursor-pointer items-center gap-3 rounded-pequeno px-3 text-sm font-medium outline-0 outline-foco data-[highlighted]:bg-superficie-sutil data-[highlighted]:outline-2 data-[highlighted]:-outline-offset-2 data-[checked]:bg-superficie-sutil"
                   >
                     <IconeOpcao className="size-5" aria-hidden="true" />
                     <span className="flex-1">{rotulo}</span>
