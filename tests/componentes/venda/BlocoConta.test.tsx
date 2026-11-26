@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import { vi } from "vitest";
 import { BlocoConta } from "@/componentes/venda/BlocoConta";
 import { PainelContexto } from "@/componentes/venda/painel-contexto";
 import { Venda } from "@/componentes/venda/Venda";
@@ -245,4 +246,120 @@ test("venda de hotel com um serviço mostra a pessoa e os grupos da seção 5 na
   expect(screen.queryByText("Valores na moeda original")).toBeNull();
   expect(screen.queryByRole("dialog")).toBeNull();
   expect(screen.queryByRole("button", { name: /Serviço 1/ })).toBeNull();
+});
+
+test("dois apartamentos iguais: duas linhas, sem erro de chave", () => {
+  const erro = vi.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    const igual = { qtde: 1, qtdeDiarias: 2, vlrDiaria: "462.00", vlrDiariaP: "412.00" };
+    const s = servicoAgi({ apartamentos: [apto(igual), apto(igual)] });
+    render(
+      <BlocoConta
+        contas={[contaServico()]}
+        servicos={[s]}
+        classificacao="Hotelaria"
+        situacao="FECHADA"
+        venda={vendaAgi({ detalheItem: [s] })}
+      />,
+    );
+    expect(screen.getAllByText("1 apto × 2 diárias × 462,00")).toHaveLength(2);
+    expect(screen.getAllByText("1 apto × 2 diárias × 412,00")).toHaveLength(2);
+    expect(erro).not.toHaveBeenCalled();
+  } finally {
+    erro.mockRestore();
+  }
+});
+
+function vendaEmMoeda(conta: ContaServico, servico: ServicoAgi) {
+  return vendaConsultada({
+    venda: vendaAgi({
+      classificacaoproduto: "Pacote",
+      nomeproduto: "PACOTE TER INT",
+      detalheItem: [servico],
+    }),
+    calculos: calculos({ servicos: [conta] }),
+  });
+}
+
+function montarVenda(dados: ReturnType<typeof vendaConsultada>) {
+  return render(
+    <PainelContexto.Provider value={CONTEXTO}>
+      <Venda
+        dados={dados}
+        naReserva={false}
+        nivelBase={1}
+        consulta={{ atualizando: false, aoAtualizar: () => {}, falha: null }}
+      />
+    </PainelContexto.Provider>,
+  );
+}
+
+const EM_EURO = servicoAgi({
+  qtde: 1,
+  siglaMoedaTarifa: "EUR",
+  vlrCambio: "6.0300",
+  dtCambio: "2026-05-24 00:00:00",
+  vlrTarifaTotal: "8240.73",
+  vlrTxExtMoedaOriginal: "12.00",
+});
+
+test("com conversão: a linha na moeda de origem e os valores na moeda original", () => {
+  const conta = contaServico({
+    cliente: {
+      termos: [{ campo: "vlrTarifaTotal", valor: "49691.60", efeito: "soma" }],
+      zerados: [],
+      total: "49691.60",
+      conversao: {
+        sigla: "EUR",
+        tarifaOrigem: "8240.73",
+        cambio: "6.0300",
+        dataCambio: "2026-05-24 00:00:00",
+      },
+      siglaComCambio1: null,
+    },
+  });
+  montarVenda(vendaEmMoeda(conta, EM_EURO));
+  const lado = within(
+    screen.getByRole("heading", { name: "Cliente" }).closest("section") as HTMLElement,
+  );
+  expect(lado.getByText("Tarifa EUR 8.240,73 × câmbio 6,0300 · de 24/05/2026")).toBeVisible();
+  expect(lado.getByText("49.691,60", { selector: "span:not(.font-semibold)" })).toBeVisible();
+  // A sigla, o câmbio e a data já estão na linha: não viram par.
+  expect(lado.queryByText("Cliente: Valores em")).toBeNull();
+  expect(lado.queryByText("Cliente: x Câmbio")).toBeNull();
+  expect(lado.queryByText("Cliente: data do câmbio")).toBeNull();
+  expect(screen.queryByText(/contada como real/)).toBeNull();
+  expect(
+    screen.getByRole("heading", { level: 3, name: "Valores na moeda original" }),
+  ).toBeVisible();
+});
+
+test("com câmbio 1: a frase embaixo da tarifa, sem os valores na moeda original", () => {
+  const servico = servicoAgi({
+    ...EM_EURO,
+    siglaMoedaTarifa: "US$",
+    vlrCambio: "1.0000",
+  });
+  const conta = contaServico({
+    cliente: {
+      termos: [{ campo: "vlrTarifaTotal", valor: "8240.73", efeito: "soma" }],
+      zerados: [],
+      total: "8240.73",
+      conversao: null,
+      siglaComCambio1: "US$",
+    },
+  });
+  montarVenda(vendaEmMoeda(conta, servico));
+  const lado = within(
+    screen.getByRole("heading", { name: "Cliente" }).closest("section") as HTMLElement,
+  );
+  expect(
+    lado.getByText("Marcada em US$ no Stur, com câmbio 1,0000; contada como real."),
+  ).toBeVisible();
+  // A data do câmbio não entra na frase: fica como par do grupo.
+  expect(lado.getByText("Cliente: data do câmbio").nextElementSibling).toHaveTextContent(
+    "24/05/2026",
+  );
+  expect(lado.queryByText("Cliente: Valores em")).toBeNull();
+  expect(screen.queryByText("Valores na moeda original")).toBeNull();
 });

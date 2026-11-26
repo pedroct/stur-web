@@ -110,8 +110,9 @@ function LadoDaConta({
             rotulo={
               <>
                 <span className="block" data-anexo-secao={secaoDaTarifa}>
-                  {tarifa.linhas.map((l) => (
-                    <span key={l} className="block">
+                  {tarifa.linhas.map((l, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: dois apartamentos iguais dão a mesma linha, e a posição desempata
+                    <span key={`${i}-${l}`} className="block">
                       {l}
                     </span>
                   ))}

@@ -342,6 +342,80 @@ test("a conta diz quais campos mostra, pelo que veio", () => {
   }
 });
 
+const EUR = {
+  sigla: "EUR",
+  tarifaOrigem: "8240.73",
+  cambio: "6.0300",
+  dataCambio: "2026-05-24 00:00:00",
+};
+
+function cliente(caminhos: Set<string>): string[] {
+  const doCliente = [
+    "vlrTarifaTotal",
+    "vlrTarifa",
+    "siglaMoedaTarifa",
+    "vlrCambio",
+    "dtCambio",
+  ].map((c) => `detalheItem[].${c}`);
+  return doCliente.filter((c) => caminhos.has(c));
+}
+
+test("conversão numa linha de unitário: a tarifa de origem fica para o grupo", () => {
+  const s = servicoAgi({ qtde: 3, vlrTarifa: "2746.91", siglaMoedaTarifa: "EUR" });
+  const mostrados = caminhosDaConta(conta({ conversao: EUR }), s, "Diversos");
+  expect(cliente(mostrados)).toEqual([
+    "detalheItem[].vlrTarifa",
+    "detalheItem[].siglaMoedaTarifa",
+    "detalheItem[].vlrCambio",
+    "detalheItem[].dtCambio",
+  ]);
+});
+
+test("conversão numa linha de diária da hotelaria: a tarifa de origem fica para o grupo", () => {
+  const s = servicoAgi({
+    apartamentos: [apto({ qtde: 1, qtdeDiarias: 2, vlrDiaria: "411.50", vlrDiariaP: "400.00" })],
+  });
+  const mostrados = caminhosDaConta(conta({ conversao: EUR }), s, "Hotelaria");
+  expect(mostrados).not.toContain("detalheItem[].vlrTarifaTotal");
+  expect(mostrados).toContain("detalheItem[].apartamentos[].vlrDiaria");
+  expect(mostrados).toContain("detalheItem[].dtCambio");
+});
+
+test("conversão na linha Tarifa: a tarifa, a sigla, o câmbio e a data", () => {
+  const mostrados = caminhosDaConta(conta({ conversao: EUR }), servicoAgi({ qtde: 1 }), "Pacote");
+  expect(cliente(mostrados)).toEqual([
+    "detalheItem[].vlrTarifaTotal",
+    "detalheItem[].siglaMoedaTarifa",
+    "detalheItem[].vlrCambio",
+    "detalheItem[].dtCambio",
+  ]);
+  const semData = caminhosDaConta(
+    conta({ conversao: { ...EUR, dataCambio: "1899-12-30 00:00:00" } }),
+    servicoAgi({ qtde: 1 }),
+    "Pacote",
+  );
+  expect(semData).not.toContain("detalheItem[].dtCambio");
+});
+
+test("câmbio 1: a sigla e o câmbio na frase; a data fica para o grupo", () => {
+  const s = servicoAgi({ qtde: 1, siglaMoedaTarifa: "US$", dtCambio: "2026-05-24 00:00:00" });
+  const mostrados = caminhosDaConta(conta({ siglaComCambio1: "US$" }), s, "Pacote");
+  expect(cliente(mostrados)).toEqual([
+    "detalheItem[].vlrTarifaTotal",
+    "detalheItem[].siglaMoedaTarifa",
+    "detalheItem[].vlrCambio",
+  ]);
+});
+
+test("BRL: só a sigla entra na linha", () => {
+  const s = servicoAgi({ qtde: 1, siglaMoedaTarifa: "BRL", vlrCambio: "1.0000" });
+  const mostrados = caminhosDaConta(conta({}), s, "Diversos");
+  expect(cliente(mostrados)).toEqual([
+    "detalheItem[].vlrTarifaTotal",
+    "detalheItem[].siglaMoedaTarifa",
+  ]);
+});
+
 function apto(campos: Record<string, unknown>) {
   return {
     idTipoApto: null,
