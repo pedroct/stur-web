@@ -630,7 +630,8 @@ describe("Serviços", () => {
     expect(screen.getByRole("table")).toBeVisible();
     expect(screen.getByText("ITEM EXEMPLO")).toBeVisible();
     expect(screen.queryByRole("button")).toBeNull();
-    expect(screen.getByText("Total dos 1 serviços")).toBeVisible();
+    expect(screen.getByText("Total do serviço")).toBeVisible();
+    expect(screen.queryByText(/Total dos/)).toBeNull();
   });
 
   test("a observação do serviço aparece embaixo quando há uma só", () => {

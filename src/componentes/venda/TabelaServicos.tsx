@@ -230,7 +230,9 @@ export function TabelaServicos({
           <TableFooter className="bg-superficie-sutil tabular-nums">
             <TableRow className="border-borda hover:bg-transparent">
               <TableCell colSpan={sobra} className={cn(CELULA, "font-semibold")}>
-                Total dos {servicos.length} serviços
+                {servicos.length === 1
+                  ? "Total do serviço"
+                  : `Total dos ${servicos.length} serviços`}
               </TableCell>
               <TableCell className={cn(CELULA, "text-right")}>{dinheiro(totais.cliente)}</TableCell>
               <TableCell className={cn(CELULA, "text-right")}>
