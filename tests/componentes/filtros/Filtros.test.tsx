@@ -103,3 +103,16 @@ test("filtros da consulta: abre e fecha pelo summary e guarda o estado entre ren
   await userEvent.click(resumo);
   await waitFor(() => expect(quadro).not.toHaveAttribute("open"));
 });
+
+test("os campos de texto dos filtros zeram o outline de base, como os outros controles", () => {
+  render(<Filtros modo="consulta" valor={CONSULTA_VAZIA} aoMudar={vi.fn()} />);
+  for (const campo of screen.getAllByRole("textbox", { hidden: true })) {
+    expect(campo.className.split(/\s+/)).toEqual(
+      expect.arrayContaining([
+        "outline-0",
+        "focus-visible:outline-2",
+        "focus-visible:outline-foco",
+      ]),
+    );
+  }
+});

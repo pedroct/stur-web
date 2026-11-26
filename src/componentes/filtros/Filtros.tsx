@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useId, useState } from "react";
+import { CLASSE_DO_CONTROLE } from "@/componentes/comum/controle";
 import { Pilula } from "@/componentes/comum/Pilula";
 import { CLASSIFICACOES, type Consulta, SITUACOES, temFiltro } from "@/lib/consulta/consulta";
 import { resumoMarcados } from "@/lib/consulta/descricao";
@@ -101,9 +102,6 @@ function Quadro({
   );
 }
 
-const CLASSE_DO_CONTROLE =
-  "h-alvo w-full rounded-pequeno border border-borda-controle bg-superficie px-4 text-base text-texto-principal placeholder:text-texto-auxiliar focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco";
-
 function FiltrosDaConsulta({
   valor,
   aoMudar,
@@ -150,7 +148,7 @@ function FiltrosDaConsulta({
                     [campo]: evento.target.value === "" ? null : evento.target.value,
                   })
                 }
-                className={cn(CLASSE_DO_CONTROLE, limite && "max-w-[300px]")}
+                className={cn(CLASSE_DO_CONTROLE, "w-full", limite && "max-w-[300px]")}
               />
             </div>
           );

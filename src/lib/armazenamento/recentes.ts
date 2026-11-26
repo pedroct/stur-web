@@ -1,4 +1,5 @@
 import type { VendaDaReserva } from "@/contrato/tipos";
+import { somarDias } from "@/lib/consulta/atalhos-periodo";
 import { diaEmFortaleza, formatarHora, hojeEmFortaleza } from "@/lib/tempo";
 
 /** Consultas recentes no `localStorage`: só endereço, título, detalhe e quando. */
@@ -46,12 +47,6 @@ export function registrarRecente(r: Omit<Recente, "quando">, agora: Date): void 
   }
 }
 
-function diaAnterior(dia: string): string {
-  const d = new Date(`${dia}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
-
 export function descreverQuando(quando: string, agora: Date): string {
   const segundos = (agora.getTime() - new Date(quando).getTime()) / 1000;
   if (segundos < 60) return "agora";
@@ -61,7 +56,7 @@ export function descreverQuando(quando: string, agora: Date): string {
   const hoje = hojeEmFortaleza(agora);
   const hora = formatarHora(quando);
   if (dia === hoje) return `hoje, ${hora}`;
-  if (dia === diaAnterior(hoje)) return `ontem, ${hora}`;
+  if (dia === somarDias(hoje, -1)) return `ontem, ${hora}`;
   return `${dia.slice(8, 10)}/${dia.slice(5, 7)}, ${hora}`;
 }
 

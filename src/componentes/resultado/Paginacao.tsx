@@ -2,8 +2,10 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useId } from "react";
+import { CLASSE_DO_CONTROLE } from "@/componentes/comum/controle";
 import { Button } from "@/componentes/ui/button";
 import type { Pagina } from "@/lib/resultado/paginar";
+import { cn } from "@/lib/utils";
 
 const SETA = "w-alvo px-0";
 
@@ -30,7 +32,7 @@ export function Paginacao({
           id={id}
           value={por}
           onChange={(evento) => aoMudarPor(Number(evento.target.value))}
-          className="h-alvo rounded-pequeno border border-borda-controle bg-superficie px-3 text-sm font-medium text-texto-principal outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco"
+          className={cn(CLASSE_DO_CONTROLE, "px-3 text-sm font-medium")}
         >
           {opcoes.map((opcao) => (
             <option key={opcao} value={opcao}>

@@ -51,7 +51,7 @@ export const CLASSIFICACOES: { valor: Classificacao; rotulo: string }[] = [
   { valor: "pacote", rotulo: "Pacote" },
 ];
 
-const TIPOS_DE_DATA: TipoData[] = ["emissao", "confirmacao", "alteracao"];
+export const TIPOS_DE_DATA: readonly TipoData[] = ["emissao", "confirmacao", "alteracao"];
 
 export function situacaoDe(textoDaApi: string | null): Situacao | null {
   if (textoDaApi === null) return null;

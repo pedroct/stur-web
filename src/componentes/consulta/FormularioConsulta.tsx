@@ -13,6 +13,7 @@ import {
 } from "react";
 import { Aviso } from "@/componentes/comum/Aviso";
 import { CampoNumero } from "@/componentes/comum/CampoNumero";
+import { CLASSE_DO_CONTROLE } from "@/componentes/comum/controle";
 import { Pilula } from "@/componentes/comum/Pilula";
 import { Filtros } from "@/componentes/filtros/Filtros";
 import { useBuscaDoTopo } from "@/componentes/moldura/consultando";
@@ -26,7 +27,9 @@ import {
   lerConsulta,
   numeroDaReserva,
   soNumero,
+  TIPOS_DE_DATA,
   type TipoData,
+  textoOuNulo,
   validarConsulta,
 } from "@/lib/consulta/consulta";
 import { rotuloDaData } from "@/lib/consulta/descricao";
@@ -52,8 +55,6 @@ export function campoDoFormulario(campo: string | null): ControleDoFormulario | 
   }
 }
 
-const TIPOS_DE_DATA: TipoData[] = ["emissao", "confirmacao", "alteracao"];
-
 const ATALHOS: { atalho: AtalhoPeriodo; rotulo: string }[] = [
   { atalho: "hoje", rotulo: "Hoje" },
   { atalho: "ultimos7", rotulo: "Últimos 7 dias" },
@@ -64,13 +65,10 @@ const ATALHOS: { atalho: AtalhoPeriodo; rotulo: string }[] = [
 const CLASSES_DO_CONTROLE =
   "rounded-pequeno text-base aria-invalid:border-2 aria-invalid:px-[15px]";
 
-const CLASSES_DA_DATA =
-  "h-alvo w-[180px] rounded-pequeno border border-borda-controle bg-superficie px-4 text-base text-texto-principal outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco aria-invalid:border-2 aria-invalid:border-estado-erro aria-invalid:px-[15px]";
-
-function aparar(texto: string | null): string | null {
-  const aparado = texto?.trim() ?? "";
-  return aparado === "" ? null : aparado;
-}
+const CLASSES_DA_DATA = cn(
+  CLASSE_DO_CONTROLE,
+  "w-[180px] aria-invalid:border-2 aria-invalid:border-estado-erro aria-invalid:px-[15px]",
+);
 
 function MensagemDeErro({
   id,
@@ -191,9 +189,9 @@ export function FormularioConsulta({
     const pedida: Consulta = {
       ...consulta,
       reserva: numeroDaReserva(numero),
-      fornecedor: aparar(consulta.fornecedor),
-      cliente: aparar(consulta.cliente),
-      emissor: aparar(consulta.emissor),
+      fornecedor: textoOuNulo(consulta.fornecedor),
+      cliente: textoOuNulo(consulta.cliente),
+      emissor: textoOuNulo(consulta.emissor),
     };
 
     const falha = validarConsulta(pedida, periodoMaximoDias);

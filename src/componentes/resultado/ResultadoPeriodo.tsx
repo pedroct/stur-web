@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Aviso } from "@/componentes/comum/Aviso";
+import { CLASSE_DO_CONTROLE } from "@/componentes/comum/controle";
 import { FalhaAtualizar } from "@/componentes/estados/FalhaAtualizar";
 import { LinhaStatus } from "@/componentes/estados/LinhaStatus";
 import { Filtros } from "@/componentes/filtros/Filtros";
@@ -26,6 +27,7 @@ import {
   temRefinamento,
 } from "@/lib/resultado/refinar";
 import { formatarHora } from "@/lib/tempo";
+import { cn } from "@/lib/utils";
 import { CabecalhoResultado } from "./CabecalhoResultado";
 import { Paginacao } from "./Paginacao";
 import { ResumoResultado } from "./ResumoResultado";
@@ -197,7 +199,7 @@ export function ResultadoPeriodo({
             placeholder="Reserva, cliente, fornecedor, emissor ou produto"
             value={busca}
             onChange={(evento) => digitar(evento.target.value)}
-            className="h-alvo w-full rounded-pequeno border border-borda-controle bg-superficie px-4 text-base text-texto-principal outline-0 placeholder:text-texto-auxiliar focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco"
+            className={cn(CLASSE_DO_CONTROLE, "w-full")}
           />
         </div>
         <div className="mt-3">
