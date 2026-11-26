@@ -8,7 +8,7 @@ import { TEXTOS_ERRO } from "@/lib/api/textos-erro";
 import { lerRecentes } from "@/lib/armazenamento/recentes";
 import { erroApi, reserva, resumoVenda } from "../../fabrica";
 import { definirEndereco, roteador } from "../../navegacao";
-import { requisicoesPara, servidor } from "../../servidor";
+import { requisicoesPara, servidor, vigiarChamada } from "../../servidor";
 
 const CAMINHO = "/api/v1/reservas/90000001";
 
@@ -217,14 +217,10 @@ test("número que o backend recusa (422) mostra a tela 13 do texto inválido", a
 });
 
 test("Cancelar consulta aborta a chamada e não registra recente (modo estrito)", async () => {
-  let abortada = false;
+  const vigia = vigiarChamada();
   servidor.use(
     http.get("*/api/v1/reservas/90000001", async ({ request }) => {
-      // Escuta o aborto na hora: sob carga, o clique pode demorar mais que a resposta lenta.
-      request.signal.addEventListener("abort", () => {
-        abortada = true;
-      });
-      await delay(1000);
+      await Promise.race([vigia.acompanhar(request), delay(5000)]);
       return HttpResponse.json(reserva(90000001, [resumoVenda()]));
     }),
   );
@@ -233,8 +229,9 @@ test("Cancelar consulta aborta a chamada e não registra recente (modo estrito)"
       <PaginaReserva numeroTexto="90000001" />
     </StrictMode>,
   );
+  await vigia.iniciou;
   await userEvent.click(screen.getByRole("button", { name: "Cancelar consulta" }));
-  await waitFor(() => expect(abortada).toBe(true));
+  await waitFor(() => expect(vigia.abortada).toBe(true));
   expect(roteador.push).toHaveBeenCalledWith("/?reserva=90000001");
   expect(roteador.replace).not.toHaveBeenCalled();
   expect(screen.queryByRole("alert")).toBeNull();

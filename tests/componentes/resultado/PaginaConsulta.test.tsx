@@ -11,7 +11,7 @@ import { guardarResultado, lerResultado } from "@/lib/armazenamento/resultados";
 import { erroApi, linha, resultado } from "../../fabrica";
 import { definirEndereco, roteador } from "../../navegacao";
 import { renderizar } from "../../renderizar";
-import { requisicoesPara, servidor } from "../../servidor";
+import { requisicoesPara, segurarResposta, servidor, vigiarChamada } from "../../servidor";
 
 const endereco = "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24";
 const chave = endereco;
@@ -97,9 +97,10 @@ test("chave nova com pedido consulta de novo, sem montar a página outra vez (re
   expect(requisicoesPara("/api/v1/vendas")).toBe(0);
 
   const outra = "/consulta?data=emissao&de=2026-11-10&ate=2026-11-16";
+  const resposta = segurarResposta();
   servidor.use(
     http.get("*/api/v1/vendas", async () => {
-      await delay(50);
+      await resposta.solta;
       return HttpResponse.json(resultado([linha(), linha({ idreserva: 1002 })]));
     }),
   );
@@ -108,6 +109,7 @@ test("chave nova com pedido consulta de novo, sem montar a página outra vez (re
   expect(screen.getByRole("status")).toHaveTextContent(
     "Consultando as vendas emitidas de 10/11 a 16/11/2026 na API do Stur.",
   );
+  resposta.soltar();
   expect(await screen.findByRole("table")).toBeVisible();
   expect(requisicoesPara("/api/v1/vendas")).toBe(1);
   expect(lerResultado(outra)?.vendas).toHaveLength(2);
@@ -174,9 +176,10 @@ test("recarregar uma 13b mostra o 1c (resultado vazio não é guardado)", async 
 });
 
 test("1c: Consultar no mesmo endereço consulta na hora (decisão 2)", async () => {
+  const resposta = segurarResposta();
   servidor.use(
     http.get("*/api/v1/vendas", async () => {
-      await delay(50);
+      await resposta.solta;
       return HttpResponse.json(resultado([linha()]));
     }),
   );
@@ -186,6 +189,7 @@ test("1c: Consultar no mesmo endereço consulta na hora (decisão 2)", async () 
   await userEvent.click(screen.getByRole("button", { name: "Consultar" }));
   expect(roteador.push).not.toHaveBeenCalled();
   expect(screen.getByRole("status")).toHaveTextContent(CARREGANDO);
+  resposta.soltar();
   expect(await screen.findByRole("table")).toBeVisible();
   expect(requisicoesPara("/api/v1/vendas")).toBe(1);
 });
@@ -221,11 +225,10 @@ test("Cancelar consulta volta ao formulário preenchido", async () => {
 });
 
 test("Cancelar no modo estrito aborta a requisição e não grava nada", async () => {
-  let abortada: boolean | null = null;
+  const vigia = vigiarChamada();
   servidor.use(
     http.get("*/api/v1/vendas", async ({ request }) => {
-      await delay(100);
-      abortada = request.signal.aborted;
+      await Promise.race([vigia.acompanhar(request), delay(5000)]);
       return HttpResponse.json(resultado([linha()]));
     }),
   );
@@ -236,8 +239,9 @@ test("Cancelar no modo estrito aborta a requisição e não grava nada", async (
       <PaginaConsulta />
     </StrictMode>,
   );
+  await vigia.iniciou;
   await userEvent.click(screen.getByRole("button", { name: "Cancelar consulta" }));
-  await waitFor(() => expect(abortada).toBe(true));
+  await waitFor(() => expect(vigia.abortada).toBe(true));
   expect(requisicoesPara("/api/v1/vendas")).toBe(1);
   expect(lerResultado(chave)).toBeNull();
   expect(lerRecentes()).toEqual([]);
@@ -326,10 +330,11 @@ test("422 volta ao formulário com a mensagem no campo", async () => {
 test("período depois da cópia sem vendas: 13b com Consultar de 13/11 a 18/11", async () => {
   const depois = "/consulta?data=emissao&de=2026-11-19&ate=2026-11-24";
   const nova = "/consulta?data=emissao&de=2026-11-13&ate=2026-11-18";
+  const resposta = segurarResposta();
   responderEmSequencia(
     () => HttpResponse.json(resultado([], { dadosDoSturAte: "2026-11-18T09:30:00" })),
     async () => {
-      await delay(50);
+      await resposta.solta;
       return HttpResponse.json(resultado([linha()]));
     },
   );
@@ -361,16 +366,18 @@ test("período depois da cópia sem vendas: 13b com Consultar de 13/11 a 18/11",
   expect(screen.getByRole("status")).toHaveTextContent(
     "Consultando as vendas emitidas de 13/11 a 18/11/2026 na API do Stur.",
   );
+  resposta.soltar();
   expect(await screen.findByRole("table")).toBeVisible();
 });
 
 test("Atualizar que falha mantém a tabela (decisão 43)", async () => {
   let atualizar: string | null = null;
+  const resposta = segurarResposta();
   guardarResultado(chave, resultado([linha()]));
   servidor.use(
     http.get("*/api/v1/vendas", async ({ request }) => {
       atualizar = new URL(request.url).searchParams.get("atualizar");
-      await delay(50);
+      await resposta.solta;
       return HttpResponse.json(erroApi("api_stur_sem_resposta"), { status: 504 });
     }),
   );
@@ -380,6 +387,7 @@ test("Atualizar que falha mantém a tabela (decisão 43)", async () => {
   expect(screen.getByText(CARREGANDO)).toBeVisible();
   expect(screen.queryByRole("button", { name: "Cancelar consulta" })).toBeNull();
   expect(screen.getByRole("table")).toBeVisible();
+  resposta.soltar();
 
   expect(await screen.findByRole("alert")).toHaveTextContent("Não foi possível atualizar.");
   expect(atualizar).toBe("true");
@@ -408,10 +416,11 @@ test("Atualizar com sucesso grava o novo resultado; resposta vazia vira nenhuma 
 });
 
 test("Atualizar de novo enquanto atualiza reusa a mesma chamada", async () => {
+  const resposta = segurarResposta();
   guardarResultado(chave, resultado([linha()]));
   servidor.use(
     http.get("*/api/v1/vendas", async () => {
-      await delay(50);
+      await resposta.solta;
       return HttpResponse.json(resultado([linha()], { consultadoEm: "2026-11-25T02:10:00+00:00" }));
     }),
   );
@@ -419,6 +428,7 @@ test("Atualizar de novo enquanto atualiza reusa a mesma chamada", async () => {
   render(<PaginaConsulta />);
   await userEvent.click(await screen.findByRole("button", { name: "Atualizar" }));
   await userEvent.keyboard("u");
+  resposta.soltar();
   expect(await screen.findByText(/Consultado às 23h10/)).toBeVisible();
   expect(screen.queryByText(CARREGANDO)).toBeNull();
   expect(requisicoesPara("/api/v1/vendas")).toBe(1);
