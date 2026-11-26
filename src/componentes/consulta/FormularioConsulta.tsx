@@ -87,7 +87,12 @@ function MensagemDeErro({
     <p
       id={id}
       role={alerta ? "alert" : undefined}
-      className={cn("flex items-start gap-2 text-sm leading-5 text-estado-erro", className)}
+      // Recebe o foco quando o erro de um 422 não tem campo que o receba.
+      tabIndex={-1}
+      className={cn(
+        "flex items-start gap-2 text-sm leading-5 text-estado-erro outline-0",
+        className,
+      )}
     >
       <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
       {children}
@@ -134,6 +139,21 @@ export function FormularioConsulta({
     ocultar(true);
     return () => ocultar(false);
   }, [ocultar]);
+
+  // Volta de um 422: o foco vai ao controle do erro ou, sem controle que o receba, à mensagem.
+  const errouAoMontar = useRef(erroInicial !== undefined);
+  useEffect(() => {
+    if (!errouAoMontar.current) return;
+    errouAoMontar.current = false;
+    const controle = campoDoFormulario(erroInicial?.campo ?? null);
+    if (controle === "reserva" || controle === "de" || controle === "ate") {
+      levarFoco(controle);
+    } else if (controle === "tipoData") {
+      grupoDoTipo.current?.querySelector<HTMLElement>('[aria-checked="true"]')?.focus();
+    } else {
+      document.getElementById(idDoErro)?.focus();
+    }
+  });
 
   const controleComErro = erro ? campoDoFormulario(erro.campo) : null;
   const idDoErro = `${prefixo}-erro`;
@@ -336,7 +356,9 @@ export function FormularioConsulta({
 
         <div className="flex flex-col items-start gap-3">
           {mensagem && controleComErro === null && (
-            <MensagemDeErro alerta>{mensagem}</MensagemDeErro>
+            <MensagemDeErro id={idDoErro} alerta>
+              {mensagem}
+            </MensagemDeErro>
           )}
           <Button type="submit">
             <Search aria-hidden="true" />

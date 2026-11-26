@@ -28,7 +28,11 @@ function Estrutura({ children }: { children: ReactNode }) {
     <>
       <Cabecalho comBusca={rota !== "/" && !oculta} />
       {ativo && <FaixaCarregando />}
-      <main className="mx-auto w-full max-w-[var(--largura-maxima)] px-6 pt-6 pb-16">
+      {/* Ocupado enquanto a consulta roda (11b e Atualizar), como no canvas. */}
+      <main
+        aria-busy={ativo || undefined}
+        className="mx-auto w-full max-w-[var(--largura-maxima)] px-6 pt-6 pb-16"
+      >
         {children}
       </main>
     </>
