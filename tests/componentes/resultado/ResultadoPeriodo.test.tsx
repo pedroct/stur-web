@@ -111,7 +111,7 @@ test("atualizando: tabela à vista e linha de status", () => {
   montar(tres, { atualizando: true });
   const texto =
     "Consultando as vendas emitidas de 17/11 a 24/11/2026 na API do Stur. Pode levar até 30 segundos.";
-  expect(screen.getByText(texto).closest('[role="status"]')).not.toBeNull();
+  expect(screen.getByText(texto).closest("output")).not.toBeNull();
   expect(screen.getByRole("table")).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: "Cancelar consulta" })).not.toBeInTheDocument();
 });

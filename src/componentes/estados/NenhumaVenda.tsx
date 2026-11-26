@@ -11,14 +11,14 @@ export function NenhumaVenda({
   alterarHref,
   acaoExtra,
   consultadoAs,
-}: {
+}: Readonly<{
   caminho: { rotulo: string; href?: string }[];
   mensagem: string;
   complemento: string | null;
   alterarHref: string;
   acaoExtra?: { rotulo: string; aoClicar(): void };
   consultadoAs?: string;
-}) {
+}>) {
   return (
     <>
       <Caminho niveis={caminho} />

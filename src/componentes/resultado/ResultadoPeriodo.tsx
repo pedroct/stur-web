@@ -66,13 +66,13 @@ export function ResultadoPeriodo({
   atualizando,
   falhaAtualizar,
   aoAtualizar,
-}: {
+}: Readonly<{
   consulta: Consulta;
   resultado: ResultadoConsulta;
   atualizando: boolean;
   falhaAtualizar: ErroDaConsulta | null;
   aoAtualizar: () => void;
-}) {
+}>) {
   const roteador = useRouter();
   const parametrosDoEndereco = useSearchParams();
   const { linhasPorPagina, opcoesPorPagina, tempoLimiteSegundos } = useParametros();
@@ -206,9 +206,9 @@ export function ResultadoPeriodo({
           <Filtros modo="resultado" valor={refinamentos} opcoes={opcoes} aoMudar={refinarPor} />
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <p role="status" className="text-sm leading-5 text-texto-auxiliar tabular-nums">
+          <output className="block text-sm leading-5 text-texto-auxiliar tabular-nums">
             {textoDaContagem(refinadas.length, total, refinando, soma)}
-          </p>
+          </output>
           {refinando && (
             <Button variant="secundaria" size="compacto" onClick={limparFiltros}>
               Limpar filtros

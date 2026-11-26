@@ -23,8 +23,8 @@ export function lerTema(): Tema {
 
 export function aplicarTema(t: Tema, html: HTMLElement = document.documentElement): void {
   const atributo = ATRIBUTO[t];
-  if (atributo === null) html.removeAttribute("data-theme");
-  else html.setAttribute("data-theme", atributo);
+  if (atributo === null) delete html.dataset.theme;
+  else html.dataset.theme = atributo;
 }
 
 export function gravarTema(t: Tema): void {

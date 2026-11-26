@@ -28,19 +28,16 @@ function GrupoDePilulas<T extends string>({
   opcoes,
   marcadas,
   aoAlternar,
-}: {
+}: Readonly<{
   titulo: string;
   opcoes: { valor: T; rotulo: string; contagem?: number }[];
   marcadas: readonly T[];
   aoAlternar: (valor: T) => void;
-}) {
-  const idDoTitulo = useId();
+}>) {
   return (
-    <div className="flex flex-col gap-2">
-      <span id={idDoTitulo} className="text-sm font-semibold">
-        {titulo}
-      </span>
-      <div role="group" aria-labelledby={idDoTitulo} className="flex flex-wrap gap-2">
+    <fieldset className="min-w-0">
+      <legend className="mb-2 text-sm font-semibold">{titulo}</legend>
+      <div className="flex flex-wrap gap-2">
         {opcoes.map(({ valor, rotulo, contagem }) => (
           <Pilula
             key={valor}
@@ -58,7 +55,7 @@ function GrupoDePilulas<T extends string>({
           </Pilula>
         ))}
       </div>
-    </div>
+    </fieldset>
   );
 }
 
@@ -81,12 +78,12 @@ function Quadro({
   titulo,
   resumo,
   children,
-}: {
+}: Readonly<{
   abertoNoInicio: boolean;
   titulo: string;
   resumo: string;
   children: ReactNode;
-}) {
+}>) {
   const [aberto, setAberto] = useState(abertoNoInicio);
   return (
     <details
@@ -105,10 +102,10 @@ function Quadro({
 function FiltrosDaConsulta({
   valor,
   aoMudar,
-}: {
+}: Readonly<{
   valor: Consulta;
   aoMudar: (consulta: Consulta) => void;
-}) {
+}>) {
   const prefixo = useId();
 
   return (
@@ -192,7 +189,7 @@ function ListaDeSelecao({
   valor,
   aoEscolher,
   className,
-}: {
+}: Readonly<{
   rotulo: string;
   todos: string;
   total: number;
@@ -200,7 +197,7 @@ function ListaDeSelecao({
   valor: string | null;
   aoEscolher: (nome: string | null) => void;
   className?: string;
-}) {
+}>) {
   const id = useId();
   return (
     <div className={cn("flex min-w-0 flex-col gap-2", className)}>
@@ -250,11 +247,11 @@ function FiltrosDoResultado({
   valor,
   opcoes,
   aoMudar,
-}: {
+}: Readonly<{
   valor: Refinamentos;
   opcoes: OpcoesContadas;
   aoMudar: (refinamentos: Refinamentos) => void;
-}) {
+}>) {
   const lista = (
     campo: "cliente" | "fornecedor" | "emissor",
     rotulo: string,

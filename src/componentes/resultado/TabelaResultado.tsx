@@ -50,7 +50,7 @@ function comAno(consulta: Consulta, janelaLarga: boolean): boolean {
   return consulta.de.slice(0, 4) !== consulta.ate.slice(0, 4);
 }
 
-function ProdutoDaLinha({ linha }: { linha: LinhaResultado }) {
+function ProdutoDaLinha({ linha }: Readonly<{ linha: LinhaResultado }>) {
   if (linha.tipo !== "fee") return linha.produto;
   const de = linha.fee?.produto ?? null;
   return (
@@ -67,11 +67,11 @@ function Linha({
   linha,
   data,
   aoAbrir,
-}: {
+}: Readonly<{
   linha: LinhaResultado;
   data: string;
   aoAbrir: (linha: LinhaResultado, direto: boolean) => void;
-}) {
+}>) {
   const incentivo = linha.tipo === "incentivo";
   const selo = seloDaSituacao(linha.situacao);
   const { principal, operadora } = fornecedoresDaLinha(linha);
@@ -171,11 +171,11 @@ function Cabeca({
   children,
   className,
   ...props
-}: {
+}: Readonly<{
   children: ReactNode;
   className?: string;
   "aria-sort"?: "descending";
-}) {
+}>) {
   return (
     <TableHead scope="col" className={cn(CABECALHO, className)} {...props}>
       {children}
@@ -194,13 +194,13 @@ export function TabelaResultado({
   linhas,
   refinadas,
   enderecoAtual,
-}: {
+}: Readonly<{
   consulta: Consulta;
   resultado: ResultadoConsulta;
   linhas: LinhaResultado[];
   refinadas: LinhaResultado[];
   enderecoAtual: string;
-}) {
+}>) {
   const roteador = useRouter();
   const { janelaLarga } = resultado.consulta;
   const tipo = consulta.tipoData;

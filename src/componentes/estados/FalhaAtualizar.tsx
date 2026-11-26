@@ -11,11 +11,11 @@ export function FalhaAtualizar({
   erro,
   consultadoAs,
   aoTentar,
-}: {
+}: Readonly<{
   erro: ErroDaConsulta;
   consultadoAs: string;
   aoTentar: () => void;
-}) {
+}>) {
   const { tempoLimiteSegundos } = useParametros();
   const textos = textosDoErro(erro.tipo);
   return (

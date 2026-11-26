@@ -18,7 +18,7 @@ function focarNumero() {
   document.querySelector<HTMLElement>("[data-atalho-numero]")?.focus();
 }
 
-function Estrutura({ children }: { children: ReactNode }) {
+function Estrutura({ children }: Readonly<{ children: ReactNode }>) {
   const { ativo, ocupado } = useConsultando();
   const { oculta } = useBuscaDoTopo();
   const rota = usePathname();
@@ -44,11 +44,11 @@ export function Moldura({
   children,
   consultandoInicial,
   parametrosIniciais,
-}: {
+}: Readonly<{
   children: ReactNode;
   consultandoInicial?: boolean;
   parametrosIniciais?: Partial<Parametros>;
-}) {
+}>) {
   return (
     <ParametrosProvider inicial={parametrosIniciais}>
       <ConsultandoProvider inicial={consultandoInicial}>

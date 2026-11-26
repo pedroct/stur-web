@@ -12,11 +12,11 @@ export function CabecalhoResultado({
   consulta,
   resultado,
   aoAtualizar,
-}: {
+}: Readonly<{
   consulta: Consulta;
   resultado: ResultadoConsulta;
   aoAtualizar: () => void;
-}) {
+}>) {
   const { consultadoEm, dadosDoSturAte, periodoPassaDaCopia } = resultado;
   const dadosAte = dadosDoSturAte !== null && !periodoPassaDaCopia ? dadosDoSturAte : null;
   const linhaDeBaixo = [

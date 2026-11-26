@@ -37,9 +37,10 @@ export function consultaEmAndamento<T>(
   if (existente) return existente.promessa as Promise<T>;
 
   const controlador = new AbortController();
-  const promessa = new Promise<T>((resolver) => {
-    resolver(iniciar(controlador.signal));
-  }).finally(() => {
+  // A função async chama `iniciar` na hora; um erro síncrono dele vira promessa rejeitada,
+  // e a limpeza abaixo roda.
+  const inicio = (async () => iniciar(controlador.signal))();
+  const promessa = inicio.finally(() => {
     if (chamadas.get(chave) === chamada) {
       chamadas.delete(chave);
       pendentes.delete(chave);

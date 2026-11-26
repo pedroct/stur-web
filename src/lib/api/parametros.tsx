@@ -29,10 +29,10 @@ export function zerarParametros(): void {
 export function ParametrosProvider({
   inicial,
   children,
-}: {
+}: Readonly<{
   inicial?: Partial<Parametros>;
   children: ReactNode;
-}) {
+}>) {
   const [valor, setValor] = useState<Parametros>({ ...PADROES, ...inicial });
 
   useEffect(() => {

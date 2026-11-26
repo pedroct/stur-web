@@ -42,7 +42,10 @@ function numeroDe(objeto: object): number {
 }
 
 /** Telas 13 e 13b; na 13b, o botão consulta o mesmo número de dias terminando na data da cópia. */
-function SemVendas({ consulta, resultado }: { consulta: Consulta; resultado: ResultadoConsulta }) {
+function SemVendas({
+  consulta,
+  resultado,
+}: Readonly<{ consulta: Consulta; resultado: ResultadoConsulta }>) {
   const roteador = useRouter();
   const ateCopia = periodoAteCopia(consulta, resultado.dadosDoSturAte);
   const complemento = [

@@ -101,7 +101,7 @@ export function tituloCurto(c: Consulta): string {
 
 function unir(itens: string[]): string {
   if (itens.length < 2) return itens.join("");
-  return `${itens.slice(0, -1).join(", ")} e ${itens[itens.length - 1]}`;
+  return `${itens.slice(0, -1).join(", ")} e ${itens.at(-1)}`;
 }
 
 function maiuscula(texto: string): string {
@@ -162,11 +162,15 @@ export function textoSemVendas(c: Consulta): string {
   const filtros = temFiltro(c);
   if (c.reserva !== null) {
     if (!temPeriodo(c) && !filtros) return textoSemVendasNumero(String(c.reserva));
-    const [onde, ajuste] = temPeriodo(c)
-      ? filtros
-        ? [" nesse período e com esses filtros", " ou mude o período ou os filtros"]
-        : [" nesse período", " ou amplie o período"]
-      : [" e esses filtros", " ou mude os filtros"];
+    let onde = " e esses filtros";
+    let ajuste = " ou mude os filtros";
+    if (temPeriodo(c) && filtros) {
+      onde = " nesse período e com esses filtros";
+      ajuste = " ou mude o período ou os filtros";
+    } else if (temPeriodo(c)) {
+      onde = " nesse período";
+      ajuste = " ou amplie o período";
+    }
     return `Nenhuma venda com o número de reserva ${c.reserva}${onde}. Verifique o número no Stur${ajuste} e consulte de novo.`;
   }
   const venda = `nenhuma venda ${participio(c.tipoData, "singular")}`;

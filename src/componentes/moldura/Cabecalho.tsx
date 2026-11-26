@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BotaoTema } from "./BotaoTema";
 import { BuscaCompacta } from "./BuscaCompacta";
 
-export function Cabecalho({ comBusca }: { comBusca: boolean }) {
+export function Cabecalho({ comBusca }: Readonly<{ comBusca: boolean }>) {
   return (
     <header className="border-b border-borda">
       <div className="mx-auto flex min-h-[var(--altura-cabecalho)] max-w-[var(--largura-maxima)] flex-wrap items-center gap-x-4 gap-y-2 px-6 py-2">

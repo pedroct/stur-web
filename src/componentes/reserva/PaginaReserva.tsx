@@ -63,10 +63,10 @@ function comoErro(motivo: unknown): ErroDaConsulta {
 function NumeroRecusado({
   numeroTexto,
   alterarHref,
-}: {
+}: Readonly<{
   numeroTexto: string;
   alterarHref: string;
-}) {
+}>) {
   return (
     <NenhumaVenda
       caminho={[{ rotulo: `Reserva ${numeroTexto}` }]}
@@ -81,7 +81,7 @@ function NumeroRecusado({
  * `/reservas/{número}`: a regra única de entrada por número (P7). Nenhuma venda, tela 13; uma,
  * abre a venda no lugar desta página; duas ou mais, a reserva (provisória até o plano 3).
  */
-export function PaginaReserva({ numeroTexto }: { numeroTexto: string }) {
+export function PaginaReserva({ numeroTexto }: Readonly<{ numeroTexto: string }>) {
   const roteador = useRouter();
   const { definir } = useConsultando();
   const { tempoLimiteSegundos } = useParametros();
@@ -105,8 +105,8 @@ export function PaginaReserva({ numeroTexto }: { numeroTexto: string }) {
             roteador.replace(`/reservas/${n}/vendas/${unica.resumo.idreserva}`);
           else setSituacao({ tipo: "varias-vendas" });
         },
-        (motivo: unknown) => {
-          const erro = comoErro(motivo);
+        (error: unknown) => {
+          const erro = comoErro(error);
           if (erro.tipo === "cancelada" || minhaVez !== vez.current) return;
           setSituacao(
             erro.tipo === "invalida" ? { tipo: "recusado" } : { tipo: "erro", erro, tentadoAs },

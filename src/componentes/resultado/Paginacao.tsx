@@ -16,13 +16,13 @@ export function Paginacao({
   opcoes,
   aoMudarPor,
   aoIrPara,
-}: {
+}: Readonly<{
   pagina: Pagina<unknown>;
   por: number;
   opcoes: number[];
   aoMudarPor: (por: number) => void;
   aoIrPara: (pagina: number) => void;
-}) {
+}>) {
   const id = useId();
   return (
     <div className="flex flex-wrap items-center justify-end gap-x-6 gap-y-2 text-sm text-texto-auxiliar tabular-nums">

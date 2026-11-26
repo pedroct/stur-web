@@ -28,7 +28,10 @@ const LARGURAS_DAS_LINHAS = [
   ["55%", "90%"],
 ];
 
-function LinhaDoEsqueleto({ cliente, fornecedor }: { cliente: string; fornecedor: string }) {
+function LinhaDoEsqueleto({
+  cliente,
+  fornecedor,
+}: Readonly<{ cliente: string; fornecedor: string }>) {
   return (
     <div className={`grid ${COLUNAS} gap-4 border-b border-borda px-4 py-3.5 last:border-b-0`}>
       <Esqueleto largura={80} altura={16} />
@@ -54,10 +57,10 @@ function LinhaDoEsqueleto({ cliente, fornecedor }: { cliente: string; fornecedor
 export function CarregandoResultado({
   consulta,
   aoCancelar,
-}: {
+}: Readonly<{
   consulta: Consulta;
   aoCancelar: () => void;
-}) {
+}>) {
   const { tempoLimiteSegundos } = useParametros();
   return (
     <>

@@ -112,14 +112,14 @@ export async function buscarJson<T>(caminho: string, opcoes: Opcoes = {}): Promi
     if (!resposta.ok) throw traduzirResposta(resposta.status, texto);
     try {
       return JSON.parse(texto) as T;
-    } catch (causa) {
-      throw new ErroDaConsulta("aplicacao", { causa });
+    } catch (error) {
+      throw new ErroDaConsulta("aplicacao", { causa: error });
     }
-  } catch (erro) {
-    if (erro instanceof ErroDaConsulta) throw erro;
-    if (sinal?.aborted) throw new ErroDaConsulta("cancelada", { causa: erro });
-    if (limite.signal.aborted) throw new ErroDaConsulta("sem_resposta", { causa: erro });
-    throw new ErroDaConsulta("aplicacao", { causa: erro });
+  } catch (error) {
+    if (error instanceof ErroDaConsulta) throw error;
+    if (sinal?.aborted) throw new ErroDaConsulta("cancelada", { causa: error });
+    if (limite.signal.aborted) throw new ErroDaConsulta("sem_resposta", { causa: error });
+    throw new ErroDaConsulta("aplicacao", { causa: error });
   } finally {
     clearTimeout(relogio);
   }

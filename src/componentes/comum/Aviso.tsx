@@ -22,11 +22,11 @@ export function Aviso({
   tom,
   className,
   children,
-}: {
+}: Readonly<{
   tom: "info" | "atencao";
   className?: string;
   children: ReactNode;
-}) {
+}>) {
   const { classes, cor, icone: Icone, papel } = TONS[tom];
   return (
     <div

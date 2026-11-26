@@ -13,7 +13,7 @@ export function numeroDaRota(segmento: string | undefined): string {
 }
 
 /** Provisória: o plano 3 a troca pela reserva com várias vendas (tela 7b) e pela venda (tela 11). */
-export function ReservaProvisoria({ numero }: { numero: string }) {
+export function ReservaProvisoria({ numero }: Readonly<{ numero: string }>) {
   return (
     <>
       <Caminho niveis={[{ rotulo: `Reserva ${numero}` }]} />

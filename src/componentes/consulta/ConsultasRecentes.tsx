@@ -6,7 +6,7 @@ import { marcarPendente } from "@/lib/armazenamento/pendentes";
 import { descreverQuando, lerRecentes, type Recente } from "@/lib/armazenamento/recentes";
 
 /** "Reserva 90000001": o número em destaque, como no canvas. */
-function Descricao({ texto }: { texto: string }) {
+function Descricao({ texto }: Readonly<{ texto: string }>) {
   const reserva = /^(Reserva )(\d+)$/.exec(texto);
   if (!reserva) return texto;
   return (

@@ -27,5 +27,6 @@ export function somarDecimais(textos: string[]): string {
   const digitos = (soma < 0n ? -soma : soma).toString().padStart(escala + 1, "0");
   const inteira = digitos.slice(0, digitos.length - escala);
   const fracao = digitos.slice(digitos.length - escala);
-  return `${soma < 0n ? "-" : ""}${inteira}${escala > 0 ? `.${fracao}` : ""}`;
+  const sinal = soma < 0n ? "-" : "";
+  return escala > 0 ? `${sinal}${inteira}.${fracao}` : `${sinal}${inteira}`;
 }

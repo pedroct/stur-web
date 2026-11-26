@@ -27,10 +27,10 @@ const ContextoBuscaDoTopo = createContext<BuscaDoTopo>({ oculta: false, ocultar:
 export function ConsultandoProvider({
   inicial = false,
   children,
-}: {
+}: Readonly<{
   inicial?: boolean;
   children: ReactNode;
-}) {
+}>) {
   const [estado, setEstado] = useState({ ativo: inicial, ocupado: inicial });
   const definir = useCallback((ativo: boolean, { ocupado = ativo }: { ocupado?: boolean } = {}) => {
     setEstado((atual) =>
@@ -48,9 +48,9 @@ export function useConsultando(): Consultando {
 }
 
 /** A página que mostra o formulário esconde a busca do topo. */
-export function BuscaDoTopoProvider({ children }: { children: ReactNode }) {
-  const [oculta, ocultar] = useState(false);
-  const valor = useMemo(() => ({ oculta, ocultar }), [oculta]);
+export function BuscaDoTopoProvider({ children }: Readonly<{ children: ReactNode }>) {
+  const [oculta, setOculta] = useState(false);
+  const valor = useMemo(() => ({ oculta, ocultar: setOculta }), [oculta]);
   return <ContextoBuscaDoTopo value={valor}>{children}</ContextoBuscaDoTopo>;
 }
 

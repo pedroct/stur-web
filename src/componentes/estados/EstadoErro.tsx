@@ -24,12 +24,12 @@ export function EstadoErro({
   rodape,
   aoTentar,
   alterarHref,
-}: {
+}: Readonly<{
   erro: ErroDaConsulta;
   rodape?: string;
   aoTentar?: () => void;
   alterarHref: string;
-}) {
+}>) {
   const { tempoLimiteSegundos } = useParametros();
   const tipo = tipoComTexto(erro.tipo);
   const textos = TEXTOS_ERRO[tipo];

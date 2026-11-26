@@ -19,13 +19,7 @@ class LimiteDeErro extends Component<{ children: ReactNode }, { erro: unknown }>
   }
   override render() {
     if (this.state.erro === null) return this.props.children;
-    return (
-      <ErroDaAplicacao
-        error={this.state.erro}
-        reset={() => this.setState({ erro: null })}
-        retry={() => this.setState({ erro: null })}
-      />
-    );
+    return <ErroDaAplicacao error={this.state.erro} reset={() => this.setState({ erro: null })} />;
   }
 }
 
@@ -34,7 +28,7 @@ test("erro da página: tela do erro da aplicação, apaga o resultado guardado d
   guardarResultado("/consulta?data=emissao&de=2026-11-10&ate=2026-11-16", resultado([linha()]));
   definirEndereco(endereco);
   const reset = vi.fn();
-  renderizar(<ErroDaAplicacao error={new Error("quebrou")} reset={reset} retry={vi.fn()} />);
+  renderizar(<ErroDaAplicacao error={new Error("quebrou")} reset={reset} />);
 
   const alerta = screen.getByRole("alert");
   expect(within(alerta).getByRole("heading", { level: 1 })).toHaveTextContent(

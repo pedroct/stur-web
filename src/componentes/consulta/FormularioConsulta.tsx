@@ -3,9 +3,9 @@
 import { CircleAlert, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
-  type FormEvent,
   type KeyboardEvent,
   type ReactNode,
+  type SubmitEvent,
   useEffect,
   useId,
   useRef,
@@ -75,12 +75,12 @@ function MensagemDeErro({
   alerta = false,
   className,
   children,
-}: {
+}: Readonly<{
   id?: string;
   alerta?: boolean;
   className?: string;
   children: ReactNode;
-}) {
+}>) {
   return (
     <p
       id={id}
@@ -115,7 +115,7 @@ export function FormularioConsulta({
   avisoLink = false,
   erroInicial,
   aoConsultar,
-}: PropsDoFormulario) {
+}: Readonly<PropsDoFormulario>) {
   const router = useRouter();
   const caminho = usePathname();
   const enderecoAberto = useSearchParams();
@@ -168,7 +168,7 @@ export function FormularioConsulta({
     mudar({ tipoData: tipo });
   }
 
-  function trocarTipoComSetas(evento: KeyboardEvent<HTMLDivElement>) {
+  function trocarTipoComSetas(evento: KeyboardEvent<HTMLElement>) {
     const passo = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[evento.key];
     if (passo === undefined) return;
     evento.preventDefault();
@@ -183,7 +183,7 @@ export function FormularioConsulta({
     campo.current?.focus();
   }
 
-  function consultar(evento: FormEvent) {
+  function consultar(evento: SubmitEvent<HTMLFormElement>) {
     evento.preventDefault();
     // Quem recebe a consulta não apara: textos aparados e vazios como null saem daqui.
     const pedida: Consulta = {
@@ -263,7 +263,6 @@ export function FormularioConsulta({
               role="radiogroup"
               aria-label="Tipo de data"
               aria-describedby={descritoPor("tipoData")}
-              onKeyDown={trocarTipoComSetas}
               className="flex flex-wrap gap-2"
             >
               {TIPOS_DE_DATA.map((tipo) => (
@@ -273,6 +272,7 @@ export function FormularioConsulta({
                   pressionada={consulta.tipoData === tipo}
                   tabIndex={consulta.tipoData === tipo ? 0 : -1}
                   onClick={() => escolherTipo(tipo)}
+                  onKeyDown={trocarTipoComSetas}
                 >
                   {rotuloDaData(tipo)}
                 </Pilula>

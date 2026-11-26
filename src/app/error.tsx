@@ -19,11 +19,10 @@ import { formatarHora } from "@/lib/tempo";
 export default function ErroDaAplicacao({
   error,
   reset,
-}: {
+}: Readonly<{
   error: unknown;
   reset: () => void;
-  retry?: () => void;
-}) {
+}>) {
   const caminho = usePathname();
   const parametros = useSearchParams();
   const consulta = caminho === "/consulta" ? lerConsulta(parametros) : null;

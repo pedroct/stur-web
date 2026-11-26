@@ -19,12 +19,12 @@ export function Selo({
   icone: Icone,
   borda = false,
   children,
-}: {
+}: Readonly<{
   tom: TomDoSelo;
   icone: LucideIcon;
   borda?: boolean;
   children: ReactNode;
-}) {
+}>) {
   return (
     <span
       className={cn(

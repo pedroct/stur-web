@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { type FormEvent, useRef, useState } from "react";
+import { type SubmitEvent, useRef, useState } from "react";
 import { CampoNumero } from "@/componentes/comum/CampoNumero";
 import { Button } from "@/componentes/ui/button";
 import { numeroDaReserva } from "@/lib/consulta/consulta";
@@ -27,7 +27,7 @@ export function BuscaCompacta() {
     setInvalido(false);
   }
 
-  function buscar(e: FormEvent) {
+  function buscar(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     const n = numeroDaReserva(valor);
     if (n === null) {

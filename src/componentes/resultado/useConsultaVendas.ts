@@ -125,8 +125,8 @@ export function useConsultaVendas(c: Consulta): ConsultaVendas {
           tentadoAs,
         });
       },
-      (motivo: unknown) => {
-        const erro = comoErro(motivo);
+      (error: unknown) => {
+        const erro = comoErro(error);
         if (erro.tipo === "cancelada" || minhaVez !== vez.current) return;
         if (atualizar) {
           setSituacao((atual) => ({ ...atual, atualizando: false, falhaAtualizar: erro }));

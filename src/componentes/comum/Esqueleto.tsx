@@ -2,10 +2,10 @@
 export function Esqueleto({
   largura,
   altura,
-}: {
+}: Readonly<{
   largura: number | string;
   altura: number | string;
-}) {
+}>) {
   return (
     <div
       aria-hidden="true"

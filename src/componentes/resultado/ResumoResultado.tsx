@@ -6,7 +6,11 @@ import type { LinhaResultado, ResumoResultado as Resumo } from "@/contrato/tipos
 import { situacaoDe } from "@/lib/consulta/consulta";
 import { formatarMoeda, formatarPercentual } from "@/lib/formatacao";
 
-function Par({ rotulo, id, children }: { rotulo: string; id?: string; children: ReactNode }) {
+function Par({
+  rotulo,
+  id,
+  children,
+}: Readonly<{ rotulo: string; id?: string; children: ReactNode }>) {
   return (
     <div>
       <span id={id} className="text-xs font-semibold tracking-[0.02em] text-texto-auxiliar">
@@ -35,7 +39,7 @@ function fornecedorDosIncentivos(vendas: LinhaResultado[]): string | null {
   return nomes.size === 1 && unico !== null && unico !== undefined ? unico : null;
 }
 
-function Incentivos({ resumo, vendas }: { resumo: Resumo; vendas: LinhaResultado[] }) {
+function Incentivos({ resumo, vendas }: Readonly<{ resumo: Resumo; vendas: LinhaResultado[] }>) {
   const { quantidade, valor } = resumo.incentivos;
   const fornecedor = fornecedorDosIncentivos(vendas);
   return (
@@ -56,11 +60,12 @@ function notaDosTotais(resumo: Resumo, comPeriodo: boolean): string {
   const { quantidade, margemComIncentivos, percentualComIncentivos } = resumo.incentivos;
   const percentual = formatarPercentual(percentualComIncentivos);
   const incentivos = quantidade > 1 ? "incentivos" : "incentivo";
+  const comPercentual = percentual === null ? "" : ` (${percentual})`;
   return [
     "Totais sem as canceladas.",
     ...(quantidade > 0
       ? [
-          `Com ${quantidade > 1 ? "os incentivos juntos" : "o incentivo junto"}, a margem seria ${formatarMoeda(margemComIncentivos)}${percentual === null ? "" : ` (${percentual})`}.`,
+          `Com ${quantidade > 1 ? "os incentivos juntos" : "o incentivo junto"}, a margem seria ${formatarMoeda(margemComIncentivos)}${comPercentual}.`,
           `As contagens dos filtros incluem ${quantidade > 1 ? "os " : "o "}${incentivos}.`,
         ]
       : []),
@@ -77,13 +82,13 @@ export function ResumoResultado({
   comPeriodo,
   soNaoFecham,
   aoAlternarNaoFecham,
-}: {
+}: Readonly<{
   resumo: Resumo;
   vendas: LinhaResultado[];
   comPeriodo: boolean;
   soNaoFecham: boolean;
   aoAlternarNaoFecham: () => void;
-}) {
+}>) {
   const percentual = formatarPercentual(resumo.percentualLucro);
   // O nome do botão é o número, como no canvas; o rótulo ao lado o descreve.
   const idNaoFecham = useId();
