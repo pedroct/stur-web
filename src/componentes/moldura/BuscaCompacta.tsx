@@ -2,6 +2,7 @@
 
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { type FormEvent, useRef, useState } from "react";
+import { CampoNumero } from "@/componentes/comum/CampoNumero";
 import { Button } from "@/componentes/ui/button";
 import { numeroDaReserva } from "@/lib/consulta/consulta";
 import { useConsultando } from "./consultando";
@@ -42,23 +43,18 @@ export function BuscaCompacta() {
       <label htmlFor="busca-numero" className="sr-only">
         Número da reserva
       </label>
-      <input
+      <CampoNumero
         ref={campo}
         id="busca-numero"
-        type="text"
-        inputMode="numeric"
-        autoComplete="off"
-        aria-keyshortcuts="/"
         aria-invalid={invalido || undefined}
-        data-atalho-numero
         placeholder="Número da reserva"
         value={valor}
         disabled={consultando}
-        onChange={(e) => {
-          setValor(e.target.value.replace(/\D/g, ""));
+        aoMudar={(digitos) => {
+          setValor(digitos);
           setInvalido(false);
         }}
-        className="h-alvo w-50 rounded-pilula border border-borda-controle bg-superficie px-4 text-sm text-texto-principal outline-0 placeholder:text-texto-auxiliar focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco disabled:border-borda disabled:text-texto-auxiliar aria-invalid:border-estado-erro"
+        className="w-50 rounded-pilula text-sm"
       />
       <Button
         type="submit"
