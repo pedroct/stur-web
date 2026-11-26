@@ -1,4 +1,4 @@
-import { dataSolta, listaDeDatas, periodoCurto } from "@/lib/venda/datas";
+import { dataSolta, listaDeDatas, periodoCurto, periodoSomado } from "@/lib/venda/datas";
 
 test("períodos", () => {
   expect(periodoCurto("2026-11-15", "2026-11-22")).toBe("15/11 a 22/11/2026");
@@ -31,4 +31,15 @@ test("lista com anos diferentes, com uma data e vazia", () => {
   expect(listaDeDatas(["2025-12-28", "2026-01-05"])).toBe("28/12/2025 e 05/01/2026");
   expect(listaDeDatas(["2026-01-05"])).toBe("05/01/2026");
   expect(listaDeDatas([])).toBe("");
+});
+
+test("período somado: a menor data de início e a maior de fim, fora de ordem", () => {
+  expect(
+    periodoSomado(
+      ["2026-11-15 00:00:00", "2026-11-10 00:00:00"],
+      ["2026-11-13 00:00:00", "2026-11-20 00:00:00"],
+    ),
+  ).toBe("10/11 a 20/11/2026");
+  expect(periodoSomado([], ["2026-11-20"])).toBe("20/11/2026");
+  expect(periodoSomado([], [])).toBeNull();
 });

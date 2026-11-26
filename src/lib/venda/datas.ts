@@ -26,6 +26,16 @@ export function periodoCurto(de: string | null, ate: string | null): string | nu
   return `${inicio} a ${formatarData(ate)}`;
 }
 
+/**
+ * O período somado dos serviços (decisão 12): a menor data de início e a maior de fim, por texto
+ * (`AAAA-MM-DD…`), sem as vazias; vira `periodoCurto`.
+ */
+export function periodoSomado(inicios: string[], fins: string[]): string | null {
+  const menor = [...inicios].sort().at(0) ?? null;
+  const maior = [...fins].sort().at(-1) ?? null;
+  return periodoCurto(menor, maior);
+}
+
 /** "09/06, 30/06 e 10/11/2026": o ano no fim e em todo item de ano diferente do último. */
 export function listaDeDatas(dias: string[]): string {
   const ultimo = dias.at(-1);

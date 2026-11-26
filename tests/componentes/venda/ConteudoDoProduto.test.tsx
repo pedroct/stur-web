@@ -467,6 +467,50 @@ describe("Hospedagem", () => {
     expect(linha).toHaveTextContent("002");
     expect(linha).toHaveTextContent("1.000,00");
   });
+
+  test("com mais de um serviço, o card mostra o período somado e nada do serviço 1", () => {
+    montar(
+      dadosDe(HOTEL, {}, [
+        servicoAgi({
+          ...HOSPEDE,
+          nomePaxCompleto: "Hospede Um",
+          dtEntrada: "2026-11-10T00:00:00",
+          dtSaida: "2026-11-13T00:00:00",
+          numerodeconfirmacao: "CONF-UM",
+          numeroVC: "VC-UM",
+        }),
+        servicoAgi({
+          ...HOSPEDE,
+          nomePaxCompleto: "Hospede Dois",
+          dtEntrada: "2026-11-15T00:00:00",
+          dtSaida: "2026-11-20T00:00:00",
+          regime: "MEIA PENSÃO",
+          numerodeconfirmacao: "CONF-DOIS",
+          numeroVC: "VC-DOIS",
+        }),
+      ]),
+    );
+    const secao = screen.getByRole("heading", { level: 2, name: "Hospedagem" }).closest("section");
+    if (secao === null) throw new Error("sem a seção da hospedagem");
+    const card = within(secao as HTMLElement);
+    expect(card.getByText("HOTEL EXEMPLO")).toBeVisible();
+    // Da menor entrada à maior saída, sem as diárias de um serviço só.
+    expect(card.getByText(/^10\/11 a 20\/11\/2026$/)).toBeVisible();
+    for (const rotulo of [
+      "Apartamento",
+      "Regime",
+      "Acomodação",
+      "Confirmação do hotel",
+      "Voucher",
+    ]) {
+      expect(card.queryByText(rotulo, { selector: "dt" })).toBeNull();
+    }
+    expect(secao).not.toHaveTextContent("VC-UM");
+    // A confirmação de cada serviço fica na linha dele, na tabela.
+    const tabela = screen.getByRole("table");
+    expect(tabela).toHaveTextContent("CONF-UM");
+    expect(tabela).toHaveTextContent("CONF-DOIS");
+  });
 });
 
 describe("Veículo", () => {
@@ -510,6 +554,33 @@ describe("Veículo", () => {
       ]),
     );
     expect(screen.queryByText("Confirmado por")).toBeNull();
+  });
+
+  test("com mais de um serviço, o card mostra o período somado e nada do serviço 1", () => {
+    montar(
+      dadosDe(LOCADORA, {}, [
+        servicoAgi({ ...CARRO, numerodeconfirmacao: "CONF-UM", numeroVC: "VC-UM" }),
+        servicoAgi({
+          ...CARRO,
+          nomePaxCompleto: "Condutor Dois",
+          veiculo: "CARRO EXEMPLO 2.0",
+          dtRetirada: "2026-10-27T00:00:00",
+          dtDevolucao: "2026-11-02T00:00:00",
+          numerodeconfirmacao: "CONF-DOIS",
+          numeroVC: "VC-DOIS",
+        }),
+      ]),
+    );
+    const secao = screen.getByRole("heading", { level: 2, name: "Veículo" }).closest("section");
+    if (secao === null) throw new Error("sem a seção do veículo");
+    const card = within(secao as HTMLElement);
+    expect(card.getByText(/^26\/10 a 02\/11\/2026$/)).toBeVisible();
+    for (const rotulo of ["Retirada", "Devolução", "Confirmação da locadora", "Voucher"]) {
+      expect(card.queryByText(rotulo, { selector: "dt" })).toBeNull();
+    }
+    // O veículo é de cada serviço: fica na tabela e no painel.
+    expect(card.queryByText("CARRO EXEMPLO 1.0")).toBeNull();
+    expect(secao).not.toHaveTextContent("VC-UM");
   });
 
   test("a venda cancelada acrescenta que não vai acontecer", () => {

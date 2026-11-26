@@ -2,7 +2,7 @@ import type { VendaConsultada } from "@/contrato/tipos";
 import { situacaoDe } from "@/lib/consulta/consulta";
 import { formatarData, formatarHoraDoStur } from "@/lib/formatacao";
 import { preenchido } from "@/lib/venda/campos";
-import { periodoCurto } from "@/lib/venda/datas";
+import { periodoCurto, periodoSomado } from "@/lib/venda/datas";
 import { camposSemMolde } from "@/lib/venda/moldes";
 import type { NivelDeTitulo } from "./GrupoDeCampos";
 import {
@@ -33,8 +33,10 @@ function momentoDoVeiculo(
 }
 
 /**
- * O veículo do primeiro serviço (IA 6.4; tela 9): o veículo, o período com as diárias e a
- * retirada, a devolução, o condutor, a confirmação da locadora e o voucher.
+ * O veículo (IA 6.4; tela 9): o veículo, o período com as diárias e a retirada, a devolução, o
+ * condutor, a confirmação da locadora e o voucher. Com vários serviços, o card mostra só o que vale
+ * para a venda: o veículo, quando é o mesmo em todos, e o período somado; o resto de cada serviço
+ * fica na tabela e no painel dele (decisão 22).
  */
 export function Veiculo({
   dados,
@@ -45,6 +47,30 @@ export function Veiculo({
   const servico = venda.detalheItem?.[0];
   if (servico === undefined) return null;
   const cancelada = situacaoDe(venda.status ?? null) === "cancelada";
+  const servicos = venda.detalheItem ?? [];
+  if (servicos.length > 1) {
+    const datas = (campo: "dtRetirada" | "dtDevolucao") =>
+      servicos.flatMap((s) => {
+        const dia = s[campo];
+        return preenchido(dia, `detalheItem[].${campo}`) && dia ? [dia] : [];
+      });
+    const veiculos = new Set(servicos.map((s) => texto(s.veiculo)));
+    const [unico] = veiculos;
+    const linha = [
+      periodoSomado(datas("dtRetirada"), datas("dtDevolucao")),
+      cancelada ? "não vai acontecer" : null,
+    ]
+      .filter((parte) => parte !== null)
+      .join(" · ");
+    return (
+      <SecaoDoProduto titulo="Veículo" nivelBase={nivelBase}>
+        {veiculos.size === 1 && unico !== null && unico !== undefined && (
+          <p className="mt-2 text-base leading-6 font-semibold">{unico}</p>
+        )}
+        {linha !== "" && <p className="mt-0.5 text-base leading-6 tabular-nums">{linha}</p>}
+      </SecaoDoProduto>
+    );
+  }
 
   const retirada = servico.dtRetirada ?? null;
   const devolucao = servico.dtDevolucao ?? null;
@@ -88,8 +114,6 @@ export function Veiculo({
     lista.flatMap(([rotulo, valor]) => (valor === null ? [] : [{ rotulo, valor }]));
   const nivel = (nivelBase + 2) as NivelDeTitulo;
   const veiculo = texto(servico.veiculo);
-  // Com vários serviços, o resto de cada um fica no painel dele (decisão 22).
-  const umServico = (venda.detalheItem ?? []).length === 1;
 
   return (
     <SecaoDoProduto titulo="Veículo" nivelBase={nivelBase}>
@@ -105,26 +129,22 @@ export function Veiculo({
         ]}
       />
       <p className="mt-3 text-[13px] leading-5 text-texto-auxiliar">Horários locais.</p>
-      {umServico && (
-        <>
-          <RestoDoGrupo
-            grupo="Veículo (locação)"
-            campos={camposSemMolde("Veículo (locação)", ["veiculo"])}
-            venda={venda}
-            calculos={calculos}
-            indices={[0]}
-            nivel={nivel}
-          />
-          <RestoDoGrupo
-            grupo="Confirmação do fornecedor"
-            campos={camposSemMolde("Confirmação do fornecedor", ["veiculo"])}
-            venda={venda}
-            calculos={calculos}
-            indices={[0]}
-            nivel={nivel}
-          />
-        </>
-      )}
+      <RestoDoGrupo
+        grupo="Veículo (locação)"
+        campos={camposSemMolde("Veículo (locação)", ["veiculo"])}
+        venda={venda}
+        calculos={calculos}
+        indices={[0]}
+        nivel={nivel}
+      />
+      <RestoDoGrupo
+        grupo="Confirmação do fornecedor"
+        campos={camposSemMolde("Confirmação do fornecedor", ["veiculo"])}
+        venda={venda}
+        calculos={calculos}
+        indices={[0]}
+        nivel={nivel}
+      />
     </SecaoDoProduto>
   );
 }

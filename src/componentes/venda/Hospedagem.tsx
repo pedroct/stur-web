@@ -3,7 +3,7 @@ import { situacaoDe } from "@/lib/consulta/consulta";
 import { unir } from "@/lib/consulta/descricao";
 import { fornecedoresDe, preenchido } from "@/lib/venda/campos";
 import { caminhosDaConta } from "@/lib/venda/conta";
-import { periodoCurto } from "@/lib/venda/datas";
+import { periodoCurto, periodoSomado } from "@/lib/venda/datas";
 import { camposSemMolde } from "@/lib/venda/moldes";
 import type { NivelDeTitulo } from "./GrupoDeCampos";
 import {
@@ -16,8 +16,10 @@ import {
 } from "./produto-comum";
 
 /**
- * A hospedagem do primeiro serviço (IA 6.4; tela 3): o hotel, o período com as diárias e os pares
- * do canvas. Com vários serviços, a tabela lista os hóspedes e o card não traz o hóspede.
+ * A hospedagem (IA 6.4; tela 3): o hotel, o período com as diárias e os pares do canvas. Com vários
+ * serviços, o card mostra só o que vale para a venda, o hotel e o período somado; as diárias, o
+ * apartamento, o regime, a confirmação e o voucher de cada serviço ficam na tabela e no painel
+ * dele (decisão 22).
  */
 export function Hospedagem({
   dados,
@@ -29,6 +31,26 @@ export function Hospedagem({
   if (servico === undefined) return null;
   const hotel = fornecedoresDe(texto(venda.nomefornec), texto(venda.nomefornec2)).principal;
   const cancelada = situacaoDe(venda.status ?? null) === "cancelada";
+  const servicos = venda.detalheItem ?? [];
+  if (servicos.length > 1) {
+    const datas = (campo: "dtEntrada" | "dtSaida") =>
+      servicos.flatMap((s) => {
+        const dia = s[campo];
+        return preenchido(dia, `detalheItem[].${campo}`) && dia ? [dia] : [];
+      });
+    const linha = [
+      periodoSomado(datas("dtEntrada"), datas("dtSaida")),
+      cancelada ? "não vai acontecer" : null,
+    ]
+      .filter((parte) => parte !== null)
+      .join(" · ");
+    return (
+      <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase}>
+        {hotel !== null && <p className="mt-2 text-base leading-6 font-semibold">{hotel}</p>}
+        {linha !== "" && <p className="mt-0.5 text-base leading-6 tabular-nums">{linha}</p>}
+      </SecaoDoProduto>
+    );
+  }
 
   const apartamentos = servico.apartamentos ?? [];
   const diarias = [
@@ -80,9 +102,8 @@ export function Hospedagem({
     })(),
   ];
   const nivel = (nivelBase + 2) as NivelDeTitulo;
-  // Com vários serviços, o resto de cada um fica no painel dele (decisão 22). Com um só, a conta
-  // está na mesma página: o que ela mostra (a diária, a de balcão) não se repete aqui.
-  const umServico = (venda.detalheItem ?? []).length === 1;
+  // Com um serviço só, a conta está na mesma página: o que ela mostra (a diária, a de balcão) não
+  // se repete aqui.
   const [conta] = calculos.servicos;
   const naConta =
     conta === undefined
@@ -96,28 +117,24 @@ export function Hospedagem({
         <p className="mt-0.5 text-base leading-6 tabular-nums">{linhaDoPeriodo}</p>
       )}
       <ParesDoCartao pares={pares} />
-      {umServico && (
-        <>
-          <RestoDoGrupo
-            grupo="Hospedagem (hotelaria)"
-            campos={camposSemMolde("Hospedagem (hotelaria)", ["hospedagem"]).filter(
-              (c) => !naConta.has(c.caminho),
-            )}
-            venda={venda}
-            calculos={calculos}
-            indices={[0]}
-            nivel={nivel}
-          />
-          <RestoDoGrupo
-            grupo="Confirmação do fornecedor"
-            campos={camposSemMolde("Confirmação do fornecedor", ["hospedagem"])}
-            venda={venda}
-            calculos={calculos}
-            indices={[0]}
-            nivel={nivel}
-          />
-        </>
-      )}
+      <RestoDoGrupo
+        grupo="Hospedagem (hotelaria)"
+        campos={camposSemMolde("Hospedagem (hotelaria)", ["hospedagem"]).filter(
+          (c) => !naConta.has(c.caminho),
+        )}
+        venda={venda}
+        calculos={calculos}
+        indices={[0]}
+        nivel={nivel}
+      />
+      <RestoDoGrupo
+        grupo="Confirmação do fornecedor"
+        campos={camposSemMolde("Confirmação do fornecedor", ["hospedagem"])}
+        venda={venda}
+        calculos={calculos}
+        indices={[0]}
+        nivel={nivel}
+      />
     </SecaoDoProduto>
   );
 }
