@@ -191,6 +191,16 @@ test("colar número com pontos mantém só os dígitos; letras somem", async () 
   expect(campo).toHaveValue("9000");
 });
 
+test("colar texto longo com o número não corta o número antes de tirar as letras", async () => {
+  render(<FormularioConsulta inicial={CONSULTA_VAZIA} />);
+  const campo = screen.getByRole("textbox", NUMERO);
+  await userEvent.click(campo);
+  await userEvent.paste("Reserva 90000001");
+  expect(campo).toHaveValue("90000001");
+  await userEvent.keyboard("{Enter}");
+  expect(roteador.push).toHaveBeenCalledExactlyOnceWith("/reservas/90000001");
+});
+
 test("o campo de número é o que o atalho / procura", () => {
   render(<FormularioConsulta inicial={CONSULTA_VAZIA} />);
   const campo = screen.getByRole("textbox", NUMERO);

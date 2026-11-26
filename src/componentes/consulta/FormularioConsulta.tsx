@@ -243,7 +243,6 @@ export function FormularioConsulta({
           <CampoNumero
             ref={campoNumero}
             id={`${prefixo}-numero`}
-            maxLength={15}
             value={numero}
             aria-invalid={invalido("reserva")}
             aria-describedby={descritoPor("reserva")}
