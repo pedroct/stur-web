@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Filtros } from "@/componentes/filtros/Filtros";
 import { CONSULTA_VAZIA } from "@/lib/consulta/consulta";
@@ -83,4 +83,23 @@ test("filtros da consulta: textos de apoio exatos", () => {
       "A consulta só vai à API do Stur quando você clica em Consultar. Depois, dá para refinar o resultado sem consultar de novo.",
     ),
   ).toBeInTheDocument();
+});
+
+test("filtros da consulta: abre e fecha pelo summary e guarda o estado entre renderizações", async () => {
+  const { rerender } = render(<Filtros modo="consulta" valor={CONSULTA_VAZIA} aoMudar={vi.fn()} />);
+  const resumo = screen.getByText(/Filtros \(opcionais, com número ou período\)/);
+  const quadro = resumo.closest("details");
+  expect(quadro).not.toHaveAttribute("open");
+  await userEvent.click(resumo);
+  await waitFor(() => expect(quadro).toHaveAttribute("open"));
+  rerender(
+    <Filtros
+      modo="consulta"
+      valor={{ ...CONSULTA_VAZIA, tipoData: "alteracao" }}
+      aoMudar={vi.fn()}
+    />,
+  );
+  expect(quadro).toHaveAttribute("open");
+  await userEvent.click(resumo);
+  await waitFor(() => expect(quadro).not.toHaveAttribute("open"));
 });
