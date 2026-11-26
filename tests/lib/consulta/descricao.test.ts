@@ -5,6 +5,7 @@ import {
   periodoAteCopia,
   resumoMarcados,
   rodapeErro,
+  rotuloConsultarAteCopia,
   textoCarregando,
   textoDadosAteSemVendas,
   textoPeriodoAteCopia,
@@ -101,6 +102,28 @@ test("período depois da cópia propõe os mesmos dias terminando nela", () => {
   );
   expect(periodoAteCopia(periodo, "2026-11-18T09:30:00")).toBeNull(); // começa antes da cópia
   expect(periodoAteCopia({ ...periodo, de: "2026-11-19" }, null)).toBeNull();
+});
+
+test("13b: o botão consulta os mesmos dias até a cópia; um dia só leva só a data", () => {
+  expect(rotuloConsultarAteCopia({ de: "2026-11-13", ate: "2026-11-18", dias: 6 })).toBe(
+    "Consultar de 13/11 a 18/11",
+  );
+  expect(rotuloConsultarAteCopia({ de: "2026-11-18", ate: "2026-11-18", dias: 1 })).toBe(
+    "Consultar 18/11",
+  );
+});
+
+test("13b que atravessa o ano: o texto e o botão levam o ano dos dois lados, como o título", () => {
+  const p = periodoAteCopia(
+    { ...CONSULTA_VAZIA, de: "2027-01-05", ate: "2027-01-14" },
+    "2027-01-03T09:30:00",
+  );
+  expect(p).toEqual({ de: "2026-12-25", ate: "2027-01-03", dias: 10 });
+  if (p === null) throw new Error("esperava o período até a cópia");
+  expect(textoPeriodoAteCopia(p)).toBe(
+    "Os mesmos dez dias, terminando na data da cópia, vão de 25/12/2026 a 03/01/2027.",
+  );
+  expect(rotuloConsultarAteCopia(p)).toBe("Consultar de 25/12/2026 a 03/01/2027");
 });
 
 test("rodapé do erro", () => {

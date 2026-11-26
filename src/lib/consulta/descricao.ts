@@ -198,7 +198,14 @@ export function periodoAteCopia(
 export function textoPeriodoAteCopia(p: { de: string; ate: string; dias: number }): string {
   if (p.dias === 1) return `O mesmo dia, na data da cópia, é ${formatarDiaMes(p.ate)}.`;
   const dias = NUMEROS_POR_EXTENSO[p.dias] ?? String(p.dias);
-  return `Os mesmos ${dias} dias, terminando na data da cópia, vão de ${formatarDiaMes(p.de)} a ${formatarDiaMes(p.ate)}.`;
+  return `Os mesmos ${dias} dias, terminando na data da cópia, vão ${periodoEmTexto(p.de, p.ate, false)}.`;
+}
+
+/** O botão da 13b; com anos diferentes, o ano nos dois lados, como o título. */
+export function rotuloConsultarAteCopia(p: { de: string; ate: string; dias: number }): string {
+  return p.dias === 1
+    ? `Consultar ${formatarDiaMes(p.ate)}`
+    : `Consultar ${periodoEmTexto(p.de, p.ate, false)}`;
 }
 
 export function rodapeErro(c: Consulta, hora: string): string {

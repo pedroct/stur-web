@@ -17,12 +17,12 @@ import {
 import {
   periodoAteCopia,
   rodapeErro,
+  rotuloConsultarAteCopia,
   textoDadosAteSemVendas,
   textoPeriodoAteCopia,
   textoSemVendas,
   tituloCurto,
 } from "@/lib/consulta/descricao";
-import { formatarDiaMes } from "@/lib/formatacao";
 import { formatarHora } from "@/lib/tempo";
 import { CarregandoResultado } from "./CarregandoResultado";
 import { ResultadoPeriodo } from "./ResultadoPeriodo";
@@ -54,10 +54,7 @@ function SemVendas({ consulta, resultado }: { consulta: Consulta; resultado: Res
 
   const acaoExtra = ateCopia
     ? {
-        rotulo:
-          ateCopia.dias === 1
-            ? `Consultar ${formatarDiaMes(ateCopia.ate)}`
-            : `Consultar de ${formatarDiaMes(ateCopia.de)} a ${formatarDiaMes(ateCopia.ate)}`,
+        rotulo: rotuloConsultarAteCopia(ateCopia),
         aoClicar() {
           const nova = chaveConsulta({ ...consulta, de: ateCopia.de, ate: ateCopia.ate });
           marcarPendente(nova);
