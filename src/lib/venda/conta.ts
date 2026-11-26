@@ -95,7 +95,7 @@ export function efeitoDoTermo(efeito: TermoConta["efeito"], lado: Lado): string 
   return lado === "cliente" ? "reduz o total do cliente" : "reduz o custo do fornecedor";
 }
 
-/** O rótulo sem o percentual; é também o nome do termo nos zerados, em minúsculas. */
+/** O rótulo sem o percentual; é também o nome do termo nos zerados (`nomeNaFrase`). */
 function rotuloBase(campo: string, lado: Lado, classificacao: string | null): string {
   if (lado === "fornecedor" && campo === "vlrComisRecebida") {
     return COMISSAO_RECEBIDA[classificacaoDe(classificacao) ?? ""] ?? "Comissão recebida";
@@ -243,16 +243,45 @@ export function linhaDasTarifas(
   return { linhas: ["Tarifas"], nota: frases.length === 0 ? null : frases.join(" ") };
 }
 
+/** O nome do termo no meio da frase: só a primeira letra desce, e a sigla fica ("taxa DU"). */
+function nomeNaFrase(rotulo: string): string {
+  const [palavra = ""] = rotulo.split(" ");
+  if (palavra.length > 1 && palavra === palavra.toUpperCase()) return rotulo;
+  return rotulo.charAt(0).toLowerCase() + rotulo.slice(1);
+}
+
+/**
+ * Os campos zerados de cada lado que entram na frase dos zerados: o termo é zero nos dois lados em
+ * que existe. Um zero do cliente com o mesmo termo diferente de zero no fornecedor ("Taxas") fica
+ * fora da frase e vai para o grupo da conta, como os outros campos dela.
+ */
+export function zeradosDaFrase(
+  conta: ContaServico,
+  classificacao: string | null,
+): Record<Lado, string[]> {
+  const comValor = new Set(
+    (["cliente", "fornecedor"] as const).flatMap((lado) =>
+      conta[lado].termos.map((t) => rotuloBase(t.campo, lado, classificacao)),
+    ),
+  );
+  const doLado = (lado: Lado) =>
+    conta[lado].zerados.filter((c) => !comValor.has(rotuloBase(c, lado, classificacao)));
+  return { cliente: doLado("cliente"), fornecedor: doLado("fornecedor") };
+}
+
 /** "Zerados: desconto, extras e acordo." (decisão 5): os dois lados, sem repetir. */
 export function fraseZerados(
   conta: ContaServico,
   prefixo: "Zerados" | "Zerados neste serviço",
+  classificacao: string | null,
 ): string | null {
+  const zerados = zeradosDaFrase(conta, classificacao);
   const nomes = [
-    ...new Set([
-      ...conta.cliente.zerados.map((c) => rotuloBase(c, "cliente", null).toLowerCase()),
-      ...conta.fornecedor.zerados.map((c) => rotuloBase(c, "fornecedor", null).toLowerCase()),
-    ]),
+    ...new Set(
+      (["cliente", "fornecedor"] as const).flatMap((lado) =>
+        zerados[lado].map((c) => nomeNaFrase(rotuloBase(c, lado, classificacao))),
+      ),
+    ),
   ];
   return nomes.length === 0 ? null : `${prefixo}: ${unir(nomes)}.`;
 }
@@ -381,7 +410,7 @@ export function caminhosDaConta(
       const percentual = TERMOS[lado][termo.campo]?.percentual;
       if (percentual && percentualDoTermo(termo.campo, lado, servico) !== null) campo(percentual);
     }
-    for (const zerado of contaDoLado.zerados) campo(zerado);
+    for (const zerado of zeradosDaFrase(conta, classificacao)[lado]) campo(zerado);
     if (contaDoLado.conversao !== null) {
       campo(campos.sigla);
       campo(campos.cambio);

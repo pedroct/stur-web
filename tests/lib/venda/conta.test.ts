@@ -81,13 +81,50 @@ test("os zerados dos dois lados numa frase, em minúsculas e sem repetir", () =>
     { zerados: ["vlrTaxas", "vlrTxExt", "vlrDesconto"] },
     { zerados: ["vlrTaxasP", "vlrTxExtP", "vlrDescontoAcordo", "vlrComisRecebida"] },
   );
-  expect(fraseZerados(c, "Zerados")).toBe(
+  expect(fraseZerados(c, "Zerados", "Aéreo")).toBe(
     "Zerados: taxas, extras, desconto, acordo e comissão recebida.",
   );
-  expect(fraseZerados(c, "Zerados neste serviço")).toBe(
+  expect(fraseZerados(c, "Zerados neste serviço", "Aéreo")).toBe(
     "Zerados neste serviço: taxas, extras, desconto, acordo e comissão recebida.",
   );
-  expect(fraseZerados(conta({}), "Zerados")).toBeNull();
+  expect(fraseZerados(conta({}), "Zerados", "Aéreo")).toBeNull();
+});
+
+test("os zerados mantêm as siglas e a comissão recebida leva o nome pela classificação", () => {
+  const c = conta({ zerados: ["vlrTxDU", "vlrTxDURepassada"] }, { zerados: ["vlrComisRecebida"] });
+  expect(fraseZerados(c, "Zerados", "Aéreo")).toBe(
+    "Zerados: taxa DU, DU repassada e comissão recebida.",
+  );
+  expect(fraseZerados(c, "Zerados", "Hotelaria")).toBe(
+    "Zerados: taxa DU, DU repassada e comissão do hotel.",
+  );
+  expect(fraseZerados(c, "Zerados", "Locação")).toBe(
+    "Zerados: taxa DU, DU repassada e comissão da locadora.",
+  );
+  expect(fraseZerados(c, "Zerados", "Pacote")).toBe(
+    "Zerados: taxa DU, DU repassada e comissão da operadora.",
+  );
+});
+
+test("um termo só entra nos zerados quando é zero nos dois lados em que existe", () => {
+  const c = conta(
+    { zerados: ["vlrTaxas", "vlrTxExt", "vlrDesconto"] },
+    {
+      termos: [
+        { campo: "vlrTarifaTotalp", valor: "900.00", efeito: "soma" },
+        { campo: "vlrTaxasP", valor: "90.00", efeito: "soma" },
+      ],
+      zerados: ["vlrTxExtP", "vlrDescontoAcordo"],
+    },
+  );
+  expect(fraseZerados(c, "Zerados neste serviço", "Diversos")).toBe(
+    "Zerados neste serviço: extras, desconto e acordo.",
+  );
+  // O zero do cliente que não entra na frase fica para o grupo da conta (critério 8).
+  const mostrados = caminhosDaConta(c, servicoAgi(), "Diversos");
+  expect(mostrados.has("detalheItem[].vlrTaxas")).toBe(false);
+  expect(mostrados.has("detalheItem[].vlrTxExt")).toBe(true);
+  expect(mostrados.has("detalheItem[].vlrTaxasP")).toBe(true);
 });
 
 // --- linha da tarifa (decisão 6) ---

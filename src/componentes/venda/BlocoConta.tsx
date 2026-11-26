@@ -220,7 +220,11 @@ export function BlocoConta({
   }
 
   const referencias = somada || servico === undefined ? [] : frasesDeReferencia(servico);
-  const zerados = fraseZerados(conta, noPainel ? "Zerados neste serviço" : "Zerados");
+  const zerados = fraseZerados(
+    conta,
+    noPainel ? "Zerados neste serviço" : "Zerados",
+    classificacao,
+  );
   const secaoDoCampo = (caminho: string) =>
     CAMPOS_ANEXO_B.find((c) => c.caminho === caminho)?.secao;
   const frases: { texto: string; secao?: number }[] = [

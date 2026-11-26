@@ -17,7 +17,7 @@ import type { Classificacao } from "@/lib/consulta/consulta";
 import { compararDecimais, ehDecimal } from "@/lib/decimal";
 import { CAMPOS_ANEXO_B, type CampoAnexo } from "@/lib/venda/anexo-b";
 import { preenchido, valorDoCampo } from "@/lib/venda/campos";
-import { fraseZerados } from "@/lib/venda/conta";
+import { fraseZerados, zeradosDaFrase } from "@/lib/venda/conta";
 import { MOLDES } from "@/lib/venda/moldes";
 import { reserva, resumoVenda, vendaAgi, vendaCheia, vendaConsultada } from "../../fabrica";
 import { definirEndereco } from "../../navegacao";
@@ -200,14 +200,13 @@ function peloZerado(c: CampoAnexo, indices: number[], dados: VendaConsultada, te
   if (!c.caminho.startsWith("detalheItem[].") || indice === undefined) return false;
   const conta = dados.calculos.servicos.find((s) => s.indice === indice);
   const nome = c.caminho.slice("detalheItem[].".length);
-  if (
-    conta === undefined ||
-    ![...conta.cliente.zerados, ...conta.fornecedor.zerados].includes(nome)
-  ) {
-    return false;
-  }
+  const classificacao = dados.venda.classificacaoproduto ?? null;
+  if (conta === undefined) return false;
+  // Só o zero que a frase nomeia: o zero com o mesmo termo diferente de zero no outro lado vira par.
+  const naFrase = zeradosDaFrase(conta, classificacao);
+  if (![...naFrase.cliente, ...naFrase.fornecedor].includes(nome)) return false;
   return (["Zerados", "Zerados neste serviço"] as const).some((prefixo) => {
-    const frase = fraseZerados(conta, prefixo);
+    const frase = fraseZerados(conta, prefixo, classificacao);
     return frase !== null && ocorrencias(texto, frase) > 0;
   });
 }
