@@ -6,7 +6,7 @@
 #   --tentativas N   tentativas do scan, de 1 a 5 (padrão 3)
 #
 # Host, chave do projeto, fontes e caminho da cobertura estão em sonar-project.properties.
-# SONAR_TOKEN (e SONAR_HOST_URL, se existir) vêm do ambiente ou do primeiro .env que os
+# SONAR_TOKEN_WEB (e SONAR_HOST_URL, se existir) vêm do ambiente ou do primeiro .env que os
 # tiver, subindo a partir desta pasta. O token nunca é impresso nem vai na linha de comando.
 set -euo pipefail
 
@@ -40,14 +40,17 @@ ler_env() {
   return 1
 }
 
-if [[ -z "${SONAR_TOKEN:-}" ]]; then
-  SONAR_TOKEN="$(ler_env SONAR_TOKEN || true)"
+# O .env da raiz guarda também o SONAR_TOKEN do stur-api; este projeto usa só o seu.
+if [[ -z "${SONAR_TOKEN_WEB:-}" ]]; then
+  SONAR_TOKEN_WEB="$(ler_env SONAR_TOKEN_WEB || true)"
 fi
-if [[ -z "${SONAR_TOKEN:-}" ]]; then
-  echo "SONAR_TOKEN não encontrado (defina no ambiente ou em um .env)." >&2
+if [[ -z "${SONAR_TOKEN_WEB:-}" ]]; then
+  echo "SONAR_TOKEN_WEB não encontrado (defina no ambiente ou em um .env)." >&2
   exit 1
 fi
-export SONAR_TOKEN
+# O scanner lê o token de SONAR_TOKEN.
+export SONAR_TOKEN="$SONAR_TOKEN_WEB"
+unset SONAR_TOKEN_WEB
 
 # O host já está no sonar-project.properties; um SONAR_HOST_URL do ambiente/.env prevalece.
 if [[ -z "${SONAR_HOST_URL:-}" ]]; then

@@ -71,8 +71,9 @@ scripts/sonar.sh --somente-scan   # reaproveita o coverage/lcov.info existente
 scripts/sonar.sh --tentativas 5   # repete o scan em falha de rede (1 a 5, padrão 3)
 ```
 
-O script lê `SONAR_TOKEN` (e `SONAR_HOST_URL`, se existir) do ambiente ou do primeiro `.env` que os
-tiver, subindo a partir desta pasta; o token nunca vai na linha de comando. Ele usa
+O script lê `SONAR_TOKEN_WEB` (e `SONAR_HOST_URL`, se existir) do ambiente ou do primeiro `.env`
+que os tiver, subindo a partir desta pasta; o token nunca vai na linha de comando. É um token de
+análise do projeto `stur-consulta-web`; o `SONAR_TOKEN` fica para o `stur-api`. Ele usa
 `pnpm dlx @sonar/scan@5.1.0 -Dsonar.qualitygate.wait=true`, para na hora quando o quality gate
 reprova e sai com erro se `coverage/lcov.info` não existir depois dos testes.
 
