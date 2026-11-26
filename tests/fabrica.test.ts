@@ -312,19 +312,30 @@ describe("vendaCheia()", () => {
     expect(vendaCheia("pacote").venda.classificacaoproduto).toBe("Pacote");
   });
 
-  test("valores de teste por formato e moeda estrangeira", () => {
+  test("valores de teste por formato e moeda estrangeira, distintos por campo e por item", () => {
     const { venda } = vendaCheia("locacao");
     const s = venda.detalheItem?.[0];
-    expect(s?.horaRetirada).toBe("1899-12-30T16:59:00");
+    const indice = (caminho: string) => CAMPOS_ANEXO_B.findIndex((c) => c.caminho === caminho);
+    expect(s?.horaRetirada).toMatch(/^1899-12-30T\d{2}:10:00$/);
+    expect(s?.horaRetirada).not.toBe(s?.horaDevolucao);
     expect(s?.siglaMoedaTarifa).toBe("US$");
-    expect(s?.vlrCambio).toBe("5.1700");
-    expect(venda.recebimentos?.[0]?.moedaOriginal).toBe("US$");
-    expect(venda.dtcriacao).toBe("2026-11-20 10:30:00");
-    expect(venda.dtemissao).toBe("2026-11-20 00:00:00");
-    const i = CAMPOS_ANEXO_B.findIndex((c) => c.caminho === "nomecliente");
-    expect(venda.nomecliente).toBe(`TESTE ${i}`);
-    const t = CAMPOS_ANEXO_B.findIndex((c) => c.caminho === "totalCliente");
-    expect(venda.totalCliente).toBe(`${100 + t}.45`);
+    expect(s?.siglaMoedaTarifap).toBe("EUR");
+    expect(venda.recebimentos?.[0]?.moedaOriginal).toBe("CHF");
+    expect(venda.pagamentos?.[0]?.moedaOriginal).toBe("AED");
+    expect(s?.vlrCambio).toBe(`5.${1000 + indice("detalheItem[].vlrCambio")}`);
+    expect(s?.vlrCambiop).not.toBe(s?.vlrCambio);
+    expect(venda.dtcriacao).toMatch(/^2026-\d{2}-\d{2} \d{2}:\d{2}:00$/);
+    expect(venda.dtcriacao?.slice(0, 10)).not.toBe(venda.dtconfirmacao?.slice(0, 10));
+    expect(venda.dtemissao).toMatch(/^2026-\d{2}-\d{2} 00:00:00$/);
+    expect(venda.nomecliente).toBe(`TESTE ${indice("nomecliente")}`);
+    expect(venda.totalCliente).toBe(`${100 + indice("totalCliente")}.45`);
+    expect(venda.idCliente).toBe(70000 + indice("idCliente") * 10);
+    // O 2º item de uma lista tem outro valor que não contém o do 1º.
+    const [r0, r1] = venda.recebimentos ?? [];
+    expect(r0?.nomePagante).toBe(`TESTE ${indice("recebimentos[].nomePagante")}`);
+    expect(r1?.nomePagante).toBe(`TESTE ${indice("recebimentos[].nomePagante")}B`);
+    expect(r1?.valor).toBe(`${100 + indice("recebimentos[].valor")}.46`);
+    expect(r1?.dtVencto?.slice(0, 4)).toBe("2025");
   });
 
   test("os cálculos combinam com a venda", () => {
@@ -333,11 +344,20 @@ describe("vendaCheia()", () => {
     expect(aereo.calculos.itinerario?.forma).toBe("com_horario");
     expect(aereo.calculos.estadoServico).toMatchObject({ estado: "concluido", base: "trechos" });
     expect(aereo.calculos.servicos.map((c) => c.indice)).toEqual([0, 1]);
+    const [s0, s1] = aereo.venda.detalheItem ?? [];
     expect(aereo.calculos.servicos[0]?.cliente.conversao).toMatchObject({
       sigla: "US$",
-      cambio: "5.1700",
+      cambio: s0?.vlrCambio,
+      tarifaOrigem: s0?.vlrTarifaTotal,
+      dataCambio: s0?.dtCambio,
     });
-    expect(aereo.calculos.servicos[0]?.fornecedor.conversao).toMatchObject({ sigla: "US$" });
+    expect(aereo.calculos.servicos[0]?.fornecedor.conversao).toMatchObject({
+      sigla: "EUR",
+      cambio: s0?.vlrCambiop,
+    });
+    // O 2º serviço tem valores próprios.
+    expect(s1?.vlrCambio).not.toBe(s0?.vlrCambio);
+    expect(aereo.calculos.servicos[1]?.cliente.conversao?.cambio).toBe(s1?.vlrCambio);
     expect(aereo.calculos.recebimentos).toHaveLength(2);
     expect(aereo.calculos.pagamentos.map((p) => p.ehCredito)).toEqual([false, true]);
     expect(aereo.calculos.pagamentos.every((p) => p.situacao === "sem_saldo")).toBe(true);

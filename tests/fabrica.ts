@@ -555,10 +555,11 @@ export function vendaConsultada(campos?: Partial<VendaConsultada>): VendaConsult
 
 // --- venda cheia: a base do teste do Anexo B (Task 9) ---
 
+// O nome do produto não repete a classificação, para o teste do Anexo B não achar um no outro.
 const PRODUTOS: Record<Classificacao, { classificacao: string; produto: string }> = {
   aereo: { classificacao: "Aéreo", produto: "BILHETE NACIONAL" },
   hotelaria: { classificacao: "Hotelaria", produto: "HOTEL NAC" },
-  rodoviario: { classificacao: "Rodoviário", produto: "RODOVIARIO NAC" },
+  rodoviario: { classificacao: "Rodoviário", produto: "ONIBUS NAC" },
   diversos: { classificacao: "Diversos", produto: "SEGURO INT" },
   locacao: { classificacao: "Locação", produto: "CARRO NAC" },
   pacote: { classificacao: "Pacote", produto: "PACOTE TER INT" },
@@ -574,13 +575,14 @@ const BASE_DO_ESTADO: Record<Classificacao, EstadoServico["base"]> = {
 };
 
 const CAMPOS_DE_HORA = new Set(["detalheItem[].horaRetirada", "detalheItem[].horaDevolucao"]);
-const CAMPOS_DE_MOEDA = new Set([
-  "detalheItem[].siglaMoedaTarifa",
-  "detalheItem[].siglaMoedaTarifap",
-  "detalheItem[].siglaMoedaTaxaServico",
-  "recebimentos[].moedaOriginal",
-  "pagamentos[].moedaOriginal",
-]);
+/** Uma sigla por campo de moeda, para o teste do Anexo B saber de onde veio cada uma. */
+const SIGLAS: Record<string, string> = {
+  "detalheItem[].siglaMoedaTarifa": "US$",
+  "detalheItem[].siglaMoedaTarifap": "EUR",
+  "detalheItem[].siglaMoedaTaxaServico": "GBP",
+  "recebimentos[].moedaOriginal": "CHF",
+  "pagamentos[].moedaOriginal": "AED",
+};
 /** Formato `inteiro` pelo nome (`id*`), mas texto no contrato. */
 const INTEIROS_EM_TEXTO = new Set([
   "sistemaExterno.idVenda",
@@ -633,51 +635,79 @@ function servicoVazio(): Objeto {
   };
 }
 
-function valorDeTeste(c: CampoAnexo, i: number): unknown {
-  if (CAMPOS_DE_HORA.has(c.caminho)) return "1899-12-30T16:59:00";
-  if (CAMPOS_DE_MOEDA.has(c.caminho)) return "US$";
+const dois = (n: number) => String(n).padStart(2, "0");
+
+/**
+ * O valor de teste do campo `i` no item `item` (os índices das listas do caminho): distinto por
+ * campo e por item, e sem um valor caber dentro de outro, para o teste do Anexo B saber de onde
+ * veio cada texto da tela. O item 0 de toda lista tem o valor "base"; os outros ganham letras
+ * ("TESTE 12B"), centavos, anos ou unidades a mais.
+ */
+function valorDeTeste(c: CampoAnexo, i: number, item: number[]): unknown {
+  const k = item.reduce((soma, n) => soma * 4 + n, 0);
+  const letras = item.some((n) => n > 0)
+    ? item.map((n) => String.fromCodePoint(65 + n)).join("")
+    : "";
+  // O dia do ano (2026, ou um ano antes por item) e uma hora, pelo índice do campo.
+  const dia = new Date(Date.UTC(2026 - k, 0, 1 + i));
+  const data = `${dia.getUTCFullYear()}-${dois(dia.getUTCMonth() + 1)}-${dois(dia.getUTCDate())}`;
+  // A data e hora muda de item pelos minutos, no mesmo dia do campo (o ano corrente, como a
+  // `dataSolta` das colunas Partida e Chegada).
+  const diaDoCampo = new Date(Date.UTC(2026, 0, 1 + i));
+  const dataDoCampo = `2026-${dois(diaDoCampo.getUTCMonth() + 1)}-${dois(diaDoCampo.getUTCDate())}`;
+  const hora = `${dois(1 + (i % 23))}:${dois(10 + k)}:00`;
+  if (CAMPOS_DE_HORA.has(c.caminho)) return `1899-12-30T${dois(10 + (i % 10))}:${dois(10 + k)}:00`;
+  const sigla = SIGLAS[c.caminho];
+  if (sigla !== undefined) return sigla;
   switch (c.formato) {
     case "texto":
-      return `TESTE ${i}`;
+      return `TESTE ${i}${letras}`;
     case "dinheiro":
-      return `${100 + i}.45`;
+      return `${100 + i}.${45 + k}`;
     case "percentual":
-      return `${i}.5000`;
+      return `${i}.${50 + k}`;
     case "cambio":
-      return "5.1700";
+      return `${5 + k}.${1000 + i}`;
     case "data":
-      return "2026-11-20 00:00:00";
+      return `${data} 00:00:00`;
     case "dataHora":
-      return "2026-11-20 10:30:00";
+      return `${dataDoCampo} ${hora}`;
     case "hora":
-      return "1899-12-30T16:59:00";
+      return `1899-12-30T${dois(10 + (i % 10))}:${dois(10 + k)}:00`;
     case "inteiro":
-      return INTEIROS_EM_TEXTO.has(c.caminho) ? String(i + 2) : i + 2;
+      return INTEIROS_EM_TEXTO.has(c.caminho) ? String(70000 + i * 10 + k) : 70000 + i * 10 + k;
     case "booleano":
       return true;
     case "lista":
-      return [`TESTE ${i}`];
+      return [`TESTE ${i}${letras}`];
   }
 }
 
-/** Grava `valor` no caminho, em todo item das listas; lista vazia ganha 2 itens. */
-function gravar(alvo: Objeto, partes: string[], valor: unknown): void {
+/** Grava `valor(item)` no caminho, em todo item das listas; lista vazia ganha 2 itens. */
+function gravar(
+  alvo: Objeto,
+  partes: string[],
+  valor: (item: number[]) => unknown,
+  item: number[] = [],
+): void {
   const [parte, ...resto] = partes;
   if (parte === undefined) return;
   if (resto.length === 0) {
-    alvo[parte] = valor;
+    alvo[parte] = valor(item);
     return;
   }
   if (parte.endsWith("[]")) {
     const nome = parte.slice(0, -2);
     let itens = alvo[nome];
     if (!Array.isArray(itens) || itens.length === 0) {
-      const item = ITENS[nome];
-      if (item === undefined) throw new Error(`Lista sem item de teste: ${nome}`);
-      itens = [item(), item()];
+      const novo = ITENS[nome];
+      if (novo === undefined) throw new Error(`Lista sem item de teste: ${nome}`);
+      itens = [novo(), novo()];
       alvo[nome] = itens;
     }
-    for (const item of itens as Objeto[]) gravar(item, resto, valor);
+    (itens as Objeto[]).forEach((objeto, k) => {
+      gravar(objeto, resto, valor, [...item, k]);
+    });
     return;
   }
   let objeto = alvo[parte];
@@ -687,7 +717,7 @@ function gravar(alvo: Objeto, partes: string[], valor: unknown): void {
     objeto = novo();
     alvo[parte] = objeto;
   }
-  gravar(objeto as Objeto, resto, valor);
+  gravar(objeto as Objeto, resto, valor, item);
 }
 
 /**
@@ -712,7 +742,7 @@ export function vendaCheia(
   CAMPOS_ANEXO_B.forEach((c, i) => {
     const nunca = nuncaPreenchidos && c.classes.length === 0;
     if (!c.conteiner && (nunca || c.classes.includes(classificacao))) {
-      gravar(venda, c.caminho.split("."), valorDeTeste(c, i));
+      gravar(venda, c.caminho.split("."), (item) => valorDeTeste(c, i, item));
     }
   });
 
@@ -754,18 +784,31 @@ export function vendaCheia(
       vencimento: p.dtVencto ?? null,
     });
   });
+  // Como o backend: a conversão de cada lado leva a sigla, o câmbio, a tarifa de origem e a data
+  // dele; o termo da tarifa é o valor em reais (fixo).
   const contas = (v.detalheItem ?? []).map((s, k) => {
     const base = contaServico({ indice: k });
-    const conversao = (tarifa: string | null | undefined, data: string | null | undefined) => ({
-      sigla: "US$",
-      cambio: "5.1700",
+    const conversao = (
+      sigla: string | null | undefined,
+      cambio: string | null | undefined,
+      tarifa: string | null | undefined,
+      data: string | null | undefined,
+    ) => ({
+      sigla: sigla ?? "US$",
+      cambio: cambio ?? "5.1700",
       dataCambio: data ?? null,
       tarifaOrigem: tarifa ?? "0.00",
     });
     return {
       ...base,
-      cliente: { ...base.cliente, conversao: conversao(s.vlrTarifaTotal, s.dtCambio) },
-      fornecedor: { ...base.fornecedor, conversao: conversao(s.vlrTarifaTotalp, s.dtCambiop) },
+      cliente: {
+        ...base.cliente,
+        conversao: conversao(s.siglaMoedaTarifa, s.vlrCambio, s.vlrTarifaTotal, s.dtCambio),
+      },
+      fornecedor: {
+        ...base.fornecedor,
+        conversao: conversao(s.siglaMoedaTarifap, s.vlrCambiop, s.vlrTarifaTotalp, s.dtCambiop),
+      },
     };
   });
   const totais = {
@@ -804,7 +847,7 @@ export function vendaCheia(
           fecha: true,
         })),
       },
-      avisos: [{ codigo: "moeda_estrangeira", siglas: ["US$"] }],
+      avisos: [{ codigo: "moeda_estrangeira", siglas: ["US$", "EUR"] }],
       recebimentos,
       pagamentos,
       totalPagamentos,

@@ -24,19 +24,15 @@ export type Molde =
   | "codigos"
   | "incentivo";
 
-/** `valor`: o valor formatado pela regra do `GrupoDeCampos`, passado por `transformar`. */
+/** `valor`: o valor formatado pela regra do `GrupoDeCampos`, passado por `transformar`; `rotulo`: o texto do `dt`. */
 export type NaTela =
-  | { tipo: "rotulo" | "coluna"; texto: string }
+  | { tipo: "rotulo"; texto: string }
   | { tipo: "valor"; transformar?: (formatado: string) => string };
 
 export type CampoDoMolde = { caminho: string; naTela: NaTela };
 
 function valor(caminho: string, transformar?: (formatado: string) => string): CampoDoMolde {
   return { caminho, naTela: { tipo: "valor", transformar } };
-}
-
-function coluna(caminho: string, texto: string): CampoDoMolde {
-  return { caminho, naTela: { tipo: "coluna", texto } };
 }
 
 /** Os caminhos que mostram o valor como veio, na ordem dada. */
@@ -48,6 +44,9 @@ function valores(...caminhos: string[]): CampoDoMolde[] {
 const semAno = (formatado: string) => formatado.slice(0, 5);
 
 const reais = (formatado: string) => `R$ ${formatado}`;
+
+/** "20/11/2026 · 10h30" vira "20/11 · 10h30", como `dataSolta` mostra uma data do ano corrente. */
+const semAnoCorrente = (formatado: string) => formatado.replace(/^(\d{2}\/\d{2})\/\d{4}/, "$1");
 
 /** O que a venda de incentivo mostra no "Datas e nome no serviço", recolhido (tela 17). */
 export const DATAS_E_NOME_NO_SERVICO = [
@@ -109,12 +108,14 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
     valor("recebimentos[].valor", reais),
     valor("pagamentos[].descricaoForma", (f) => f.toLowerCase()),
     valor("pagamentos[].valor", reais),
-    coluna("recebimentos[].descricaoForma", "Forma"),
-    coluna("recebimentos[].dtVencto", "Vencimento"),
-    coluna("recebimentos[].valor", "Valor (R$)"),
-    coluna("pagamentos[].descricaoForma", "Forma"),
-    coluna("pagamentos[].dtVencto", "Vencimento"),
-    coluna("pagamentos[].valor", "Valor (R$)"),
+    ...valores(
+      "recebimentos[].descricaoForma",
+      "recebimentos[].dtVencto",
+      "recebimentos[].valor",
+      "pagamentos[].descricaoForma",
+      "pagamentos[].dtVencto",
+      "pagamentos[].valor",
+    ),
   ],
   // O itinerário: a frase mostra as cidades; a tabela, o resto. No rodoviário, a tabela não tem
   // voo, companhia, classe nem base tarifária, e esses campos vão para o grupo com o rótulo.
@@ -132,8 +133,9 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
       "trechos[].farebase",
       "trechos[].localizador",
     ),
-    coluna("trechos[].dtPartida", "Partida"),
-    coluna("trechos[].dtChegada", "Chegada"),
+    // Nas colunas Partida e Chegada, o dia sai sem o ano corrente (`dataSolta`).
+    valor("trechos[].dtPartida", semAnoCorrente),
+    valor("trechos[].dtChegada", semAnoCorrente),
   ],
   // O hotel, o período com as diárias e os pares do card; o resto do grupo vem pelo `GrupoDeCampos`.
   hospedagem: [
@@ -172,7 +174,7 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
       "detalheItem[].numerodeconfirmacao",
       "detalheItem[].observacao",
     ),
-    coluna("detalheItem[].qtde", "Qtde"),
+    valor("detalheItem[].qtde"),
   ],
   // A linha da pessoa; "Documentos e contato" e "Viagem corporativa" vêm pelo `GrupoDeCampos`.
   pessoa: valores(
