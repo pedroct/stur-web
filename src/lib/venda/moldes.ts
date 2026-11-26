@@ -256,7 +256,7 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
     valor("pagamentos[].dtVencto"),
     valor("detalheItem[].descricao"),
     valor("detalheItem[].observacao", (f) => `"${f}"`),
-    valor("detalheItem[].vlrTarifaTotalp"),
+    valor("detalheItem[].vlrDescontoAcordo"),
     valor("detalheItem[].numeroOS"),
     ...DATAS_E_NOME_NO_SERVICO.map(rotuloDoAnexo),
   ],

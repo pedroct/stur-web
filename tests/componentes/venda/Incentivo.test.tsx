@@ -36,7 +36,9 @@ function incentivo({ venda, calculos: c }: Campos = {}): VendaConsultada {
           descricao: "INCENTIVO EXEMPLO/25",
           observacao: "REF. AO INCENTIVO EXEMPLO, VALOR 3698,14",
           numeroOS: "OS90000001",
-          vlrTarifaTotalp: "3698.14",
+          // Como na AGI: o acordo vem em `vlrDescontoAcordo`, e a tarifa do fornecedor, zerada.
+          vlrDescontoAcordo: "3698.14",
+          vlrTarifaTotalp: "0.00",
           dtInicio: "2024-12-12 00:00:00",
           nomePax: "INCENTIVO EXEMPLO",
           nomePaxCompleto: "INCENTIVO",

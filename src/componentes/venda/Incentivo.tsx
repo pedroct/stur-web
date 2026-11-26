@@ -154,7 +154,7 @@ const PARES_DO_SERVICO: {
   },
   { caminho: "detalheItem[].observacao", rotulo: "Observação", formato: "texto", secao: 5 },
   {
-    caminho: "detalheItem[].vlrTarifaTotalp",
+    caminho: "detalheItem[].vlrDescontoAcordo",
     rotulo: "Acordo com o fornecedor",
     formato: "dinheiro",
     secao: 5,
