@@ -1,8 +1,9 @@
 import type { Page } from "@playwright/test";
-import { erroApi, linha, reserva, resultado, resumoVenda } from "../tests/fabrica";
+import { erroApi, linha, reserva, resultado, resumoVenda, vendaConsultada } from "../tests/fabrica";
 import { expect, test } from "./apoio";
 
 const VENDAS = "/api/v1/vendas";
+const VENDA_1001 = "/api/v1/reservas/90000001/vendas/1001";
 const LINK = "/consulta?data=emissao&de=2026-11-17&ate=2026-11-24";
 
 function vendas(
@@ -50,6 +51,7 @@ test("período longo recusado sem chamar a API (critério 12)", async ({ page, a
 
 test("abrir a venda, voltar e recarregar não consultam de novo (P2)", async ({ page, api }) => {
   api.responder(VENDAS, { corpo: resultado([linha()]) });
+  api.responder(VENDA_1001, { corpo: vendaConsultada() });
   await page.goto("/");
   await page.getByLabel("De", { exact: true }).fill("2026-11-17");
   await page.getByLabel("Até", { exact: true }).fill("2026-11-24");
@@ -60,6 +62,7 @@ test("abrir a venda, voltar e recarregar não consultam de novo (P2)", async ({ 
 
   await page.getByRole("row").nth(1).getByRole("cell").nth(2).click();
   await expect(page).toHaveURL("/reservas/90000001/vendas/1001");
+  await expect(page.getByRole("heading", { level: 1, name: "CLIENTE EXEMPLO LTDA" })).toBeVisible();
 
   await page.goBack();
   await expect(page.getByRole("table")).toBeVisible();
@@ -136,6 +139,7 @@ test("número sem vendas e número com uma venda (P7)", async ({ page, api }) =>
   api.responder("/api/v1/reservas/90000001", {
     corpo: reserva(90000001, [resumoVenda({ numero: 90000001, idreserva: 1001 })]),
   });
+  api.responder(VENDA_1001, { corpo: vendaConsultada() });
   // A busca do topo só aparece fora da tela inicial e do formulário: parte-se de um resultado.
   await consultarPeloLink(page);
   const busca = page.getByRole("search");
@@ -147,7 +151,9 @@ test("número sem vendas e número com uma venda (P7)", async ({ page, api }) =>
 
   await busca.getByLabel("Número da reserva").fill("90000001");
   await busca.getByRole("button", { name: "Buscar" }).click();
+  // A reserva de uma venda só é a venda: o `replace` abre a venda de verdade.
   await expect(page).toHaveURL("/reservas/90000001/vendas/1001");
+  await expect(page.getByRole("heading", { level: 1, name: "CLIENTE EXEMPLO LTDA" })).toBeVisible();
 });
 
 test("resultado guardado em formato inesperado: erro da aplicação uma vez; recarregar volta ao link", async ({
