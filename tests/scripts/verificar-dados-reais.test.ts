@@ -1,6 +1,7 @@
 // Porte, um a um, dos casos de consulta-reserva/stur-api/tests/test_verificar_dados_reais.py.
 // Os literais "reais" são montados por concatenação: o próprio gancho recusaria o número real
 // escrito inteiro (idem para o identificador da A3).
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -131,4 +132,19 @@ test("main sai com 1 quando há problema e 0 sem problema ou sem arquivos", () =
   expect(main([escrever("q.ts", "ok")])).toBe(0);
   expect(main([])).toBe(0);
   expect(main([path.join(diretorio, "nao_existe.ts")])).toBe(1);
+});
+
+test("executado direto por um caminho com symlink, sai com 1 quando há problema", () => {
+  const link = path.join(diretorio, "link-scripts");
+  fs.symlinkSync(path.resolve(import.meta.dirname, "../../scripts"), link);
+  const ruim = escrever("ruim.ts", N);
+  const bom = escrever("bom.ts", "ok");
+  const executar = (arquivo: string) =>
+    spawnSync(process.execPath, [path.join(link, "verificar-dados-reais.mjs"), arquivo], {
+      encoding: "utf8",
+    });
+  const falha = executar(ruim);
+  expect(falha.status).toBe(1);
+  expect(falha.stderr).toContain(`${ruim}:1: número de reserva real`);
+  expect(executar(bom).status).toBe(0);
 });
