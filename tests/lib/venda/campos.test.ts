@@ -205,6 +205,13 @@ test("mais detalhes: integração e datas", () => {
   expect(valorDe(GRUPOS_MAIS_DETALHES, integrada, "Integração")).toBe(
     "SISTEMA EXEMPLO, ID Venda: X-1",
   );
+  // O código da integração já pode vir com o rótulo na frente: ele entra uma vez só.
+  for (const idVenda of ["IDVenda: X-1", "idvenda:X-1", "  IDVENDA :  X-1"]) {
+    const comPrefixo = vendaAgi({ sistemaExterno: { sistema: "SISTEMA EXEMPLO", idVenda } });
+    expect(valorDe(GRUPOS_MAIS_DETALHES, comPrefixo, "Integração")).toBe(
+      "SISTEMA EXEMPLO, ID Venda: X-1",
+    );
+  }
   expect(
     pares(GRUPOS_MAIS_DETALHES, integrada).filter((p) => p.grupo === "Datas da venda"),
   ).toEqual([

@@ -115,9 +115,15 @@ function rotuloDoFornecedor(v: VendaAgi): string {
   return classificacao === "aereo" ? "Fornecedor e companhia" : rotulo2;
 }
 
+/** O código da venda no sistema externo, sem o "IDVenda:" que às vezes já vem na frente. */
+function idDaIntegracao(v: VendaAgi): string | null {
+  const id = texto(v.sistemaExterno?.idVenda);
+  return id === null ? null : texto(id.replace(/^\s*id\s*venda\s*:\s*/i, ""));
+}
+
 function integracao(v: VendaAgi): string {
   const sistema = texto(v.sistemaExterno?.sistema);
-  const id = texto(v.sistemaExterno?.idVenda);
+  const id = idDaIntegracao(v);
   if (sistema === null && id === null) return "nenhuma: lançada direto no Stur";
   if (id === null) return sistema ?? "";
   return sistema === null ? `ID Venda: ${id}` : `${sistema}, ID Venda: ${id}`;
