@@ -1,4 +1,5 @@
-import type { ReservaConsultada } from "@/contrato/tipos";
+import type { QueryVendas, ReservaConsultada, ResultadoConsulta } from "@/contrato/tipos";
+import type { Consulta } from "@/lib/consulta/consulta";
 import { TEXTOS_ERRO } from "./textos-erro";
 
 export type TipoErro =
@@ -128,4 +129,31 @@ export async function buscarJson<T>(caminho: string, opcoes: Opcoes = {}): Promi
 
 export function consultarReserva(numero: number, opcoes?: Opcoes): Promise<ReservaConsultada> {
   return buscarJson<ReservaConsultada>(`/api/v1/reservas/${numero}`, opcoes);
+}
+
+type OpcoesVendas = { atualizar?: boolean; sinal?: AbortSignal };
+
+export function consultarVendas(
+  c: Consulta,
+  { atualizar, sinal }: OpcoesVendas = {},
+): Promise<ResultadoConsulta> {
+  // Tipado pelo schema gerado: um parâmetro renomeado no backend quebra o typecheck.
+  const query: QueryVendas = {
+    reserva: c.reserva,
+    tipoData: c.tipoData,
+    de: c.de,
+    ate: c.ate,
+    situacao: c.situacao,
+    classificacao: c.classificacao,
+    fornecedor: c.fornecedor,
+    cliente: c.cliente,
+    emissor: c.emissor,
+    atualizar: atualizar ? true : undefined,
+  };
+  const params = new URLSearchParams();
+  for (const [nome, valor] of Object.entries(query)) {
+    if (valor === null || valor === undefined) continue;
+    for (const item of Array.isArray(valor) ? valor : [valor]) params.append(nome, String(item));
+  }
+  return buscarJson<ResultadoConsulta>(`/api/v1/vendas?${params}`, { sinal });
 }
