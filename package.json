@@ -1,0 +1,54 @@
+{
+  "name": "stur-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "preinstall": "npx -y only-allow pnpm",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/ && node .next/standalone/server.js",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "TZ=UTC vitest run",
+    "test:cobertura": "TZ=UTC vitest run --coverage",
+    "e2e": "playwright test",
+    "contrato": "node scripts/gerar-contrato.mjs",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,mjs,json,css,md}": "biome check --write --no-errors-on-unmatched",
+    "!(pnpm-lock.yaml)": "node scripts/verificar-dados-reais.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.16",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.13",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "5.2.0",
+    "@vitest/coverage-v8": "4.1.12",
+    "husky": "9.1.7",
+    "jsdom": "31.0.1",
+    "lint-staged": "16.4.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "^5",
+    "vitest": "4.1.12"
+  }
+}

@@ -1,0 +1,41 @@
+# Node / pnpm
+node_modules/
+/.pnp
+.pnp.*
+.pnpm-store/
+dist/
+.next/
+/out/
+/build
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Testes
+/test-results/
+/playwright-report/
+
+# Env / segredos
+.env
+.env.*
+!.env.example
+*.pem
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# macOS
+.DS_Store
+
+# SonarQube
+.sonar/
+.scannerwork/
+
+# Repositório público: nenhum dado real versionado
+dados_brutos/
+reservas_*.json
+PAGAR_*.json
+RECEBER_*.json
