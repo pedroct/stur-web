@@ -8,8 +8,10 @@ import { situacaoDe } from "@/lib/consulta/consulta";
 import { diaEmFortaleza, formatarHora } from "@/lib/tempo";
 import { apoioDoIncentivo, subtituloDaVenda, subtituloDoIncentivo } from "@/lib/venda/cabecalho";
 import { fraseDoEstado, textoDoEstado } from "@/lib/venda/estado";
+import { camposSemMolde } from "@/lib/venda/moldes";
 import { seloTextoDaSituacao } from "@/lib/venda/situacao";
 import { LinhaConsulta } from "./LinhaConsulta";
+import { RestoDoGrupo } from "./produto-comum";
 import type { ConsultaDaVenda } from "./Venda";
 
 const ICONE_DO_ESTADO: Record<EstadoServico["estado"], LucideIcon> = {
@@ -96,6 +98,18 @@ export function CabecalhoVenda({
             <p className="mt-1 text-[13px] leading-5 text-texto-auxiliar">
               {apoioDoIncentivo(venda)}
             </p>
+          )}
+          {incentivo && (
+            // O que o cabeçalho do incentivo não escreve do grupo (produto, classificação e
+            // categoria), como pares da seção 1 (RF-04).
+            <RestoDoGrupo
+              grupo="Identificação da venda"
+              campos={camposSemMolde("Identificação da venda", ["incentivo"])}
+              venda={venda}
+              calculos={calculos}
+              indices={[]}
+              nivel={3}
+            />
           )}
           {mostraEstado && (
             <p className="mt-1 text-[13px] leading-5 text-texto-auxiliar">

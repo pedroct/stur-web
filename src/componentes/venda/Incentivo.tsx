@@ -15,6 +15,7 @@ import {
   textoDosDocumentos,
 } from "@/lib/venda/lancamentos";
 import { camposSemMolde, DATAS_E_NOME_NO_SERVICO } from "@/lib/venda/moldes";
+import { VerificacaoDaConta } from "./Financeiro";
 import { formatarCampo, GrupoDeCampos, type NivelDeTitulo } from "./GrupoDeCampos";
 import { RestoDoGrupo } from "./produto-comum";
 
@@ -301,6 +302,7 @@ export function Incentivo({
         />
       </section>
       <ComoOSturRegistra dados={dados} />
+      {!dados.calculos.verificacao.fecha && <VerificacaoDaConta dados={dados} />}
       <ServicoLancado dados={dados} nivelBase={nivelBase} />
     </>
   );

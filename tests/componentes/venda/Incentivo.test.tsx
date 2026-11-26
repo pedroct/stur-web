@@ -120,6 +120,26 @@ describe("cabeçalho do incentivo", () => {
     ).toBeVisible();
   });
 
+  test("o produto, a classificação e a categoria ficam na seção 1, em pares", () => {
+    const { container } = render(<CabecalhoVenda dados={incentivo()} consulta={CONSULTA} />);
+    const secao = container.querySelector<HTMLElement>('[data-anexo-secao="1"]');
+    if (secao === null) throw new Error("sem seção 1");
+    for (const [rotulo, valor] of [
+      ["Produto", "INCENTIVO"],
+      ["Classificação", "Diversos"],
+      ["Categoria", "Nacional"],
+    ] as const) {
+      expect(
+        within(secao).getByText(rotulo, { selector: "dt" }).nextElementSibling,
+      ).toHaveTextContent(valor);
+    }
+    // O que o cabeçalho já escreve não se repete como par.
+    for (const rotulo of ["Reserva", "Situação", "Fornecedor", "Cliente", "Data de Emissão"]) {
+      expect(within(secao).queryByText(rotulo, { selector: "dt" })).toBeNull();
+    }
+    expect(within(secao).queryByText("API com dados até", { selector: "dt" })).toBeNull();
+  });
+
   test("mantém o foco do título e a marca da seção 1", () => {
     const { container } = render(<CabecalhoVenda dados={incentivo()} consulta={CONSULTA} />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveAttribute("data-titulo-venda");
@@ -293,7 +313,7 @@ describe("Como o Stur registra", () => {
     ).toBeVisible();
   });
 
-  test("com a verificação que não fecha, a frase some", () => {
+  test("com a verificação que não fecha, a frase some e o aviso traz os números", () => {
     render(
       <Incentivo
         dados={incentivo({
@@ -317,6 +337,18 @@ describe("Como o Stur registra", () => {
     );
     expect(screen.queryByText(/A conta fecha/)).toBeNull();
     expect(secaoDaConta()).toHaveTextContent("Total do fornecedor−3.698,14");
+    const alerta = screen.getByRole("alert");
+    expect(alerta).toHaveTextContent("A soma do serviço não fecha com os totais da API");
+    const itens = within(alerta).getAllByRole("listitem");
+    expect(itens).toHaveLength(1);
+    expect(itens[0]).toHaveTextContent(
+      "Margem: serviços R$ 3.000,00, API R$ 3.698,14, diferença R$ −698,14.",
+    );
+  });
+
+  test("com a conta fechando, não há aviso", () => {
+    render(<Incentivo dados={incentivo()} />);
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   test("com percentual de lucro, o par da margem o mostra", () => {

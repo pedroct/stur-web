@@ -209,6 +209,9 @@ export const MOLDES: Record<Molde, CampoDoMolde[]> = {
   // lançamento, os três cartões, a conta do Stur e o serviço lançado. O resto dos grupos aparece
   // pelo `GrupoDeCampos`.
   incentivo: [
+    valor("reserva", (f) => `Reserva ${f}`),
+    valor("status", (f) => `${maiuscula(f.trim().toLowerCase())} no Stur`),
+    valor("dtalteracaovinculado", (f) => `Dados do Stur até ${f.replace(/\/\d{4} · /, ", ")}`),
     valor("nomefornec"),
     valor("nomecliente"),
     valor("dtemissao", (f) => `lançado em ${f}`),

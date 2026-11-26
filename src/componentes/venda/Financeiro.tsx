@@ -51,7 +51,8 @@ function Saldos({ pares }: Readonly<{ pares: [string, string | null | undefined]
   );
 }
 
-function VerificacaoDaConta({ dados }: Readonly<{ dados: VendaConsultada }>) {
+/** A verificação da conta (RF-06): a frase quando fecha, o aviso com os números quando não. */
+export function VerificacaoDaConta({ dados }: Readonly<{ dados: VendaConsultada }>) {
   const { verificacao, servicos } = dados.calculos;
   if (verificacao.fecha) {
     return (
