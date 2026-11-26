@@ -180,6 +180,33 @@ describe("Itinerário", () => {
     expect(screen.queryByRole("table")).toBeNull();
   });
 
+  test("só datas: a chegada sem hora do Stur (00:00:00) sai só com a data", () => {
+    const trechos = [
+      trecho({
+        origem: FORTALEZA,
+        destino: ROMA,
+        dtPartida: "2026-11-14T00:00:00",
+        dtChegada: "2026-11-15T00:00:00",
+      }),
+    ];
+    montar(
+      dadosDe(
+        { ...AEREO, trechos },
+        {
+          itinerario: {
+            forma: "so_datas",
+            trajetos: [{ trechos: [0], esperas: [] }],
+            estadias: [],
+          },
+        },
+      ),
+    );
+    for (const d of document.querySelectorAll("details")) d.open = true;
+    const chegada = screen.getByText("Chegada", { selector: "dt" });
+    expect(chegada.nextElementSibling).toHaveTextContent(/^15\/11\/2026$/);
+    expect(document.body).not.toHaveTextContent("00h00");
+  });
+
   test("sem dados: uma linha", () => {
     const trechos = [trecho({ origem: FORTALEZA, destino: ROMA })];
     montar(

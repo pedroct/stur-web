@@ -41,7 +41,10 @@ export function formatarCampo(
     case "data":
       return formatarData(String(valor));
     case "dataHora":
-      return formatarDataHora(String(valor));
+      // No itinerário, a hora zero é o Stur sem hora (a forma "só as datas"): só a data.
+      return campo.caminho.startsWith("trechos[].") && /[T ]00:00(:00)?$/.test(String(valor))
+        ? formatarData(String(valor))
+        : formatarDataHora(String(valor));
     case "hora":
       return formatarHoraDoStur(String(valor));
     case "booleano":

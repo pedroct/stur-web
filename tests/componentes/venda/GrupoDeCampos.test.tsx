@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { GrupoDeCampos } from "@/componentes/venda/GrupoDeCampos";
+import { formatarCampo, GrupoDeCampos } from "@/componentes/venda/GrupoDeCampos";
 import { CAMPOS_ANEXO_B, type CampoAnexo } from "@/lib/venda/anexo-b";
 import { calculos, contaServico, recebimento, servicoAgi, vendaAgi } from "../../fabrica";
 
@@ -273,4 +273,14 @@ describe("moeda original", () => {
     );
     expect(container).toBeEmptyDOMElement();
   });
+});
+
+test("no itinerário, a data e hora com a hora zero do Stur sai só com a data", () => {
+  const chegada = { caminho: "trechos[].dtChegada", formato: "dataHora" } as const;
+  expect(formatarCampo(chegada, "2026-11-15T00:00:00")).toBe("15/11/2026");
+  expect(formatarCampo(chegada, "2026-11-15 10:05:00")).toBe("15/11/2026 · 10h05");
+  // Fora do itinerário a hora zero é uma hora como as outras.
+  expect(formatarCampo({ caminho: "dtcriacao", formato: "dataHora" }, "2026-11-15T00:00:00")).toBe(
+    "15/11/2026 · 00h00",
+  );
 });
