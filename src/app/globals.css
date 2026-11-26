@@ -101,11 +101,6 @@
   --color-ring: var(--foco);
   --color-destructive: var(--estado-erro);
   --color-destructive-foreground: var(--texto-sobre-acao);
-  --color-chart-1: var(--marca-laranja);
-  --color-chart-2: var(--marca-noite);
-  --color-chart-3: var(--estado-info);
-  --color-chart-4: var(--estado-sucesso);
-  --color-chart-5: var(--estado-atencao);
 }
 
 @layer base {

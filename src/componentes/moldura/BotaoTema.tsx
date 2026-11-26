@@ -3,7 +3,7 @@
 import { Menu } from "@base-ui/react/menu";
 import { Check, Monitor, Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { gravarTema, lerTema, type Tema } from "@/lib/tema";
+import { ehTema, gravarTema, lerTema, type Tema } from "@/lib/tema";
 
 const NOMES: Record<Tema, string> = {
   claro: "claro",
@@ -43,7 +43,7 @@ export function BotaoTema() {
       <Menu.Trigger
         aria-label={`Tema ${NOMES[tema]}. Trocar o tema`}
         title="Trocar o tema"
-        className="inline-flex size-alvo items-center justify-center rounded-pilula border border-borda-controle bg-superficie text-texto-principal outline-none transition-colors duration-150 hover:bg-superficie-sutil focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco"
+        className="inline-flex size-alvo items-center justify-center rounded-pilula border border-borda-controle bg-superficie text-texto-principal outline-0 transition-colors duration-150 hover:bg-superficie-sutil focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco"
       >
         <Icone className="size-5" aria-hidden="true" />
       </Menu.Trigger>
@@ -56,9 +56,9 @@ export function BotaoTema() {
             <Menu.RadioGroup
               value={tema}
               onValueChange={(valor) => {
-                const escolhido = valor as Tema;
-                gravarTema(escolhido);
-                setTema(escolhido);
+                if (!ehTema(valor)) return;
+                gravarTema(valor);
+                setTema(valor);
               }}
             >
               {OPCOES.map(({ valor, rotulo }) => {

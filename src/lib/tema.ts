@@ -8,7 +8,7 @@ const ATRIBUTO: Record<Tema, "light" | "dark" | null> = {
   sistema: null,
 };
 
-function ehTema(valor: string | null): valor is Tema {
+export function ehTema(valor: unknown): valor is Tema {
   return valor === "claro" || valor === "escuro" || valor === "sistema";
 }
 
