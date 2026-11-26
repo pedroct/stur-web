@@ -68,9 +68,18 @@ function ApoioDoIncentivo({ dados }: Readonly<{ dados: VendaConsultada }>) {
  * A venda aberta dentro da reserva (IA 6.10; telas 4, 6 e 7): os selos da situação e da origem, o
  * h2 "Venda {k} · {produto}" e o subtítulo. O cliente e a reserva já estão no h1 da página; aqui
  * ficam numa linha à direita, com "Dados do Stur até …" da venda, para a seção 1 inteira estar no
- * cabeçalho da venda (critério 8). O Atualizar e a falha ficam na reserva.
+ * cabeçalho da venda (critério 8). O Atualizar e a falha ficam na reserva; as ações vão embaixo
+ * dessa linha.
  */
-function CabecalhoNaReserva({ dados }: Readonly<{ dados: VendaConsultada }>) {
+function CabecalhoNaReserva({
+  dados,
+  acaoPrincipal,
+  acaoSecundaria,
+}: Readonly<{
+  dados: VendaConsultada;
+  acaoPrincipal?: ReactNode;
+  acaoSecundaria?: ReactNode;
+}>) {
   const { venda, calculos } = dados;
   const situacao = seloTextoDaSituacao(venda.status ?? null);
   const dadosDaSituacao = situacao === null ? null : dadosDoSeloTexto(situacao);
@@ -118,6 +127,8 @@ function CabecalhoNaReserva({ dados }: Readonly<{ dados: VendaConsultada }>) {
         {dados.dadosDoSturAte !== null && (
           <p>Dados do Stur até {formatarDadosAte(dados.dadosDoSturAte)}</p>
         )}
+        {acaoPrincipal}
+        {acaoSecundaria}
       </div>
     </section>
   );
@@ -141,7 +152,15 @@ export function CabecalhoVenda({
   acaoSecundaria?: ReactNode;
   naReserva?: boolean;
 }>) {
-  if (naReserva) return <CabecalhoNaReserva dados={dados} />;
+  if (naReserva) {
+    return (
+      <CabecalhoNaReserva
+        dados={dados}
+        acaoPrincipal={acaoPrincipal}
+        acaoSecundaria={acaoSecundaria}
+      />
+    );
+  }
   const { venda, calculos } = dados;
   const situacao = seloTextoDaSituacao(venda.status ?? null);
   const dadosDaSituacao = situacao === null ? null : dadosDoSeloTexto(situacao);

@@ -16,9 +16,11 @@ import { caminhosDaConta } from "@/lib/venda/conta";
 import { periodoCurto } from "@/lib/venda/datas";
 import { primeiroLocalizador } from "@/lib/venda/itinerario";
 import { BlocoConta, GruposDoServico } from "./BlocoConta";
+import { CopiarDaVenda } from "./CopiarParaEnviar";
 import { GrupoDeCampos } from "./GrupoDeCampos";
+import { VerDadoCru } from "./PainelDadoCru";
 import { Pessoa } from "./Pessoa";
-import { usePainel } from "./painel-contexto";
+import { tituloDaVenda, usePainel } from "./painel-contexto";
 import { GRUPOS_DO_SERVICO_DA_SECAO_3, nomeDoGrupo, texto } from "./produto-comum";
 
 const SETA = cn(
@@ -52,14 +54,11 @@ function periodoDoServico(s: ServicoAgi, classificacao: string | null): string |
   return periodoCurto(de ?? null, ate ?? null);
 }
 
-function tituloDaVenda(): HTMLElement | null {
-  return document.querySelector<HTMLElement>("[data-titulo-venda]");
-}
-
 /**
  * O painel do serviço `k` (IA 6.6; tela 5; decisão 22): a posição com as setas, a descrição em h2
  * com o subtítulo, a pessoa (seção 4), a conta e os grupos da seção 5, o resultado e os campos da
- * seção 3 do serviço. As setas e ← → trocam de serviço por `replace` (decisão 20).
+ * seção 3 do serviço. As setas e ← → trocam de serviço por `replace` (decisão 20), e Ver dado cru
+ * também.
  */
 export function PainelServico({ dados, k }: Readonly<{ dados: VendaConsultada; k: number }>) {
   const painel = usePainel();
@@ -139,6 +138,11 @@ export function PainelServico({ dados, k }: Readonly<{ dados: VendaConsultada; k
       aoTeclar={aoTeclar}
       focoSemAbridor={tituloDaVenda}
     >
+      {/* O copiar leva a linha e o link do serviço aberto (decisão 18); o dado cru troca por replace. */}
+      <div className="mt-5 flex flex-wrap items-start justify-between gap-3">
+        <VerDadoCru aoClicar={painel.trocarParaDadoCru} />
+        <CopiarDaVenda dados={dados} />
+      </div>
       <Pessoa
         venda={venda}
         indice={indice}

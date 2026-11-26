@@ -19,6 +19,7 @@ import {
 import { formatarHora } from "@/lib/tempo";
 import { enderecoDaReserva, enderecoDaVenda, lerResto } from "@/lib/venda/rota";
 import { EsqueletoVenda } from "./EsqueletoVenda";
+import { PainelDadoCru } from "./PainelDadoCru";
 import { PainelServico } from "./PainelServico";
 import { PainelContexto, useValorDoPainel } from "./painel-contexto";
 import { SetasDoResultado, useOrigemDaVenda } from "./SetasDoResultado";
@@ -84,6 +85,16 @@ export function PaginaReservaVenda({
     corrigido.current = `${destino}/${k}`;
     roteador.replace(destino, { scroll: false });
   }, [numero, id, k, daVenda, servicoNaFaixa, roteador]);
+
+  // O dado cru (tela 3b): pedido quando o painel abre, uma vez por venda; a venda atualizada o perde
+  // e o pede de novo. Com erro, só o "Tentar de novo" pede outra vez.
+  const dadoCruAberto = rota?.tipo === "venda" && rota.painel?.tipo === "dado-cru";
+  const guardada = id === null ? undefined : pagina.vendas.get(id);
+  const { carregarDadoCru } = pagina;
+  const pedirDadoCru = guardada?.estado === "pronta" && guardada.dadoCru === undefined;
+  useEffect(() => {
+    if (dadoCruAberto && id !== null && pedirDadoCru) carregarDadoCru(id);
+  }, [dadoCruAberto, id, pedirDadoCru, carregarDadoCru]);
 
   // A venda vinda do resultado (decisão 17): o caminho passa pelo resultado, com as setas dele.
   const origem = useOrigemDaVenda(id);
@@ -210,6 +221,19 @@ export function PaginaReservaVenda({
       {pagina.fase === "pronta" && vendaDaReserva && daVenda && k !== null && servicoNaFaixa && (
         <PainelServico dados={daVenda} k={k} />
       )}
+      {pagina.fase === "pronta" &&
+        vendaDaReserva &&
+        daVenda &&
+        dadoCruAberto &&
+        numero !== null &&
+        id !== null && (
+          <PainelDadoCru
+            numero={numero}
+            idreserva={id}
+            dadoCru={guardada?.dadoCru}
+            aoTentar={() => pagina.carregarDadoCru(id)}
+          />
+        )}
     </PainelContexto>
   );
 }

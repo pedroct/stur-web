@@ -84,3 +84,8 @@ export function useValorDoPainel(numero: number | null, rota: Rota | null): Pain
     };
   }, [numero, venda, painelAberto, roteador]);
 }
+
+/** Para onde o foco volta ao fechar um painel que veio por link direto (decisão 20). */
+export function tituloDaVenda(): HTMLElement | null {
+  return document.querySelector<HTMLElement>("[data-titulo-venda]");
+}

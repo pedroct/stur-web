@@ -5,6 +5,7 @@ import type { ErroDaConsulta } from "@/lib/api/cliente";
 import { classificacaoDe } from "@/lib/consulta/consulta";
 import { avisosDaVenda } from "@/lib/venda/cabecalho";
 import { caminhosDaConta } from "@/lib/venda/conta";
+import { idDaVenda } from "@/lib/venda/copia";
 import { primeiroLocalizador } from "@/lib/venda/itinerario";
 import { comTabelaDeLancamentos } from "@/lib/venda/lancamentos";
 import { Avisos } from "./Avisos";
@@ -18,7 +19,9 @@ import type { NivelDeTitulo } from "./GrupoDeCampos";
 import { Incentivo } from "./Incentivo";
 import { Lancamentos } from "./Lancamentos";
 import { MaisDetalhes } from "./MaisDetalhes";
+import { VerDadoCru } from "./PainelDadoCru";
 import { Pessoa } from "./Pessoa";
+import { usePainel } from "./painel-contexto";
 import { SecaoVinculos } from "./SecaoVinculos";
 
 export type ConsultaDaVenda = {
@@ -46,6 +49,7 @@ export function Venda({
   consulta: ConsultaDaVenda;
 }>) {
   const { venda, calculos } = dados;
+  const painel = usePainel();
   // A venda de incentivo tem o `Incentivo` no lugar do Financeiro, do conteúdo do produto, da
   // pessoa e da conta (tela 17).
   const comFinanceiro = calculos.tipo !== "incentivo";
@@ -75,6 +79,7 @@ export function Venda({
         consulta={consulta}
         naReserva={naReserva}
         acaoPrincipal={naReserva ? undefined : <CopiarDaVenda dados={dados} />}
+        acaoSecundaria={<VerDadoCru aoClicar={() => painel.abrirDadoCru(idDaVenda(dados))} />}
       />
       <Avisos lista={avisosDaVenda(venda, calculos, dados.vinculos)} />
       {!comFinanceiro && <Incentivo dados={dados} nivelBase={nivelBase} />}

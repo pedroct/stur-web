@@ -4,7 +4,12 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef } from "react";
 import { useConsultando } from "@/componentes/moldura/consultando";
 import type { ReservaConsultada, VendaConsultada, VendaDaReserva } from "@/contrato/tipos";
-import { consultarReserva, consultarVenda, ErroDaConsulta } from "@/lib/api/cliente";
+import {
+  consultarDadoCru,
+  consultarReserva,
+  consultarVenda,
+  ErroDaConsulta,
+} from "@/lib/api/cliente";
 import {
   assinarPendentes,
   cancelarEmAndamento,
@@ -14,17 +19,19 @@ import { detalheRecenteDaReserva, registrarRecente } from "@/lib/armazenamento/r
 import { numeroDaReserva } from "@/lib/consulta/consulta";
 import { enderecoDaReserva, enderecoDaVenda, type Rota } from "@/lib/venda/rota";
 
+/** `chegouEm`: o instante, pelo relógio do navegador, em que o JSON chegou. */
+export type DadoCru = {
+  estado: "carregando" | "pronto" | "erro";
+  texto?: string;
+  chegouEm?: string;
+  erro?: ErroDaConsulta;
+};
+
 export type EstadoVenda = {
   estado: "carregando" | "pronta" | "erro";
   dados?: VendaConsultada;
   erro?: ErroDaConsulta;
-  /** `chegouEm`: o instante, pelo relógio do navegador, em que o JSON chegou. */
-  dadoCru?: {
-    estado: "carregando" | "pronto" | "erro";
-    texto?: string;
-    chegouEm?: string;
-    erro?: ErroDaConsulta;
-  };
+  dadoCru?: DadoCru;
 };
 
 export type FaseReservaVenda = "invalido" | "carregando" | "erro" | "sem-vendas" | "pronta";
@@ -41,6 +48,8 @@ export interface ReservaVenda {
   atualizar(): void;
   tentarDeNovo(): void;
   cancelar(): void;
+  /** O JSON da venda, uma vez só: já pedido ou em andamento, não pede de novo; com erro, pede. */
+  carregarDadoCru(id: number): void;
 }
 
 /** A primeira carga da página, pela reserva ou pela venda; com a reserva na memória, `ociosa`. */
@@ -68,7 +77,8 @@ type Acao =
   | { tipo: "atualizando"; geracao: number }
   | { tipo: "reserva-chegou"; geracao: number; resposta: ReservaConsultada }
   | { tipo: "venda-chegou"; geracao: number; id: number; dados: VendaConsultada; modo: Modo }
-  | { tipo: "falhou"; geracao: number; id: number | null; erro: ErroDaConsulta; modo: Modo };
+  | { tipo: "falhou"; geracao: number; id: number | null; erro: ErroDaConsulta; modo: Modo }
+  | { tipo: "dado-cru"; geracao: number; id: number; dadoCru: DadoCru };
 
 function inicial(geracao: number): Estado {
   return {
@@ -148,6 +158,12 @@ function reduzir(e: Estado, acao: Acao): Estado {
     }
     case "falhou":
       return falhou(e, acao);
+    case "dado-cru": {
+      // Só a venda pronta guarda o dado cru; a atualizada o perde e o pede de novo.
+      const venda = e.vendas.get(acao.id);
+      if (venda?.estado !== "pronta") return e;
+      return { ...e, vendas: comVenda(e.vendas, acao.id, { ...venda, dadoCru: acao.dadoCru }) };
+    }
   }
 }
 
@@ -340,6 +356,34 @@ export function useReservaVenda(numeroTexto: string, rota: Rota | null): Reserva
     });
   }, [numero, carregarReserva]);
 
+  // O que está sendo pedido agora (geração e venda), para o modo estrito não pedir duas vezes.
+  const dadoCruEmVoo = useRef(new Set<string>());
+  const carregarDadoCru = useCallback(
+    (id: number) => {
+      if (numero === null) return;
+      const guardado = atual.current.vendas.get(id);
+      const situacao = guardado?.dadoCru?.estado;
+      const g = geracao.current;
+      const chave = `${g}:${id}`;
+      if (guardado?.estado !== "pronta" || situacao === "carregando" || situacao === "pronto") {
+        return;
+      }
+      if (dadoCruEmVoo.current.has(chave)) return;
+      dadoCruEmVoo.current.add(chave);
+      despachar({ tipo: "dado-cru", geracao: g, id, dadoCru: { estado: "carregando" } });
+      consultarDadoCru(numero, id)
+        .then(
+          (texto): DadoCru => ({ estado: "pronto", texto, chegouEm: new Date().toISOString() }),
+          (motivo: unknown): DadoCru => ({ estado: "erro", erro: comoErro(motivo) }),
+        )
+        .then((dadoCru) => {
+          dadoCruEmVoo.current.delete(chave);
+          despachar({ tipo: "dado-cru", geracao: g, id, dadoCru });
+        });
+    },
+    [numero],
+  );
+
   const { fase, erro } = situar(numero, rota, estado);
   const idAberta = rota?.tipo === "venda" ? rota.idreserva : null;
   const falhaAtualizar = estado.falha?.alvo === idAberta ? estado.falha.erro : null;
@@ -393,5 +437,6 @@ export function useReservaVenda(numeroTexto: string, rota: Rota | null): Reserva
     atualizar,
     tentarDeNovo,
     cancelar,
+    carregarDadoCru,
   };
 }
