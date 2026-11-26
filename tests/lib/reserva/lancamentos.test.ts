@@ -1,9 +1,12 @@
 import type { LancamentoCalculado, ReservaConsultada, ResumoVenda } from "@/contrato/tipos";
 import {
+  fraseDaReceita,
   fraseDaSituacao,
   fraseDoCliente,
   fraseDoFornecedor,
+  fraseSemLancamentosDaReserva,
   linhasDaReserva,
+  rotuloDoCliente,
   tituloDoFinanceiro,
 } from "@/lib/reserva/lancamentos";
 import { lancamento, reserva, resumoVenda } from "../../fabrica";
@@ -202,5 +205,49 @@ describe("frases do Financeiro", () => {
     );
     expect(tituloDoFinanceiro(montar(resumos, []))).toBe("Financeiro das 9 vendas ativas");
     expect(tituloDoFinanceiro(montar(resumos.slice(2), []))).toBe("Financeiro da reserva");
+  });
+});
+
+describe("com nenhuma ou uma venda ativa", () => {
+  const cancelada = (idreserva: number) => resumoVenda({ idreserva, situacao: "cancelada" });
+  const ativa = (idreserva: number) => resumoVenda({ idreserva });
+  const soCanceladas = montar(
+    [cancelada(1001), cancelada(1002)],
+    [{ recebimentos: ordens(1, { descricaoForma: "Faturado" }), pagamentos: ordens(1) }],
+  );
+  const umaAtiva = montar([ativa(1001), cancelada(1002)], []);
+  const duasAtivas = montar([ativa(1001), ativa(1002), cancelada(1003)], []);
+
+  test("só canceladas: os lançamentos delas não entram, e os cartões dizem que não há venda ativa", () => {
+    expect(linhasDaReserva(soCanceladas, HOJE)).toEqual([]);
+    expect(rotuloDoCliente(soCanceladas)).toBe("Cliente · nenhuma venda ativa");
+    expect(fraseDaReceita(soCanceladas)).toBe("sem vendas ativas");
+    expect(tituloDoFinanceiro(soCanceladas)).toBe("Financeiro da reserva");
+    expect(fraseDoCliente(soCanceladas)).toBe("nada a receber");
+  });
+
+  test("uma ativa: singular, com e sem canceladas", () => {
+    expect(rotuloDoCliente(umaAtiva)).toBe("Cliente · 1 venda ativa");
+    expect(fraseDaReceita(umaAtiva)).toBe("somada da venda ativa");
+    expect(tituloDoFinanceiro(umaAtiva)).toBe("Financeiro da venda ativa");
+    expect(tituloDoFinanceiro(montar([ativa(1001)], []))).toBe("Financeiro da reserva");
+  });
+
+  test("duas ou mais ativas: os textos da decisão 15", () => {
+    expect(rotuloDoCliente(duasAtivas)).toBe("Cliente · 2 vendas ativas");
+    expect(fraseDaReceita(duasAtivas)).toBe("somada das 2 vendas ativas");
+    expect(tituloDoFinanceiro(duasAtivas)).toBe("Financeiro das 2 vendas ativas");
+  });
+
+  test("a frase da tabela vazia fala das ativas, nunca de a API não ter trazido nada", () => {
+    expect(fraseSemLancamentosDaReserva(soCanceladas)).toBe(
+      "Sem vendas ativas, não há recebimentos nem pagamentos a mostrar.",
+    );
+    expect(fraseSemLancamentosDaReserva(umaAtiva)).toBe(
+      "A venda ativa não tem forma de recebimento nem de pagamento.",
+    );
+    expect(fraseSemLancamentosDaReserva(duasAtivas)).toBe(
+      "Nenhuma das vendas ativas tem forma de recebimento ou de pagamento.",
+    );
   });
 });

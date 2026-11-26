@@ -116,9 +116,13 @@ export function linhasDaReserva(r: Reserva, hoje: string): LinhaLancamentoReserv
   });
 }
 
-/** O vazio da tabela (IA 9.3). */
-export const FRASE_SEM_LANCAMENTOS_DA_RESERVA =
-  "A API não trouxe nenhuma forma de recebimento nem de pagamento nesta reserva.";
+/** O vazio da tabela (IA 9.3): as canceladas ficam fora dela, então o texto fala das ativas. */
+export function fraseSemLancamentosDaReserva(r: Reserva): string {
+  const ativas = ativasDaReserva(r).length;
+  if (ativas === 0) return "Sem vendas ativas, não há recebimentos nem pagamentos a mostrar.";
+  if (ativas === 1) return "A venda ativa não tem forma de recebimento nem de pagamento.";
+  return "Nenhuma das vendas ativas tem forma de recebimento ou de pagamento.";
+}
 
 function vendasAtivas(k: number): string {
   if (k === 0) return "nenhuma venda ativa";
@@ -140,7 +144,8 @@ export function rotuloDoCliente(r: Reserva): string {
 /** O texto do cartão Receita. */
 export function fraseDaReceita(r: Reserva): string {
   const k = ativasDaReserva(r).length;
-  return k > 1 ? `somada das ${k} vendas ativas` : `da ${vendasAtivas(k)}`;
+  if (k === 0) return "sem vendas ativas";
+  return k === 1 ? "somada da venda ativa" : `somada das ${k} vendas ativas`;
 }
 
 function maiorQueZero(valor: string): boolean {

@@ -12,8 +12,8 @@ import {
 import type { Reserva } from "@/contrato/tipos";
 import { formatarData, formatarValor } from "@/lib/formatacao";
 import {
-  FRASE_SEM_LANCAMENTOS_DA_RESERVA,
   fraseDaSituacao,
+  fraseSemLancamentosDaReserva,
   linhasDaReserva,
 } from "@/lib/reserva/lancamentos";
 import { cn } from "@/lib/utils";
@@ -43,7 +43,7 @@ export function LancamentosReserva({
       </summary>
       {linhas.length === 0 ? (
         <p className="mt-2 text-sm leading-5 text-texto-auxiliar">
-          {FRASE_SEM_LANCAMENTOS_DA_RESERVA}
+          {fraseSemLancamentosDaReserva(reserva)}
         </p>
       ) : (
         <div className="mt-3 rounded-grande border border-borda bg-fundo">

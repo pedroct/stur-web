@@ -209,10 +209,30 @@ describe("LancamentosReserva", () => {
     render(<LancamentosReserva reserva={vazia.reserva} hoje={HOJE} vendaAberta={false} />);
     expect(screen.queryByRole("table")).toBeNull();
     expect(
-      screen.getByText(
-        "A API não trouxe nenhuma forma de recebimento nem de pagamento nesta reserva.",
-      ),
+      screen.getByText("Nenhuma das vendas ativas tem forma de recebimento ou de pagamento."),
     ).toBeVisible();
+  });
+});
+
+describe("reserva só com vendas canceladas", () => {
+  const canceladas = consultada(
+    [
+      resumoVenda({ idreserva: 1001, situacao: "cancelada" }),
+      resumoVenda({ idreserva: 1002, situacao: "cancelada" }),
+    ],
+    [{ recebimentos: pagamentosCash(1), pagamentos: pagamentosCash(2) }],
+  );
+
+  test("os cartões dizem que não há venda ativa, e a tabela não mostra os lançamentos delas", () => {
+    render(<FinanceiroReserva reserva={canceladas.reserva} hoje={HOJE} vendaAberta={false} />);
+    expect(screen.getByRole("heading", { level: 2, name: "Financeiro da reserva" })).toBeVisible();
+    expect(screen.getByText("Cliente · nenhuma venda ativa")).toBeVisible();
+    expect(screen.getByText("sem vendas ativas")).toBeVisible();
+    expect(screen.queryByRole("table")).toBeNull();
+    expect(
+      screen.getByText("Sem vendas ativas, não há recebimentos nem pagamentos a mostrar."),
+    ).toBeVisible();
+    expect(screen.queryByText(/A API não trouxe/)).toBeNull();
   });
 });
 
