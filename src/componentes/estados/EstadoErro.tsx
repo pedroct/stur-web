@@ -4,18 +4,11 @@ import { Copy, RotateCw, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Button, buttonVariants } from "@/componentes/ui/button";
-import type { ErroDaConsulta, TipoErro } from "@/lib/api/cliente";
+import type { ErroDaConsulta } from "@/lib/api/cliente";
 import { useParametros } from "@/lib/api/parametros";
-import { TEXTOS_ERRO } from "@/lib/api/textos-erro";
+import { TEXTOS_ERRO, tipoComTexto } from "@/lib/api/textos-erro";
 
 const COPIADO_POR_MS = 2000;
-
-type TipoDaTela = keyof typeof TEXTOS_ERRO;
-
-/** Só os quatro tipos com texto próprio chegam aqui; outro qualquer vale como erro da aplicação. */
-function tipoDaTela(tipo: TipoErro): TipoDaTela {
-  return tipo in TEXTOS_ERRO ? (tipo as TipoDaTela) : "aplicacao";
-}
 
 /** O idreserva nunca aparece na tela (PRD 9.4); a cópia leva o detalhe inteiro, para o diagnóstico. */
 function semIdreserva(texto: string): string {
@@ -38,7 +31,7 @@ export function EstadoErro({
   alterarHref: string;
 }) {
   const { tempoLimiteSegundos } = useParametros();
-  const tipo = tipoDaTela(erro.tipo);
+  const tipo = tipoComTexto(erro.tipo);
   const textos = TEXTOS_ERRO[tipo];
   const podeTentar = aoTentar !== undefined && (tipo === "sem_resposta" || tipo === "aplicacao");
   const detalhe = JSON.stringify({ codigo: erro.codigo, detalhe: erro.detalhe }, null, 2);

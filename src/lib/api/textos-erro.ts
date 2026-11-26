@@ -1,6 +1,6 @@
 import type { TipoErro } from "./cliente";
 
-type TipoComTexto = Exclude<TipoErro, "cancelada" | "invalida" | "nao_encontrada">;
+export type TipoComTexto = Exclude<TipoErro, "cancelada" | "invalida" | "nao_encontrada">;
 
 export const TEXTOS_ERRO: Record<
   TipoComTexto,
@@ -30,7 +30,12 @@ export const TEXTOS_ERRO: Record<
   },
 };
 
-/** Os textos do erro; os tipos sem texto próprio (cancelada, inválida, não encontrada) valem como erro da aplicação. */
+/** O tipo que tem texto; os sem texto próprio (cancelada, inválida, não encontrada) valem como erro da aplicação. */
+export function tipoComTexto(tipo: TipoErro): TipoComTexto {
+  return tipo in TEXTOS_ERRO ? (tipo as TipoComTexto) : "aplicacao";
+}
+
+/** Os textos do erro, pelo `tipoComTexto`. */
 export function textosDoErro(tipo: TipoErro): (typeof TEXTOS_ERRO)[TipoComTexto] {
-  return tipo in TEXTOS_ERRO ? TEXTOS_ERRO[tipo as TipoComTexto] : TEXTOS_ERRO.aplicacao;
+  return TEXTOS_ERRO[tipoComTexto(tipo)];
 }
