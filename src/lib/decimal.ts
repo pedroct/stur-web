@@ -2,6 +2,11 @@
 
 const DECIMAL = /^(-?)(\d+)(?:\.(\d+))?$/;
 
+/** Texto decimal simples: `-?\d+(\.\d+)?` (sem expoente, sem "+" e sem vírgula). */
+export function ehDecimal(texto: string): boolean {
+  return DECIMAL.test(texto);
+}
+
 function casas(texto: string): number {
   return (DECIMAL.exec(texto)?.[3] ?? "").length;
 }

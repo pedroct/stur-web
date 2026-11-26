@@ -16,7 +16,12 @@ test.each([
   ["1560.77", "1.560,77"],
   ["0.005", "0,01"],
   ["99999999999.99", "99.999.999.999,99"],
+  ["1.005", "1,01"], // um float daria 1,00
+  ["9007199254740993.45", "9.007.199.254.740.993,45"], // acima de 2^53, sem perder o último algarismo
 ])("formatarValor(%s) = %s", (entrada, saida) => expect(formatarValor(entrada)).toBe(saida));
+
+test.each(["", "abc", "1,5", "1e3", " 1.5", "+1.5"])("formatarValor(%j) lança erro", (entrada) =>
+  expect(() => formatarValor(entrada)).toThrow("Decimal inválido"));
 
 test("moeda leva R$ e espaço comum", () =>
   expect(formatarMoeda("195108.01")).toBe("R$ 195.108,01"));
@@ -41,4 +46,5 @@ test("datas como vieram, com T ou espaço, e a data vazia do Stur", () => {
   expect(formatarDiaMes("1899-12-30T00:00:00")).toBe("—");
   expect(formatarDiaMes(null)).toBe("—");
   expect(formatarDadosAte("2026-11-18T09:30:00")).toBe("18/11, 09h30");
+  expect(formatarDadosAte("1899-12-30T00:00:00")).toBe("—");
 });

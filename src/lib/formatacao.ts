@@ -3,6 +3,8 @@
  * decimal e seguem como texto até o `Intl.NumberFormat` (nada passa por `Number`).
  */
 
+import { ehDecimal } from "@/lib/decimal";
+
 const NUMERO = new Intl.NumberFormat("pt-BR", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
@@ -14,8 +16,9 @@ const DATA_VAZIA_DO_STUR = "1899-12-30";
 const DATA = /^(\d{4})-(\d{2})-(\d{2})/;
 const DATA_HORA = /^\d{4}-\d{2}-\d{2}[T ](\d{2}):(\d{2})/;
 
-/** `"-13620.74"` vira `"−13.620,74"` (menos U+2212). */
+/** `"-13620.74"` vira `"−13.620,74"` (menos U+2212). Texto que não é decimal lança `Error`. */
 export function formatarValor(texto: string): string {
+  if (!ehDecimal(texto)) throw new Error(`Decimal inválido: ${texto}`);
   return NUMERO.format(texto as Intl.StringNumericLiteral).replace("-", "−");
 }
 
@@ -48,6 +51,7 @@ export function formatarDiaMes(texto: string | null): string {
 
 /** `"2026-11-18T09:30:00"` vira `"18/11, 09h30"`: texto local da API, sem conversão de fuso. */
 export function formatarDadosAte(texto: string): string {
+  if (dataDoTexto(texto) === null) return SEM_DATA;
   const hora = DATA_HORA.exec(texto);
   return hora ? `${formatarDiaMes(texto)}, ${hora[1]}h${hora[2]}` : formatarDiaMes(texto);
 }
