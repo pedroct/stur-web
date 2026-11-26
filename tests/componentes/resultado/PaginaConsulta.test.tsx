@@ -159,6 +159,30 @@ test("na moldura, o carregando marca o main como ocupado e mostra a faixa; o res
   expect(container.querySelector("[data-faixa]")).toBeNull();
 });
 
+test("na moldura, o Atualizar liga a faixa mas não marca o main como ocupado: a linha de status é ouvida", async () => {
+  const resposta = segurarResposta();
+  guardarResultado(chave, resultado([linha()]));
+  servidor.use(
+    http.get("*/api/v1/vendas", async () => {
+      await resposta.solta;
+      return HttpResponse.json(resultado([linha()], { consultadoEm: "2026-11-25T02:10:00+00:00" }));
+    }),
+  );
+  definirEndereco(endereco);
+  const { container } = render(
+    <Moldura parametrosIniciais={{}}>
+      <PaginaConsulta />
+    </Moldura>,
+  );
+  await userEvent.click(await screen.findByRole("button", { name: "Atualizar" }));
+  expect(screen.getByText(CARREGANDO)).toBeVisible();
+  expect(container.querySelector("[data-faixa]")).not.toBeNull();
+  expect(screen.getByRole("main")).not.toHaveAttribute("aria-busy");
+  resposta.soltar();
+  expect(await screen.findByText(/Consultado às 23h10/)).toBeVisible();
+  await waitFor(() => expect(container.querySelector("[data-faixa]")).toBeNull());
+});
+
 test("recarregar uma 13b mostra o 1c (resultado vazio não é guardado)", async () => {
   marcarPendente(chave);
   servidor.use(http.get("*/api/v1/vendas", () => HttpResponse.json(resultado([]))));

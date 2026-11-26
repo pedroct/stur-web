@@ -164,12 +164,14 @@ export function useConsultaVendas(c: Consulta): ConsultaVendas {
     };
   }, [chave, roteador, acompanhar]);
 
-  const ocupado = situacao.estado === "carregando" || situacao.atualizando;
+  // A faixa vale para os dois; o aria-busy do <main>, só para o carregando inicial (B5).
+  const carregando = situacao.estado === "carregando";
+  const ativo = carregando || situacao.atualizando;
   useEffect(() => {
-    if (!ocupado) return;
-    definir(true);
+    if (!ativo) return;
+    definir(true, { ocupado: carregando });
     return () => definir(false);
-  }, [ocupado, definir]);
+  }, [ativo, carregando, definir]);
 
   const consultar = useCallback(() => acompanhar(chave, false), [acompanhar, chave]);
   const atualizar = useCallback(() => acompanhar(chave, true), [acompanhar, chave]);

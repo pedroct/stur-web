@@ -19,7 +19,7 @@ function focarNumero() {
 }
 
 function Estrutura({ children }: { children: ReactNode }) {
-  const { ativo } = useConsultando();
+  const { ativo, ocupado } = useConsultando();
   const { oculta } = useBuscaDoTopo();
   const rota = usePathname();
   useAtalho("/", focarNumero);
@@ -28,9 +28,9 @@ function Estrutura({ children }: { children: ReactNode }) {
     <>
       <Cabecalho comBusca={rota !== "/" && !oculta} />
       {ativo && <FaixaCarregando />}
-      {/* Ocupado enquanto a consulta roda (11b e Atualizar), como no canvas. */}
+      {/* Ocupado só no carregando inicial (11b); no Atualizar a linha de status tem de ser ouvida. */}
       <main
-        aria-busy={ativo || undefined}
+        aria-busy={ocupado || undefined}
         className="mx-auto w-full max-w-[var(--largura-maxima)] px-6 pt-6 pb-16"
       >
         {children}
