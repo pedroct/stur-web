@@ -275,6 +275,16 @@ export interface components {
             /** Tarifaorigem */
             tarifaOrigem: string;
         };
+        /** Documento */
+        Documento: {
+            /** Numero */
+            numero: string;
+            /**
+             * Tipo
+             * @enum {string}
+             */
+            tipo: "recibo" | "nota_debito" | "nota_credito" | "outro";
+        };
         /**
          * ErroApi
          * @description Envelope de todo erro ao cliente (404, 500, 502, 504): em pt-BR, sem o valor.
@@ -372,6 +382,10 @@ export interface components {
         LancamentoCalculado: {
             /** Cartaorepassado */
             cartaoRepassado: boolean;
+            /** Descricaoforma */
+            descricaoForma: string | null;
+            /** Documentos */
+            documentos: components["schemas"]["Documento"][];
             /** Ehcredito */
             ehCredito: boolean;
             /** Indice */
@@ -385,6 +399,8 @@ export interface components {
             valorExibido: string;
             /** Vencido */
             vencido: boolean;
+            /** Vencimento */
+            vencimento: string | null;
         };
         /** LinhaResultado */
         LinhaResultado: {
@@ -681,6 +697,21 @@ export interface components {
             totalCliente: string;
             /** Totalfornecedor */
             totalFornecedor: string;
+        };
+        /** ResumoServico */
+        ResumoServico: {
+            /** Descricao */
+            descricao: string | null;
+            /** Diarias */
+            diarias: number | null;
+            /** Fim */
+            fim: string | null;
+            /** Inicio */
+            inicio: string | null;
+            /** Quantidade */
+            quantidade: number;
+            /** Rota */
+            rota: string[][];
         };
         /** ResumoVenda */
         ResumoVenda: {
@@ -1024,14 +1055,24 @@ export interface components {
         };
         /** TotaisReserva */
         TotaisReserva: {
+            /** Apagarfornecedor */
+            aPagarFornecedor: string;
+            /** Arecebercliente */
+            aReceberCliente: string;
+            /** Areceberfornecedor */
+            aReceberFornecedor: string;
             /** Margem */
             margem: string;
+            /** Pagofornecedor */
+            pagoFornecedor: string;
             /** Percentuallucro */
             percentualLucro: string | null;
             /** Quantidade */
             quantidade: number;
             /** Quantidadecanceladas */
             quantidadeCanceladas: number;
+            /** Recebidocliente */
+            recebidoCliente: string;
             /** Totalcliente */
             totalCliente: string;
             /** Totalfornecedor */
@@ -1260,6 +1301,11 @@ export interface components {
         };
         /** VendaDaReserva */
         VendaDaReserva: {
+            /** Centrocusto */
+            centroCusto: string | null;
+            /** Datacancelamento */
+            dataCancelamento: string | null;
+            estadoServico: components["schemas"]["EstadoServico"] | null;
             /** Pagamentos */
             pagamentos: components["schemas"]["LancamentoCalculado"][];
             /** Posicao */
@@ -1267,6 +1313,7 @@ export interface components {
             /** Recebimentos */
             recebimentos: components["schemas"]["LancamentoCalculado"][];
             resumo: components["schemas"]["ResumoVenda"];
+            servico: components["schemas"]["ResumoServico"] | null;
         };
         /**
          * VendaVinculada

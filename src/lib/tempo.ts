@@ -31,6 +31,12 @@ export function formatarHora(instante: string): string {
   return `${p.hour}h${p.minute}`;
 }
 
+/** `"24/11/2026 às 22:48"` */
+export function formatarInstante(instante: string): string {
+  const p = partes(lerInstante(instante));
+  return `${p.day}/${p.month}/${p.year} às ${p.hour}:${p.minute}`;
+}
+
 /** Dia (`aaaa-mm-dd`) em que o instante cai em Fortaleza. */
 export function diaEmFortaleza(instante: string): string {
   return hojeEmFortaleza(lerInstante(instante));

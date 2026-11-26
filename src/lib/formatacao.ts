@@ -11,6 +11,17 @@ const NUMERO = new Intl.NumberFormat("pt-BR", {
   signDisplay: "negative", // sem sinal no zero negativo ("−0,00")
 });
 
+const CAMBIO = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 4,
+  maximumFractionDigits: 4,
+});
+
+const PERCENTUAL_TERMO = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 4,
+  signDisplay: "negative",
+});
+
 const SEM_DATA = "—";
 const DATA_VAZIA_DO_STUR = "1899-12-30";
 const DATA = /^(\d{4})-(\d{2})-(\d{2})/;
@@ -54,4 +65,30 @@ export function formatarDadosAte(texto: string): string {
   if (dataDoTexto(texto) === null) return SEM_DATA;
   const hora = DATA_HORA.exec(texto);
   return hora ? `${formatarDiaMes(texto)}, ${hora[1]}h${hora[2]}` : formatarDiaMes(texto);
+}
+
+/** `"6.03"` vira `"6,0300"`. */
+export function formatarCambio(texto: string): string {
+  if (!ehDecimal(texto)) throw new Error(`Decimal inválido: ${texto}`);
+  return CAMBIO.format(texto as Intl.StringNumericLiteral);
+}
+
+/** `"13.0000"` vira `"13%"` e `"10.5"` vira `"10,5%"`: até 4 casas, sem zeros à direita. */
+export function formatarPercentualTermo(texto: string): string {
+  if (!ehDecimal(texto)) throw new Error(`Decimal inválido: ${texto}`);
+  return `${PERCENTUAL_TERMO.format(texto as Intl.StringNumericLiteral).replace("-", "−")}%`;
+}
+
+/** `"2026-11-16T20:41:00"` vira `"16/11/2026 · 20h41"`: texto local da AGI, sem fuso. */
+export function formatarDataHora(texto: string | null): string {
+  const hora = DATA_HORA.exec(texto ?? "");
+  return dataDoTexto(texto) && hora
+    ? `${formatarData(texto)} · ${hora[1]}h${hora[2]}`
+    : formatarData(texto);
+}
+
+/** `"1899-12-30T16:59:00"` vira `"16h59"`: nos campos de hora a data vazia do Stur é só o dia base. */
+export function formatarHoraDoStur(texto: string | null): string {
+  const hora = DATA_HORA.exec(texto ?? "");
+  return hora ? `${hora[1]}h${hora[2]}` : SEM_DATA;
 }

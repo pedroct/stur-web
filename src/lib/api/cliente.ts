@@ -1,4 +1,9 @@
-import type { QueryVendas, ReservaConsultada, ResultadoConsulta } from "@/contrato/tipos";
+import type {
+  QueryVendas,
+  ReservaConsultada,
+  ResultadoConsulta,
+  VendaConsultada,
+} from "@/contrato/tipos";
 import type { Consulta } from "@/lib/consulta/consulta";
 import { textosDoErro } from "./textos-erro";
 
@@ -97,7 +102,12 @@ function traduzirResposta(status: number, texto: string): ErroDaConsulta {
   return new ErroDaConsulta(tipo ?? "aplicacao", partes ?? {});
 }
 
-export async function buscarJson<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
+async function buscar<T>(
+  caminho: string,
+  opcoes: Opcoes,
+  ler: (texto: string) => T,
+  aceita: string,
+): Promise<T> {
   const { sinal } = opcoes;
   const limite = new AbortController();
   // AbortSignal.timeout não obedece aos relógios falsos dos testes.
@@ -105,13 +115,13 @@ export async function buscarJson<T>(caminho: string, opcoes: Opcoes = {}): Promi
   try {
     const resposta = await fetch(new URL(caminho, location.origin), {
       signal: sinal ? AbortSignal.any([sinal, limite.signal]) : limite.signal,
-      headers: { Accept: "application/json" },
+      headers: { Accept: aceita },
       cache: "no-store",
     });
     const texto = await resposta.text();
     if (!resposta.ok) throw traduzirResposta(resposta.status, texto);
     try {
-      return JSON.parse(texto) as T;
+      return ler(texto);
     } catch (error) {
       throw new ErroDaConsulta("aplicacao", { causa: error });
     }
@@ -125,8 +135,38 @@ export async function buscarJson<T>(caminho: string, opcoes: Opcoes = {}): Promi
   }
 }
 
+export function buscarJson<T>(caminho: string, opcoes: Opcoes = {}): Promise<T> {
+  return buscar(caminho, opcoes, (texto) => JSON.parse(texto) as T, "application/json");
+}
+
 export function consultarReserva(numero: number, opcoes?: Opcoes): Promise<ReservaConsultada> {
   return buscarJson<ReservaConsultada>(`/api/v1/reservas/${numero}`, opcoes);
+}
+
+function caminhoDaVenda(numero: number, idreserva: number): string {
+  return `/api/v1/reservas/${numero}/vendas/${idreserva}`;
+}
+
+export function consultarVenda(
+  numero: number,
+  idreserva: number,
+  opcoes?: Opcoes,
+): Promise<VendaConsultada> {
+  return buscarJson<VendaConsultada>(caminhoDaVenda(numero, idreserva), opcoes);
+}
+
+/** O texto cru da venda, como o backend o manda (indentado, chaves na ordem da AGI): sem `JSON.parse`. */
+export function consultarDadoCru(
+  numero: number,
+  idreserva: number,
+  opcoes: Opcoes = {},
+): Promise<string> {
+  return buscar(
+    `${caminhoDaVenda(numero, idreserva)}/dado-cru`,
+    opcoes,
+    (texto) => texto,
+    "application/json",
+  );
 }
 
 type OpcoesVendas = { atualizar?: boolean; sinal?: AbortSignal };
