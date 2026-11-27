@@ -514,6 +514,30 @@
         "title": "Conversao",
         "type": "object"
       },
+      "Documento": {
+        "properties": {
+          "numero": {
+            "title": "Numero",
+            "type": "string"
+          },
+          "tipo": {
+            "enum": [
+              "recibo",
+              "nota_debito",
+              "nota_credito",
+              "outro"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tipo",
+          "numero"
+        ],
+        "title": "Documento",
+        "type": "object"
+      },
       "ErroApi": {
         "description": "Envelope de todo erro ao cliente (404, 500, 502, 504): em pt-BR, sem o valor.",
         "properties": {
@@ -744,6 +768,24 @@
             "title": "Cartaorepassado",
             "type": "boolean"
           },
+          "descricaoForma": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricaoforma"
+          },
+          "documentos": {
+            "items": {
+              "$ref": "#/components/schemas/Documento"
+            },
+            "title": "Documentos",
+            "type": "array"
+          },
           "ehCredito": {
             "title": "Ehcredito",
             "type": "boolean"
@@ -769,6 +811,17 @@
           "vencido": {
             "title": "Vencido",
             "type": "boolean"
+          },
+          "vencimento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vencimento"
           }
         },
         "required": [
@@ -777,7 +830,10 @@
           "ehCredito",
           "situacao",
           "vencido",
-          "cartaoRepassado"
+          "cartaoRepassado",
+          "descricaoForma",
+          "vencimento",
+          "documentos"
         ],
         "title": "LancamentoCalculado",
         "type": "object"
@@ -2016,6 +2072,80 @@
           "incentivos"
         ],
         "title": "ResumoResultado",
+        "type": "object"
+      },
+      "ResumoServico": {
+        "properties": {
+          "descricao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricao"
+          },
+          "diarias": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Diarias"
+          },
+          "fim": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fim"
+          },
+          "inicio": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inicio"
+          },
+          "quantidade": {
+            "title": "Quantidade",
+            "type": "integer"
+          },
+          "rota": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "title": "Rota",
+            "type": "array"
+          }
+        },
+        "required": [
+          "quantidade",
+          "inicio",
+          "fim",
+          "rota",
+          "diarias",
+          "descricao"
+        ],
+        "title": "ResumoServico",
         "type": "object"
       },
       "ResumoVenda": {
@@ -3635,8 +3765,24 @@
       },
       "TotaisReserva": {
         "properties": {
+          "aPagarFornecedor": {
+            "title": "Apagarfornecedor",
+            "type": "string"
+          },
+          "aReceberCliente": {
+            "title": "Arecebercliente",
+            "type": "string"
+          },
+          "aReceberFornecedor": {
+            "title": "Areceberfornecedor",
+            "type": "string"
+          },
           "margem": {
             "title": "Margem",
+            "type": "string"
+          },
+          "pagoFornecedor": {
+            "title": "Pagofornecedor",
             "type": "string"
           },
           "percentualLucro": {
@@ -3658,6 +3804,10 @@
             "title": "Quantidadecanceladas",
             "type": "integer"
           },
+          "recebidoCliente": {
+            "title": "Recebidocliente",
+            "type": "string"
+          },
           "totalCliente": {
             "title": "Totalcliente",
             "type": "string"
@@ -3673,7 +3823,12 @@
           "totalCliente",
           "totalFornecedor",
           "margem",
-          "percentualLucro"
+          "percentualLucro",
+          "aReceberCliente",
+          "recebidoCliente",
+          "aPagarFornecedor",
+          "pagoFornecedor",
+          "aReceberFornecedor"
         ],
         "title": "TotaisReserva",
         "type": "object"
@@ -4758,6 +4913,38 @@
       },
       "VendaDaReserva": {
         "properties": {
+          "centroCusto": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Centrocusto"
+          },
+          "dataCancelamento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datacancelamento"
+          },
+          "estadoServico": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EstadoServico"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "pagamentos": {
             "items": {
               "$ref": "#/components/schemas/LancamentoCalculado"
@@ -4778,11 +4965,25 @@
           },
           "resumo": {
             "$ref": "#/components/schemas/ResumoVenda"
+          },
+          "servico": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResumoServico"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
           "resumo",
           "posicao",
+          "servico",
+          "estadoServico",
+          "centroCusto",
+          "dataCancelamento",
           "recebimentos",
           "pagamentos"
         ],
@@ -4927,7 +5128,7 @@
   },
   "info": {
     "title": "stur-api",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "openapi": "3.1.0",
   "paths": {

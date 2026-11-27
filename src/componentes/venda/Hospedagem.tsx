@@ -1,0 +1,170 @@
+import type { ServicoAgi, VendaAgi, VendaConsultada } from "@/contrato/tipos";
+import { situacaoDe } from "@/lib/consulta/consulta";
+import { unir } from "@/lib/consulta/descricao";
+import { fornecedoresDe, preenchido } from "@/lib/venda/campos";
+import { caminhosDaConta } from "@/lib/venda/conta";
+import { periodoCurto, periodoSomado } from "@/lib/venda/datas";
+import { camposSemMolde } from "@/lib/venda/moldes";
+import type { NivelDeTitulo } from "./GrupoDeCampos";
+import {
+  type ParDoCartao,
+  ParesDoCartao,
+  parDaPessoa,
+  RestoDoGrupo,
+  SecaoDoProduto,
+  texto,
+} from "./produto-comum";
+
+/** Com vários serviços, o card só com o que vale para a venda: o hotel e o período somado. */
+function HospedagemDaVenda({
+  servicos,
+  hotel,
+  cancelada,
+  nivelBase,
+}: Readonly<{
+  servicos: ServicoAgi[];
+  hotel: string | null;
+  cancelada: boolean;
+  nivelBase: 1 | 2;
+}>) {
+  const datas = (campo: "dtEntrada" | "dtSaida") =>
+    servicos.flatMap((s) => {
+      const dia = s[campo];
+      return preenchido(dia, `detalheItem[].${campo}`) && dia ? [dia] : [];
+    });
+  const linha = [
+    periodoSomado(datas("dtEntrada"), datas("dtSaida")),
+    cancelada ? "não vai acontecer" : null,
+  ]
+    .filter((parte) => parte !== null)
+    .join(" · ");
+  return (
+    <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase} cartao>
+      {hotel !== null && <p className="text-base leading-6 font-semibold">{hotel}</p>}
+      {linha !== "" && <p className="mt-0.5 text-base leading-6 tabular-nums">{linha}</p>}
+    </SecaoDoProduto>
+  );
+}
+
+/** As diárias dos apartamentos, sem repetir: "1 diária", "3 diárias", "2 e 3 diárias"; sem nenhuma, null. */
+function textoDasDiarias(apartamentos: NonNullable<ServicoAgi["apartamentos"]>): string | null {
+  const diarias = [
+    ...new Set(
+      apartamentos.flatMap((a) =>
+        a.qtdeDiarias !== null && a.qtdeDiarias !== undefined ? [a.qtdeDiarias] : [],
+      ),
+    ),
+  ];
+  if (diarias.length === 0) return null;
+  const palavra = diarias.length === 1 && diarias[0] === 1 ? "diária" : "diárias";
+  return `${unir(diarias.map(String))} ${palavra}`;
+}
+
+/** Os pares do card de um serviço só: apartamento, regime, acomodação, hóspede, confirmação e voucher. */
+function paresDaHospedagem(
+  venda: VendaAgi,
+  servico: ServicoAgi,
+  comPessoa: boolean,
+): ParDoCartao[] {
+  const categoria = texto(servico.categHotel);
+  const apartamento = [
+    ...(servico.apartamentos ?? []).map((a) => texto(a.tipoApartamento)),
+    categoria === null ? null : `categoria ${categoria}`,
+  ]
+    .filter((parte) => parte !== null)
+    .join(" · ");
+  const hospede = comPessoa ? parDaPessoa(venda, servico) : null;
+  const confirmacao = texto(servico.numerodeconfirmacao);
+  const voucher = texto(servico.numeroVC);
+  const candidatos: [string, string | null][] = [
+    ["Apartamento", apartamento === "" ? null : apartamento],
+    ["Regime", texto(servico.regime)],
+    ["Acomodação", texto(servico.acomodacoesePassageiros)],
+  ];
+  return [
+    ...candidatos.flatMap(([rotulo, valor]) => (valor === null ? [] : [{ rotulo, valor }])),
+    ...(hospede === null ? [] : [hospede]),
+    ...(confirmacao === null ? [] : [{ rotulo: "Confirmação do hotel", valor: confirmacao }]),
+    ...(voucher === null ? [] : [{ rotulo: "Voucher", valor: voucher }]),
+  ];
+}
+
+/**
+ * A hospedagem (IA 6.4; tela 3): o hotel, o período com as diárias e os pares do canvas. Com vários
+ * serviços, o card mostra só o que vale para a venda, o hotel e o período somado; as diárias, o
+ * apartamento, o regime, a confirmação e o voucher de cada serviço ficam na tabela e no painel
+ * dele (decisão 22).
+ */
+export function Hospedagem({
+  dados,
+  nivelBase,
+  comPessoa,
+}: Readonly<{ dados: VendaConsultada; nivelBase: 1 | 2; comPessoa: boolean }>) {
+  const { venda, calculos } = dados;
+  const servico = venda.detalheItem?.[0];
+  if (servico === undefined) return null;
+  const hotel = fornecedoresDe(texto(venda.nomefornec), texto(venda.nomefornec2)).principal;
+  const cancelada = situacaoDe(venda.status ?? null) === "cancelada";
+  const servicos = venda.detalheItem ?? [];
+  if (servicos.length > 1) {
+    return (
+      <HospedagemDaVenda
+        servicos={servicos}
+        hotel={hotel}
+        cancelada={cancelada}
+        nivelBase={nivelBase}
+      />
+    );
+  }
+
+  const entrada = servico.dtEntrada ?? null;
+  const saida = servico.dtSaida ?? null;
+  const periodo = periodoCurto(
+    preenchido(entrada, "detalheItem[].dtEntrada") ? entrada : null,
+    preenchido(saida, "detalheItem[].dtSaida") ? saida : null,
+  );
+  const linhaDoPeriodo = [
+    periodo,
+    textoDasDiarias(servico.apartamentos ?? []),
+    cancelada ? "não vai acontecer" : null,
+  ]
+    .filter((parte) => parte !== null)
+    .join(" · ");
+  const pares = paresDaHospedagem(venda, servico, comPessoa);
+  const nivel = (nivelBase + 2) as NivelDeTitulo;
+  // Com um serviço só, a conta está na mesma página: o que ela mostra (a diária, a de balcão) não
+  // se repete aqui.
+  const [conta] = calculos.servicos;
+  const naConta =
+    conta === undefined
+      ? new Set<string>()
+      : caminhosDaConta(conta, servico, venda.classificacaoproduto ?? null);
+
+  return (
+    <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase} cartao>
+      {hotel !== null && <p className="text-base leading-6 font-semibold">{hotel}</p>}
+      {linhaDoPeriodo !== "" && (
+        <p className="mt-0.5 text-base leading-6 tabular-nums">{linhaDoPeriodo}</p>
+      )}
+      <ParesDoCartao pares={pares} />
+      <RestoDoGrupo
+        grupo="Hospedagem (hotelaria)"
+        campos={camposSemMolde("Hospedagem (hotelaria)", ["hospedagem"]).filter(
+          (c) => !naConta.has(c.caminho),
+        )}
+        venda={venda}
+        calculos={calculos}
+        indices={[0]}
+        nivel={nivel}
+      />
+      <RestoDoGrupo
+        grupo="Confirmação do fornecedor"
+        campos={camposSemMolde("Confirmação do fornecedor", ["hospedagem"])}
+        venda={venda}
+        calculos={calculos}
+        indices={[0]}
+        nivel={nivel}
+      />
+    </SecaoDoProduto>
+  );
+}

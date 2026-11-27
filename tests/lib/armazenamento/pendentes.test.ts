@@ -1,4 +1,5 @@
 import {
+  assinarPendentes,
   cancelarEmAndamento,
   consultaEmAndamento,
   emAndamento,
@@ -93,4 +94,24 @@ test("zerar aborta e apaga tudo", () => {
   expect(emAndamento("a")).toBe(false);
   expect(emAndamento("b")).toBe(false);
   expect(temPendente("p")).toBe(false);
+});
+
+test("quem assina é avisado de cada pedido marcado, até cancelar a assinatura", () => {
+  const avisos: string[] = [];
+  const cancelar = assinarPendentes((chave) => avisos.push(chave));
+  marcarPendente("a");
+  marcarPendente("a");
+  marcarPendente("b");
+  expect(avisos).toEqual(["a", "a", "b"]);
+  cancelar();
+  marcarPendente("c");
+  expect(avisos).toEqual(["a", "a", "b"]);
+});
+
+test("zerar também apaga os assinantes", () => {
+  const avisar = vi.fn();
+  assinarPendentes(avisar);
+  zerarPendentes();
+  marcarPendente("k");
+  expect(avisar).not.toHaveBeenCalled();
 });

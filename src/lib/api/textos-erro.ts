@@ -39,3 +39,9 @@ export function tipoComTexto(tipo: TipoErro): TipoComTexto {
 export function textosDoErro(tipo: TipoErro): (typeof TEXTOS_ERRO)[TipoComTexto] {
   return TEXTOS_ERRO[tipoComTexto(tipo)];
 }
+
+/** Só a falta de resposta e o erro desta aplicação passam tentando de novo. */
+export function comTentarDeNovo(tipo: TipoErro): boolean {
+  const comTexto = tipoComTexto(tipo);
+  return comTexto === "sem_resposta" || comTexto === "aplicacao";
+}

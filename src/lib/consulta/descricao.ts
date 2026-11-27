@@ -99,12 +99,12 @@ export function tituloCurto(c: Consulta): string {
   return titulo(c, false);
 }
 
-function unir(itens: string[]): string {
+export function unir(itens: string[]): string {
   if (itens.length < 2) return itens.join("");
   return `${itens.slice(0, -1).join(", ")} e ${itens.at(-1)}`;
 }
 
-function maiuscula(texto: string): string {
+export function maiuscula(texto: string): string {
   return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 

@@ -1,4 +1,23 @@
-import { linha, reserva, resultado, resumoVenda } from "./fabrica";
+import openapi from "@/contrato/openapi.json";
+import type { Classificacao } from "@/lib/consulta/consulta";
+import { CAMPOS_ANEXO_B } from "@/lib/venda/anexo-b";
+import { preenchido, valorDoCampo } from "@/lib/venda/campos";
+import {
+  calculos,
+  contaServico,
+  lancamento,
+  linha,
+  pagamento,
+  recebimento,
+  reserva,
+  resultado,
+  resumoVenda,
+  servicoAgi,
+  trecho,
+  vendaAgi,
+  vendaCheia,
+  vendaConsultada,
+} from "./fabrica";
 
 describe("resultado()", () => {
   test("resumo soma só as vendas a cliente não canceladas; incentivos ficam à parte", () => {
@@ -74,7 +93,280 @@ describe("reserva()", () => {
       totalFornecedor: "900.10",
       margem: "100.20",
       percentualLucro: null,
+      aReceberCliente: "0.00",
+      recebidoCliente: "0.00",
+      aPagarFornecedor: "0.00",
+      pagoFornecedor: "0.00",
+      aReceberFornecedor: "0.00",
     });
     expect(r.vendas.map((v) => v.posicao)).toEqual([1, 2, 3]);
+  });
+});
+
+test("reserva(): cada venda da reserva traz os campos do contrato 0.2.0 vazios", () => {
+  const { reserva: r } = reserva(90000001, [resumoVenda()]);
+  expect(r.vendas[0]).toMatchObject({
+    servico: null,
+    estadoServico: null,
+    centroCusto: null,
+    dataCancelamento: null,
+  });
+});
+
+test("lancamento(): padrão e campos informados", () => {
+  expect(lancamento()).toEqual({
+    indice: 0,
+    valorExibido: "1000.00",
+    ehCredito: false,
+    situacao: "sem_saldo",
+    vencido: false,
+    cartaoRepassado: false,
+    descricaoForma: "Faturado",
+    vencimento: "2026-11-20 00:00:00",
+    documentos: [],
+  });
+  expect(lancamento({ indice: 2, vencido: true })).toMatchObject({ indice: 2, vencido: true });
+});
+
+describe("vendaAgi()", () => {
+  test("venda fechada, com um serviço, um recebimento e um pagamento", () => {
+    const v = vendaAgi();
+    expect(v).toMatchObject({
+      status: "FECHADA",
+      reserva: 90000001,
+      idreserva: 1001,
+      nomeproduto: "HOTEL NAC",
+      classificacaoproduto: "Hotelaria",
+      categoriaproduto: "Nacional",
+      nomecliente: "CLIENTE EXEMPLO LTDA",
+      nomefornec: "FORNECEDOR EXEMPLO",
+      dtemissao: "2026-11-17 00:00:00",
+      totalCliente: "1000.00",
+      totalFornecedor: "900.00",
+      margemLucroBruta: "100.00",
+    });
+    expect(v.detalheItem).toEqual([servicoAgi()]);
+    expect(v.recebimentos).toHaveLength(1);
+    expect(v.recebimentos?.[0]).toMatchObject({ descricaoForma: "Faturado", valor: "1000.00" });
+    expect(v.pagamentos).toHaveLength(1);
+    expect(v.pagamentos?.[0]).toMatchObject({ descricaoForma: "Faturado", valor: "900.00" });
+    expect(vendaAgi({ idreserva: 1002 }).idreserva).toBe(1002);
+  });
+
+  test.each([
+    ["VendaAgi", () => vendaAgi()],
+    ["ServicoAgi", () => servicoAgi()],
+    ["RecebimentoAgi", () => vendaAgi().recebimentos?.[0]],
+    ["PagamentoAgi", () => vendaAgi().pagamentos?.[0]],
+    ["TrechoAgi", () => trecho()],
+  ] as const)("%s traz todos os campos do contrato, e só eles", (nome, fazer) => {
+    const esquemas = openapi.components.schemas as unknown as Record<
+      string,
+      { properties: Record<string, unknown> }
+    >;
+    expect(Object.keys(fazer() ?? {}).sort()).toEqual(
+      Object.keys(esquemas[nome]?.properties ?? {}).sort(),
+    );
+  });
+
+  test("o que não é do exemplo vem nulo ou vazio", () => {
+    const v = vendaAgi();
+    expect(v.atividade).toBeNull();
+    expect(v.trechos).toEqual([]);
+    expect(v.camposGerenciais).toEqual([]);
+    expect(v.financeiroVinculado).toBeNull();
+  });
+});
+
+test("trecho() e servicoAgi() aceitam campos", () => {
+  expect(trecho({ voo: "0001" }).voo).toBe("0001");
+  expect(servicoAgi({ qtde: 2 }).qtde).toBe(2);
+});
+
+test("contaServico(): tarifa nos dois lados e nada zerado", () => {
+  const c = contaServico();
+  expect(c.indice).toBe(0);
+  expect(c.cliente.termos).toEqual([{ campo: "vlrTarifaTotal", valor: "1000.00", efeito: "soma" }]);
+  expect(c.fornecedor.termos).toEqual([
+    { campo: "vlrTarifaTotalp", valor: "900.00", efeito: "soma" },
+  ]);
+  expect(c.cliente.zerados).toEqual([]);
+  expect(c.fornecedor.zerados).toEqual([]);
+  expect(c.margem).toBe("100.00");
+  expect(contaServico({ indice: 1 }).indice).toBe(1);
+});
+
+test("calculos(): venda que fecha, com um lançamento de cada lado", () => {
+  const c = calculos();
+  expect(c.tipo).toBe("venda");
+  expect(c.verificacao.fecha).toBe(true);
+  expect(c.avisos).toEqual([]);
+  expect(c.recebimentos).toEqual([lancamento()]);
+  expect(c.pagamentos).toEqual([lancamento({ valorExibido: "900.00" })]);
+  expect(c.servicos).toEqual([contaServico()]);
+  expect(calculos({ tipo: "fee" }).tipo).toBe("fee");
+});
+
+test("vendaConsultada(): embrulha a venda e os cálculos da reserva", () => {
+  const v = vendaConsultada();
+  expect(v.venda.idreserva).toBe(1001);
+  expect(v.venda).toEqual(vendaAgi());
+  expect(v.calculos).toEqual(calculos());
+  expect(v.reserva).toEqual(reserva(90000001, [resumoVenda()]).reserva);
+  expect(v.posicao).toBe(1);
+  expect(v.vinculos).toEqual({ fee: null, reembolsos: [] });
+  expect(v.camposDesconhecidos).toEqual([]);
+  expect(v.consultadoEm).toBe(reserva(90000001, []).consultadoEm);
+  expect(v.dadosDoSturAte).toBe(reserva(90000001, []).dadosDoSturAte);
+  expect(vendaConsultada({ posicao: 3 }).posicao).toBe(3);
+});
+
+test("recebimento() e pagamento() aceitam campos", () => {
+  expect(recebimento({ valor: "1.00" }).valor).toBe("1.00");
+  expect(pagamento({ forma: 2 }).forma).toBe(2);
+  expect(vendaAgi().recebimentos).toEqual([recebimento()]);
+  expect(vendaAgi().pagamentos).toEqual([pagamento()]);
+});
+
+describe("vendaCheia()", () => {
+  const CLASSIFICACOES: Classificacao[] = [
+    "aereo",
+    "hotelaria",
+    "rodoviario",
+    "diversos",
+    "locacao",
+    "pacote",
+  ];
+  const FIXOS = new Set([
+    "status",
+    "classificacaoproduto",
+    "nomeproduto",
+    "categoriaproduto",
+    "reserva",
+    "idreserva",
+    "recebimentos[].forma",
+    "pagamentos[].forma",
+    "recebimentos[].cartaoRepassadoAoFornecedor",
+    "dtcancelamento",
+  ]);
+
+  /** Os índices de cada item das listas do caminho: `detalheItem[].apartamentos[]` dá [0,0], [0,1]… */
+  function indicesDe(v: ReturnType<typeof vendaCheia>["venda"], caminho: string): number[][] {
+    const partes = caminho.split("[]");
+    let combinacoes: number[][] = [[]];
+    for (let k = 0; k < partes.length - 1; k++) {
+      const lista = partes.slice(0, k + 1).join("[]");
+      combinacoes = combinacoes.flatMap((indices) => {
+        const itens = valorDoCampo(v, lista, indices);
+        return Array.isArray(itens) ? itens.map((_, i) => [...indices, i]) : [];
+      });
+    }
+    return combinacoes;
+  }
+
+  test("hotelaria com dois serviços e sem trechos", () => {
+    const v = vendaCheia("hotelaria", 2);
+    expect(v.calculos.servicos).toHaveLength(2);
+    expect(v.venda.detalheItem).toHaveLength(2);
+    expect(v.venda.trechos).toEqual([]);
+    expect(v.calculos.itinerario).toBeNull();
+    expect(v.venda.detalheItem?.[1]?.apartamentos).toHaveLength(2);
+  });
+
+  test.each(CLASSIFICACOES)("%s: cada campo da classificação vem preenchido, e só eles", (cl) => {
+    const v = vendaCheia(cl);
+    for (const campo of CAMPOS_ANEXO_B) {
+      if (campo.conteiner || FIXOS.has(campo.caminho)) continue;
+      const esperado = campo.classes.includes(cl);
+      const indices = indicesDe(v.venda, campo.caminho);
+      const valores = indices.map((i) => valorDoCampo(v.venda, campo.caminho, i));
+      if (esperado) {
+        expect(valores.length, campo.caminho).toBeGreaterThan(0);
+        for (const valor of valores)
+          expect(preenchido(valor, campo.caminho), campo.caminho).toBe(true);
+      } else {
+        for (const valor of valores) {
+          expect(preenchido(valor, campo.caminho), campo.caminho).toBe(false);
+        }
+      }
+    }
+  });
+
+  test("campos fixos, sem valor de teste", () => {
+    const { venda } = vendaCheia("aereo");
+    expect(venda).toMatchObject({
+      status: "FECHADA",
+      classificacaoproduto: "Aéreo",
+      nomeproduto: "BILHETE NACIONAL",
+      categoriaproduto: "Nacional",
+      reserva: 90000001,
+      idreserva: 1001,
+      dtcancelamento: null,
+      idreservavinculadafee: 1002,
+    });
+    expect(venda.recebimentos?.map((r) => r.forma)).toEqual([1, 1]);
+    expect(venda.recebimentos?.map((r) => r.cartaoRepassadoAoFornecedor)).toEqual([false, false]);
+    expect(venda.pagamentos?.map((p) => p.forma)).toEqual([1, 2]);
+    expect(vendaCheia("hotelaria").venda.idreservavinculadafee).toBeNull();
+    expect(vendaCheia("locacao").venda.nomeproduto).toBe("CARRO NAC");
+    expect(vendaCheia("pacote").venda.classificacaoproduto).toBe("Pacote");
+  });
+
+  test("valores de teste por formato e moeda estrangeira, distintos por campo e por item", () => {
+    const { venda } = vendaCheia("locacao");
+    const s = venda.detalheItem?.[0];
+    const indice = (caminho: string) => CAMPOS_ANEXO_B.findIndex((c) => c.caminho === caminho);
+    expect(s?.horaRetirada).toMatch(/^1899-12-30T\d{2}:10:00$/);
+    expect(s?.horaRetirada).not.toBe(s?.horaDevolucao);
+    expect(s?.siglaMoedaTarifa).toBe("US$");
+    expect(s?.siglaMoedaTarifap).toBe("EUR");
+    expect(venda.recebimentos?.[0]?.moedaOriginal).toBe("CHF");
+    expect(venda.pagamentos?.[0]?.moedaOriginal).toBe("AED");
+    expect(s?.vlrCambio).toBe(`5.${1000 + indice("detalheItem[].vlrCambio")}`);
+    expect(s?.vlrCambiop).not.toBe(s?.vlrCambio);
+    expect(venda.dtcriacao).toMatch(/^2026-\d{2}-\d{2} \d{2}:\d{2}:00$/);
+    expect(venda.dtcriacao?.slice(0, 10)).not.toBe(venda.dtconfirmacao?.slice(0, 10));
+    expect(venda.dtemissao).toMatch(/^2026-\d{2}-\d{2} 00:00:00$/);
+    expect(venda.nomecliente).toBe(`TESTE ${indice("nomecliente")}`);
+    expect(venda.totalCliente).toBe(`${100 + indice("totalCliente")}.45`);
+    expect(venda.idCliente).toBe(70000 + indice("idCliente") * 10);
+    // O 2º item de uma lista tem outro valor que não contém o do 1º.
+    const [r0, r1] = venda.recebimentos ?? [];
+    expect(r0?.nomePagante).toBe(`TESTE ${indice("recebimentos[].nomePagante")}`);
+    expect(r1?.nomePagante).toBe(`TESTE ${indice("recebimentos[].nomePagante")}B`);
+    expect(r1?.valor).toBe(`${100 + indice("recebimentos[].valor")}.46`);
+    expect(r1?.dtVencto?.slice(0, 4)).toBe("2025");
+  });
+
+  test("os cálculos combinam com a venda", () => {
+    const aereo = vendaCheia("aereo", 2);
+    expect(aereo.venda.trechos).toHaveLength(2);
+    expect(aereo.calculos.itinerario?.forma).toBe("com_horario");
+    expect(aereo.calculos.estadoServico).toMatchObject({ estado: "concluido", base: "trechos" });
+    expect(aereo.calculos.servicos.map((c) => c.indice)).toEqual([0, 1]);
+    const [s0, s1] = aereo.venda.detalheItem ?? [];
+    expect(aereo.calculos.servicos[0]?.cliente.conversao).toMatchObject({
+      sigla: "US$",
+      cambio: s0?.vlrCambio,
+      tarifaOrigem: s0?.vlrTarifaTotal,
+      dataCambio: s0?.dtCambio,
+    });
+    expect(aereo.calculos.servicos[0]?.fornecedor.conversao).toMatchObject({
+      sigla: "EUR",
+      cambio: s0?.vlrCambiop,
+    });
+    // O 2º serviço tem valores próprios.
+    expect(s1?.vlrCambio).not.toBe(s0?.vlrCambio);
+    expect(aereo.calculos.servicos[1]?.cliente.conversao?.cambio).toBe(s1?.vlrCambio);
+    expect(aereo.calculos.recebimentos).toHaveLength(2);
+    expect(aereo.calculos.pagamentos.map((p) => p.ehCredito)).toEqual([false, true]);
+    expect(aereo.calculos.pagamentos.every((p) => p.situacao === "sem_saldo")).toBe(true);
+    expect(aereo.calculos.verificacao.fecha).toBe(true);
+    expect(aereo.vinculos).toMatchObject({ fee: null });
+    expect(aereo.vinculos.reembolsos).toHaveLength(2);
+    expect(vendaCheia("hotelaria").calculos.estadoServico?.base).toBe("entrada_saida");
+    expect(vendaCheia("locacao").calculos.estadoServico?.base).toBe("retirada_devolucao");
+    expect(vendaCheia("pacote").calculos.estadoServico?.base).toBe("inicio_termino");
+    expect(vendaCheia("pacote").vinculos.reembolsos).toEqual([]);
   });
 });

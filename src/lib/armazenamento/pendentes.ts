@@ -10,9 +10,23 @@ interface Chamada {
 
 const pendentes = new Set<string>();
 const chamadas = new Map<string, Chamada>();
+const assinantes = new Set<(chave: string) => void>();
 
+/** Marca o pedido e avisa quem assina, também quando a chave já estava marcada. */
 export function marcarPendente(chave: string): void {
   pendentes.add(chave);
+  for (const avisar of assinantes) avisar(chave);
+}
+
+/**
+ * Avisa a cada `marcarPendente`, com a chave: uma página já montada fica sabendo do pedido mesmo
+ * quando o endereço não muda (decisão 16). Devolve a função que cancela a assinatura.
+ */
+export function assinarPendentes(fn: (chave: string) => void): () => void {
+  assinantes.add(fn);
+  return () => {
+    assinantes.delete(fn);
+  };
 }
 
 export function temPendente(chave: string): boolean {
@@ -58,9 +72,10 @@ export function cancelarEmAndamento(chave: string): void {
   pendentes.delete(chave);
 }
 
-/** Só para os testes: aborta e apaga tudo. */
+/** Só para os testes: aborta e apaga tudo, também os assinantes. */
 export function zerarPendentes(): void {
   for (const { controlador } of chamadas.values()) controlador.abort();
   chamadas.clear();
   pendentes.clear();
+  assinantes.clear();
 }

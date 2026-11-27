@@ -65,6 +65,17 @@ export function classificacaoDe(textoDaApi: string | null): Classificacao | null
   return CLASSIFICACOES.find((c) => normalizar(c.rotulo) === procurado)?.valor ?? null;
 }
 
+/**
+ * O nome da classificação para a tela: o rótulo da aplicação, com acento, quando é uma das seis
+ * ("Aereo" da API vira "Aéreo"); senão, o texto da API sem os espaços das pontas; vazio dá `null`.
+ */
+export function rotuloDaClassificacao(textoDaApi: string | null | undefined): string | null {
+  const conhecida = CLASSIFICACOES.find((c) => c.valor === classificacaoDe(textoDaApi ?? null));
+  if (conhecida) return conhecida.rotulo;
+  const limpo = textoDaApi?.trim() ?? "";
+  return limpo === "" ? null : limpo;
+}
+
 /** Tira pontos, hífens e espaços de quem cola; sobram de 1 a 15 algarismos ou nada. */
 export function numeroDaReserva(texto: string): number | null {
   const algarismos = texto.replace(/[.\-\s]/g, "");

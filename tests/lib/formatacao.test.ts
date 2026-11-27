@@ -1,9 +1,13 @@
 import {
+  formatarCambio,
   formatarDadosAte,
   formatarData,
+  formatarDataHora,
   formatarDiaMes,
+  formatarHoraDoStur,
   formatarMoeda,
   formatarPercentual,
+  formatarPercentualTermo,
   formatarValor,
 } from "@/lib/formatacao";
 
@@ -47,4 +51,33 @@ test("datas como vieram, com T ou espaço, e a data vazia do Stur", () => {
   expect(formatarDiaMes(null)).toBe("—");
   expect(formatarDadosAte("2026-11-18T09:30:00")).toBe("18/11, 09h30");
   expect(formatarDadosAte("1899-12-30T00:00:00")).toBe("—");
+});
+
+test("câmbio com 4 casas", () => {
+  expect(formatarCambio("6.03")).toBe("6,0300");
+  expect(formatarCambio("1")).toBe("1,0000");
+  expect(formatarCambio("5.123456")).toBe("5,1235");
+});
+
+test("percentual do termo: até 4 casas, sem zeros à direita", () => {
+  expect(formatarPercentualTermo("13.0000")).toBe("13%");
+  expect(formatarPercentualTermo("10.5")).toBe("10,5%");
+  expect(formatarPercentualTermo("12.6789")).toBe("12,6789%");
+  expect(formatarPercentualTermo("0.00")).toBe("0%");
+  expect(formatarPercentualTermo("-3.10")).toBe("−3,1%");
+});
+
+test("data e hora como vieram, com T ou espaço, sem fuso", () => {
+  expect(formatarDataHora("2026-11-16T20:41:00")).toBe("16/11/2026 · 20h41");
+  expect(formatarDataHora("2026-11-16 20:41:00")).toBe("16/11/2026 · 20h41");
+  expect(formatarDataHora("2026-11-16")).toBe("16/11/2026");
+  expect(formatarDataHora("1899-12-30 00:00:00")).toBe("—");
+  expect(formatarDataHora(null)).toBe("—");
+});
+
+test("hora dos campos de hora do Stur: a data 1899-12-30 não aparece", () => {
+  expect(formatarHoraDoStur("1899-12-30T16:59:00")).toBe("16h59");
+  expect(formatarHoraDoStur("1899-12-30 08:05:00")).toBe("08h05");
+  expect(formatarHoraDoStur("")).toBe("—");
+  expect(formatarHoraDoStur(null)).toBe("—");
 });

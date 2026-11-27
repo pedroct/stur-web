@@ -1,7 +1,8 @@
-import { Check, CircleX, Clock, Info, type LucideIcon } from "lucide-react";
+import { Calendar, Check, CircleX, Clock, CreditCard, Info, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { type Situacao, situacaoDe } from "@/lib/consulta/consulta";
 import { cn } from "@/lib/utils";
+import type { SeloTexto } from "@/lib/venda/lancamentos";
+import { seloTextoDaSituacao } from "@/lib/venda/situacao";
 
 export type TomDoSelo = "sucesso" | "info" | "atencao" | "neutro" | "erro";
 
@@ -46,23 +47,27 @@ export interface DadosDoSelo {
   texto: string;
 }
 
-const SELOS: Record<Situacao, DadosDoSelo> = {
-  fechada: { tom: "sucesso", icone: Check, borda: false, texto: "Fechada" },
-  confirmada: { tom: "info", icone: Info, borda: false, texto: "Confirmada" },
-  reservada: { tom: "neutro", icone: Clock, borda: false, texto: "Reservada" },
-  cancelada: { tom: "neutro", icone: CircleX, borda: true, texto: "Cancelada" },
+const ICONES: Record<SeloTexto["icone"], LucideIcon> = {
+  check: Check,
+  info: Info,
+  relogio: Clock,
+  calendario: Calendar,
+  x: CircleX,
+  cartao: CreditCard,
 };
+
+/** O selo em texto (`lib`) com o ícone de verdade; `neutro-borda` é o neutro com borda. */
+export function dadosDoSeloTexto(s: SeloTexto): DadosDoSelo {
+  return {
+    tom: s.tom === "neutro-borda" ? "neutro" : s.tom,
+    icone: ICONES[s.icone],
+    borda: s.tom === "neutro-borda",
+    texto: s.rotulo,
+  };
+}
 
 /** Situação que o Stur mandou, ainda como texto; uma situação desconhecida mostra a palavra dele. */
 export function seloDaSituacao(situacao: string | null): DadosDoSelo | null {
-  if (situacao === null) return null;
-  const conhecida = situacaoDe(situacao);
-  if (conhecida !== null) return SELOS[conhecida];
-  const palavra = situacao.trim().toLowerCase();
-  return {
-    tom: "neutro",
-    icone: Info,
-    borda: false,
-    texto: palavra.charAt(0).toUpperCase() + palavra.slice(1),
-  };
+  const selo = seloTextoDaSituacao(situacao);
+  return selo === null ? null : dadosDoSeloTexto(selo);
 }

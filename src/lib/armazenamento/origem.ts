@@ -42,3 +42,12 @@ export function lerOrigem(): Origem | null {
     return null;
   }
 }
+
+/** A busca do topo, o formulário e as recentes apagam a origem: ela só vale vinda do resultado (decisão 28). */
+export function apagarOrigem(): void {
+  try {
+    window.sessionStorage.removeItem(CHAVE);
+  } catch {
+    // sem armazenamento, não há origem guardada
+  }
+}

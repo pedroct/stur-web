@@ -19,3 +19,12 @@ export function contem(texto: string | null, busca: string): boolean {
   if (texto === null) return false;
   return normalizar(texto).includes(procurado);
 }
+
+/**
+ * Ordem do `sort()` sem função (unidade de código a unidade de código), explícita: serve às datas
+ * ISO (`AAAA-MM-DD…`), em que a ordem do texto é a do tempo.
+ */
+export function compararTexto(a: string, b: string): number {
+  if (a < b) return -1;
+  return a > b ? 1 : 0;
+}

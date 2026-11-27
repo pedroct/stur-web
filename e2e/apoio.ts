@@ -1,12 +1,15 @@
 import { test as base, expect, type Page } from "@playwright/test";
 import { erroApi, parametros } from "../tests/fabrica";
 
-export interface Resposta {
+/**
+ * `corpo` vai como JSON; `texto` vai como está, para o que o backend manda sem reformatar (o dado
+ * cru da venda). Quem programa informa um dos dois.
+ */
+export type Resposta = {
   status?: number;
-  corpo: unknown;
   /** Espera, em milissegundos, antes de responder. */
   atraso?: number;
-}
+} & ({ corpo: unknown; texto?: never } | { texto: string; corpo?: never });
 
 export interface Api {
   /** Cada chamada ao caminho usa a próxima resposta; a última se repete. */
@@ -50,7 +53,7 @@ export async function simularApi(page: Page): Promise<Api> {
       await rota.fulfill({
         status: resposta.status ?? 200,
         contentType: "application/json",
-        body: JSON.stringify(resposta.corpo),
+        body: resposta.texto ?? JSON.stringify(resposta.corpo),
       });
     } catch {
       // A página já abortou a chamada (Cancelar consulta) ou fechou: nada a responder.

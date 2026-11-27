@@ -30,3 +30,21 @@ export function somarDecimais(textos: string[]): string {
   const sinal = soma < 0n ? "-" : "";
   return escala > 0 ? `${sinal}${inteira}.${fracao}` : `${sinal}${inteira}`;
 }
+
+/** Compara dois decimais em texto, exato e sem `Number`. Zero negativo é igual a zero. */
+export function compararDecimais(a: string, b: string): -1 | 0 | 1 {
+  const escala = Math.max(casas(a), casas(b));
+  const x = escalado(a, escala);
+  const y = escalado(b, escala);
+  if (x === y) return 0;
+  return x < y ? -1 : 1;
+}
+
+export function ehZero(t: string): boolean {
+  return compararDecimais(t, "0") === 0;
+}
+
+/** Menor que zero: `"-0.00"` não é negativo. */
+export function ehNegativo(t: string): boolean {
+  return compararDecimais(t, "0") === -1;
+}

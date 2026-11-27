@@ -14,7 +14,9 @@ import {
 } from "./consultando";
 import { FaixaCarregando } from "./FaixaCarregando";
 
+/** Com um painel (diálogo modal) aberto, não age: o `.focus()` tiraria o foco dele. */
 function focarNumero() {
+  if (document.querySelector('[role="dialog"][aria-modal="true"]') !== null) return;
   document.querySelector<HTMLElement>("[data-atalho-numero]")?.focus();
 }
 

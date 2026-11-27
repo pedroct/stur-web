@@ -11,6 +11,8 @@ export default defineConfig({
     globals: true,
     restoreMocks: true,
     setupFiles: ["tests/setup.ts"],
+    // Acima dos 5 s do `asyncUtilTimeout` (tests/setup.ts): a espera que falha mostra a tela.
+    testTimeout: 15_000,
     coverage: { provider: "v8", reporter: ["text", "lcov"], reportsDirectory: "coverage" },
   },
 });

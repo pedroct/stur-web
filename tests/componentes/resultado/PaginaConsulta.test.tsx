@@ -327,6 +327,7 @@ test("Copiar detalhe copia o código e o detalhe, e diz Copiado por 2 s", async 
     JSON.stringify({ codigo: "api_stur_resposta_invalida", detalhe }, null, 2),
   );
   expect(await within(alerta).findByRole("button", { name: "Copiado" })).toBeVisible();
+  expect(within(alerta).getByText("Copiado", { selector: "[aria-live]" })).toBeInTheDocument();
   await act(() => vi.advanceTimersByTimeAsync(2000));
   expect(within(alerta).getByRole("button", { name: "Copiar detalhe" })).toBeVisible();
 });
@@ -345,8 +346,11 @@ test("422 volta ao formulário com a mensagem no campo", async () => {
   definirEndereco(endereco);
   render(<PaginaConsulta />);
   const grupo = await screen.findByRole("radiogroup", { name: "Tipo de data" });
-  expect(grupo).toHaveAccessibleDescription(mensagem);
-  expect(screen.getByRole("radio", { name: "Emissão" })).toHaveFocus();
+  // A mensagem e o foco no campo chegam num efeito depois de o formulário aparecer.
+  await waitFor(() => {
+    expect(grupo).toHaveAccessibleDescription(mensagem);
+    expect(screen.getByRole("radio", { name: "Emissão" })).toHaveFocus();
+  });
   expect(screen.queryByRole("note")).toBeNull();
   expect(screen.getByLabelText("De")).toHaveValue("2026-11-17");
 });

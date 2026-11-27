@@ -19,6 +19,7 @@ import { Filtros } from "@/componentes/filtros/Filtros";
 import { useBuscaDoTopo } from "@/componentes/moldura/consultando";
 import { Button } from "@/componentes/ui/button";
 import { useParametros } from "@/lib/api/parametros";
+import { apagarOrigem } from "@/lib/armazenamento/origem";
 import { marcarPendente } from "@/lib/armazenamento/pendentes";
 import { type AtalhoPeriodo, periodoDoAtalho } from "@/lib/consulta/atalhos-periodo";
 import {
@@ -201,6 +202,7 @@ export function FormularioConsulta({
       return;
     }
     if (soNumero(pedida)) {
+      apagarOrigem();
       router.push(`/reservas/${pedida.reserva}`);
       return;
     }
@@ -211,6 +213,7 @@ export function FormularioConsulta({
       aoConsultar(pedida);
       return;
     }
+    apagarOrigem();
     marcarPendente(chave);
     router.push(chave);
   }

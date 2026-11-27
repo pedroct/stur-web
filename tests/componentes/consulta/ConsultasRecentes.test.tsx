@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ConsultasRecentes } from "@/componentes/consulta/ConsultasRecentes";
+import { lerOrigem, registrarOrigem } from "@/lib/armazenamento/origem";
 import { temPendente } from "@/lib/armazenamento/pendentes";
 import { registrarRecente } from "@/lib/armazenamento/recentes";
 import { roteador } from "../../navegacao";
@@ -73,4 +74,20 @@ test("a mais recente vem primeiro", () => {
   const links = screen.getAllByRole("link");
   expect(links[0]).toHaveTextContent("Reserva 90000002");
   expect(links[1]).toHaveTextContent("Reserva 90000001");
+});
+
+test("abrir uma recente apaga a origem guardada do resultado (decisão 28)", async () => {
+  registrarOrigem({ enderecoResultado: "/consulta?de=2026-11-17", tituloCurto: "x", vendas: [] });
+  registrarRecente(
+    { endereco: "/reservas/90000001", descricao: "Reserva 90000001", detalhe: "BILHETE NACIONAL" },
+    new Date(),
+  );
+  let origemAoNavegar: unknown = "não navegou";
+  roteador.push.mockImplementationOnce(() => {
+    origemAoNavegar = lerOrigem();
+  });
+  render(<ConsultasRecentes />);
+  await userEvent.click(screen.getByRole("link", { name: "Reserva 90000001 · BILHETE NACIONAL" }));
+  expect(roteador.push).toHaveBeenCalledExactlyOnceWith("/reservas/90000001");
+  expect(origemAoNavegar).toBeNull();
 });
