@@ -28,7 +28,9 @@ function textoDoFee(fee: NonNullable<VendaConsultada["vinculos"]["fee"]>): strin
 function textoDoReembolso(numeroSR: string | null, nomePax: string | null): string {
   const sr = texto(numeroSR);
   const pax = texto(nomePax);
-  return `Pedido de reembolso${sr === null ? "" : ` ${sr}`}${pax === null ? "" : `, ${pax}`}`;
+  const doSR = sr === null ? "" : ` ${sr}`;
+  const doPax = pax === null ? "" : `, ${pax}`;
+  return `Pedido de reembolso${doSR}${doPax}`;
 }
 
 /**
@@ -72,8 +74,8 @@ export function SecaoVinculos({
           {reembolsos.map((r, i) => {
             const frase = textoDoReembolso(r.numeroSR, r.nomePax);
             return (
-              // biome-ignore lint/suspicious/noArrayIndexKey: o id do reembolso pode vir nulo
-              <li key={i} className="flex min-h-alvo items-center">
+              // biome-ignore lint/suspicious/noArrayIndexKey: o id do reembolso pode vir nulo e dois pedidos podem vir iguais; a posição desempata
+              <li key={`${r.id ?? "sem-id"}-${i}`} className="flex min-h-alvo items-center">
                 {r.venda === null ? (
                   frase
                 ) : (

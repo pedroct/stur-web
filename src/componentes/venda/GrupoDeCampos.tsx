@@ -116,7 +116,14 @@ function levaSigla(campo: CampoAnexo): boolean {
   return campo.formato === "dinheiro" && campo.caminho.endsWith("MoedaOriginal");
 }
 
-type Par = { rotulo: string; valor: string; bloco: string; secao: CampoAnexo["secao"] };
+type Par = {
+  rotulo: string;
+  valor: string;
+  bloco: string;
+  secao: CampoAnexo["secao"];
+  /** O caminho do campo no Anexo B: dentro de um bloco, cada campo dá um par só. */
+  caminho: string;
+};
 
 /** Os índices de cada item das listas que `indices` não cobre: um por combinação de itens. */
 function itensDasListas(venda: VendaAgi, caminho: string, indices: number[]): number[][] {
@@ -164,6 +171,7 @@ function paresDoGrupo(
           valor: formatarCampo(campo, valor, sigla),
           bloco: extras.length === 0 ? "" : `${lista}:${extras.join(",")}`,
           secao: campo.secao,
+          caminho: campo.caminho,
         },
       ];
     });
@@ -216,11 +224,14 @@ export function paresComItem(
   });
 }
 
-/** Os pares na ordem do Anexo B, em blocos: um por item das listas, na ordem em que aparecem. */
-function emBlocos(pares: Par[]): Par[][] {
+/**
+ * Os pares na ordem do Anexo B, em blocos: um por item das listas, na ordem em que aparecem; cada
+ * bloco com a sua chave (`par.bloco`), única entre eles.
+ */
+function emBlocos(pares: Par[]): [string, Par[]][] {
   const blocos = new Map<string, Par[]>();
   for (const par of pares) blocos.set(par.bloco, [...(blocos.get(par.bloco) ?? []), par]);
-  return [...blocos.values()];
+  return [...blocos];
 }
 
 /**
@@ -229,22 +240,23 @@ function emBlocos(pares: Par[]): Par[][] {
  * balcão em "Tarifas de referência", decisão 6) leva a marca da seção dele (Global Constraints,
  * "Marca para o teste").
  */
-function Pares({ blocos, secao }: Readonly<{ blocos: Par[][]; secao: number | undefined }>) {
+function Pares({
+  blocos,
+  secao,
+}: Readonly<{ blocos: [string, Par[]][]; secao: number | undefined }>) {
   return (
     <div className="space-y-3">
-      {blocos.map((pares, i) => (
+      {blocos.map(([bloco, pares], i) => (
         <dl
-          // biome-ignore lint/suspicious/noArrayIndexKey: os blocos não mudam de ordem
-          key={i}
+          key={bloco}
           className={cn(
             "grid gap-y-3 text-sm leading-5 min-[720px]:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] min-[720px]:gap-x-4 min-[720px]:gap-y-2",
             i > 0 && "border-t border-borda pt-3",
           )}
         >
-          {pares.map((par, k) => (
+          {pares.map((par) => (
             <div
-              // biome-ignore lint/suspicious/noArrayIndexKey: o rótulo se repete entre itens
-              key={k}
+              key={par.caminho}
               className="min-w-0 min-[720px]:contents"
               data-anexo-secao={par.secao === secao ? undefined : par.secao}
             >

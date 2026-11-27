@@ -28,6 +28,11 @@ import { RestoDoGrupo, SecaoDoProduto, texto } from "./produto-comum";
 type Trajeto = Itinerario["trajetos"][number];
 type Local = NonNullable<TrechoAgi["origem"]>;
 
+/** A chave de um trajeto na lista: os índices dos trechos dele, que nunca faltam e não se repetem entre trajetos. */
+function chaveDoTrajeto(trajeto: Trajeto): string {
+  return trajeto.trechos.join("-");
+}
+
 const GRUPO = "Itinerário (aéreo e rodoviário)";
 const DATA_PARTIDA = "trechos[].dtPartida";
 const LINHA_DE_NOTA = cn(CELULA, "bg-superficie-sutil text-[13px] leading-5 text-texto-auxiliar");
@@ -153,8 +158,7 @@ function TabelaDosTrechos({
         <TableBody className="tabular-nums">
           {itinerario.trajetos.map((trajeto, posicao) => (
             <Linhas
-              // biome-ignore lint/suspicious/noArrayIndexKey: a posição do trajeto é a identidade dele
-              key={posicao}
+              key={chaveDoTrajeto(trajeto)}
               trajeto={trajeto}
               posicao={posicao}
               itinerario={itinerario}
@@ -181,8 +185,7 @@ function ListaDeDatas({
         const partida = trechos[trajeto.trechos[0] ?? -1]?.dtPartida;
         const estadia = itinerario.estadias.find((e) => e.aposTrajeto === posicao);
         return (
-          // biome-ignore lint/suspicious/noArrayIndexKey: a posição do trajeto é a identidade dele
-          <Fragment key={posicao}>
+          <Fragment key={chaveDoTrajeto(trajeto)}>
             <li>
               {partida !== null && partida !== undefined && preenchido(partida, DATA_PARTIDA) && (
                 <>
