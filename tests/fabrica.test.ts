@@ -266,7 +266,7 @@ describe("vendaCheia()", () => {
 
   test("hotelaria com dois serviços e sem trechos", () => {
     const v = vendaCheia("hotelaria", 2);
-    expect(v.calculos.servicos.length === 2).toBe(true);
+    expect(v.calculos.servicos).toHaveLength(2);
     expect(v.venda.detalheItem).toHaveLength(2);
     expect(v.venda.trechos).toEqual([]);
     expect(v.calculos.itinerario).toBeNull();

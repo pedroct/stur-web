@@ -173,7 +173,9 @@ describe("Mais detalhes da venda e Códigos do Stur", () => {
     expect(codigos.tagName).toBe("DETAILS");
     expect(codigos).not.toHaveAttribute("open");
     expect(mais.compareDocumentPosition(codigos) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(within(mais).getByRole("heading", { level: 2, name: "Mais detalhes da venda" }));
+    expect(
+      within(mais).getByRole("heading", { level: 2, name: "Mais detalhes da venda" }),
+    ).toBeInTheDocument();
     expect(
       within(mais)
         .getAllByRole("heading", { level: 3 })
@@ -296,7 +298,9 @@ describe("recebimentos e pagamentos em tabela", () => {
   test("com mais de dois num lado, as duas tabelas, com as colunas da IA 6.7", () => {
     const { container } = montar(comTres());
     const raiz = secao(container, 6);
-    expect(within(raiz).getByRole("heading", { level: 2, name: "Recebimentos e pagamentos" }));
+    expect(
+      within(raiz).getByRole("heading", { level: 2, name: "Recebimentos e pagamentos" }),
+    ).toBeInTheDocument();
     for (const nome of ["Recebimentos do cliente", "Pagamentos ao fornecedor"]) {
       expect(
         within(tabela(nome))

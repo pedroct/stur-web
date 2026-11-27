@@ -382,7 +382,7 @@ describe("critério 8: todo campo preenchido tem lugar na seção dele", () => {
     const cabecalho = document.querySelector('[data-anexo-secao="1"]');
     expect(cabecalho?.querySelector("h2")).not.toBeNull();
     const campos = camposPreenchidos(dados).filter((c) => c.campo.secao === 1);
-    expect(campos.length).toBe(9);
+    expect(campos).toHaveLength(9);
     expect(faltando(document, dados, campos)).toEqual([]);
   });
 });
