@@ -83,9 +83,10 @@ export function selosDaReserva(r: Reserva, hoje: string): SeloTexto[] {
     if (base === null) return [];
     const unica = grupos.length === 1;
     const nome = nomeDaSituacao(g.situacao, unica || g.n > 1);
+    const noStur = i === 0 ? " no Stur" : "";
     const rotulo = unica
       ? `${nome.charAt(0).toUpperCase()}${nome.slice(1)} no Stur`
-      : `${g.n} ${nome}${i === 0 ? " no Stur" : ""}`;
+      : `${g.n} ${nome}${noStur}`;
     return [{ ...base, rotulo }];
   });
   const estado = seloDoEstado(r, hoje);
