@@ -7,24 +7,24 @@ import { cn } from "@/lib/utils";
 // O `sheet` do shadcn (base-nova), sobre o `Dialog` da Base UI, com os tokens do DS. Sem o botão
 // de fechar embutido: quem usa põe o seu, com texto (o `Painel`).
 
-function Sheet({ ...props }: SheetPrimitive.Root.Props) {
+function Sheet({ ...props }: Readonly<SheetPrimitive.Root.Props>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
-function SheetTrigger({ ...props }: SheetPrimitive.Trigger.Props) {
+function SheetTrigger({ ...props }: Readonly<SheetPrimitive.Trigger.Props>) {
   return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />;
 }
 
-function SheetClose({ ...props }: SheetPrimitive.Close.Props) {
+function SheetClose({ ...props }: Readonly<SheetPrimitive.Close.Props>) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
 }
 
-function SheetPortal({ ...props }: SheetPrimitive.Portal.Props) {
+function SheetPortal({ ...props }: Readonly<SheetPrimitive.Portal.Props>) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
 /** O fundo fica à vista, só esmaecido pela cor de fundo do tema. */
-function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
+function SheetOverlay({ className, ...props }: Readonly<SheetPrimitive.Backdrop.Props>) {
   return (
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
@@ -42,7 +42,7 @@ function SheetContent({
   children,
   side = "right",
   ...props
-}: SheetPrimitive.Popup.Props & { side?: "right" | "left" }) {
+}: Readonly<SheetPrimitive.Popup.Props & { side?: "right" | "left" }>) {
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -61,13 +61,13 @@ function SheetContent({
   );
 }
 
-function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
+function SheetHeader({ className, ...props }: Readonly<React.ComponentProps<"div">>) {
   return (
     <div data-slot="sheet-header" className={cn("flex flex-col gap-0.5", className)} {...props} />
   );
 }
 
-function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
+function SheetFooter({ className, ...props }: Readonly<React.ComponentProps<"div">>) {
   return (
     <div
       data-slot="sheet-footer"
@@ -77,7 +77,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
+function SheetTitle({ className, ...props }: Readonly<SheetPrimitive.Title.Props>) {
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
@@ -87,7 +87,7 @@ function SheetTitle({ className, ...props }: SheetPrimitive.Title.Props) {
   );
 }
 
-function SheetDescription({ className, ...props }: SheetPrimitive.Description.Props) {
+function SheetDescription({ className, ...props }: Readonly<SheetPrimitive.Description.Props>) {
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"
