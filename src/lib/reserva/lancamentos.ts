@@ -61,13 +61,11 @@ function mesmaLinha(a: Candidata, b: Candidata): boolean {
 function rotuloDaLinha(c: Candidata): string {
   const k = c.venda.posicao;
   if (c.l.ehCredito) return `Crédito do fornecedor (venda ${k})`;
-  if (c.lado === "cliente") {
-    return `A receber do cliente${c.forma === null ? "" : `, ${c.forma}`} (venda ${k})`;
-  }
+  const forma = c.forma === null ? "" : `, ${c.forma}`;
+  if (c.lado === "cliente") return `A receber do cliente${forma} (venda ${k})`;
   const { principal } = fornecedoresDe(c.venda.resumo.fornecedor, c.venda.resumo.fornecedor2);
-  return `A pagar ${principal === null ? "ao fornecedor" : `a ${principal}`}${
-    c.forma === null ? "" : `, ${c.forma}`
-  } (venda ${k})`;
+  const aQuem = principal === null ? "ao fornecedor" : `a ${principal}`;
+  return `A pagar ${aQuem}${forma} (venda ${k})`;
 }
 
 function documentoDaLinha(grupo: Candidata[]): string {
@@ -159,7 +157,8 @@ export function fraseDoCliente(r: Reserva): string {
   const vencidos = ativasDaReserva(r)
     .flatMap((v) => v.recebimentos)
     .filter((l) => l.vencido).length;
-  const sufixo = vencidos === 0 ? "" : `, ${vencidos} ${vencidos === 1 ? "vencido" : "vencidos"}`;
+  const palavra = vencidos === 1 ? "vencido" : "vencidos";
+  const sufixo = vencidos === 0 ? "" : `, ${vencidos} ${palavra}`;
   return `${formatarMoeda(aReceberCliente)} a receber${sufixo}`;
 }
 

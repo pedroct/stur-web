@@ -84,7 +84,8 @@ function linhaDoServico(dados: VendaConsultada, k: number): string {
   const servicos = dados.venda.detalheItem ?? [];
   const servico = servicos[k - 1];
   const nome = texto(servico?.nomePaxCompleto) ?? texto(servico?.nomePax);
-  return `Serviço ${k} de ${servicos.length}${nome === null ? "" : `: ${nome}`}`;
+  const doPassageiro = nome === null ? "" : `: ${nome}`;
+  return `Serviço ${k} de ${servicos.length}${doPassageiro}`;
 }
 
 function linhaDoProduto(dados: VendaConsultada): string | null {
@@ -93,9 +94,10 @@ function linhaDoProduto(dados: VendaConsultada): string | null {
   const detalhe = [rotuloDaClassificacao(venda.classificacaoproduto), texto(venda.categoriaproduto)]
     .filter((p) => p !== null)
     .join(", ");
+  const entreParenteses = detalhe === "" ? "" : ` (${detalhe})`;
   const situacao = texto(venda.status);
   const partes = [
-    produto === null ? null : `Produto: ${produto}${detalhe === "" ? "" : ` (${detalhe})`}.`,
+    produto === null ? null : `Produto: ${produto}${entreParenteses}.`,
     situacao === null ? null : `Situação: ${maiuscula(situacao.toLowerCase())}`,
   ].filter((p) => p !== null);
   return partes.length === 0 ? null : partes.join(" ");
@@ -135,10 +137,8 @@ export function linhaDoIncentivo(dados: VendaConsultada): string {
   const { venda } = dados;
   const alvo = lancamentoDoCredito(dados);
   const fornecedor = texto(venda.nomefornec);
-  const partes = [
-    `Incentivo${fornecedor === null ? "" : ` de ${fornecedor}`}`,
-    reais(venda.margemLucroBruta),
-  ];
+  const deQuem = fornecedor === null ? "" : ` de ${fornecedor}`;
+  const partes = [`Incentivo${deQuem}`, reais(venda.margemLucroBruta)];
   if (alvo !== null) {
     const hoje = diaEmFortaleza(dados.consultadoEm);
     const { rotulo } = seloDoLancamento({ ...alvo.l, vencimento: null }, "fornecedor", hoje);

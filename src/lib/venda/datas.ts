@@ -5,6 +5,7 @@
 
 import { unir } from "@/lib/consulta/descricao";
 import { formatarData, formatarDiaMes } from "@/lib/formatacao";
+import { compararTexto } from "@/lib/textos";
 
 function ano(dia: string): string {
   return dia.slice(0, 4);
@@ -31,8 +32,8 @@ export function periodoCurto(de: string | null, ate: string | null): string | nu
  * (`AAAA-MM-DD…`), sem as vazias; vira `periodoCurto`.
  */
 export function periodoSomado(inicios: string[], fins: string[]): string | null {
-  const menor = [...inicios].sort().at(0) ?? null;
-  const maior = [...fins].sort().at(-1) ?? null;
+  const menor = [...inicios].sort(compararTexto).at(0) ?? null;
+  const maior = [...fins].sort(compararTexto).at(-1) ?? null;
   return periodoCurto(menor, maior);
 }
 

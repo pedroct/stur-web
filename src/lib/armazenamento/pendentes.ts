@@ -15,7 +15,7 @@ const assinantes = new Set<(chave: string) => void>();
 /** Marca o pedido e avisa quem assina, também quando a chave já estava marcada. */
 export function marcarPendente(chave: string): void {
   pendentes.add(chave);
-  for (const avisar of [...assinantes]) avisar(chave);
+  for (const avisar of assinantes) avisar(chave);
 }
 
 /**

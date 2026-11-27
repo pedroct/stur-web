@@ -4,7 +4,7 @@ import type { Reserva, VendaDaReserva } from "@/contrato/tipos";
 import { CLASSIFICACOES, classificacaoDe, SITUACOES, situacaoDe } from "@/lib/consulta/consulta";
 import { unir } from "@/lib/consulta/descricao";
 import { formatarData } from "@/lib/formatacao";
-import { normalizar } from "@/lib/textos";
+import { compararTexto, normalizar } from "@/lib/textos";
 import { preenchido } from "@/lib/venda/campos";
 import { listaDeDatas, periodoCurto } from "@/lib/venda/datas";
 import { textoDoEstado } from "@/lib/venda/estado";
@@ -99,7 +99,7 @@ function diasDeEmissao(r: Reserva): string[] {
       ? [resumo.dataEmissao.slice(0, 10)]
       : [],
   );
-  return [...new Set(dias)].sort();
+  return [...new Set(dias)].sort(compararTexto);
 }
 
 function classificacoesDasAtivas(r: Reserva): string[] {

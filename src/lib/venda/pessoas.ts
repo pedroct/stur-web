@@ -50,8 +50,9 @@ export function linhaDaPessoa(
     completo !== null && doLancamento !== null && chave(completo) !== chave(doLancamento);
   const bilhete = texto(s.bilhete);
   const codigo = texto(localizador);
+  const doTipo = tipo === null ? "" : `, ${tipo}`;
   return [
-    `${papel} ${nome}${tipo === null ? "" : `, ${tipo}`}`,
+    `${papel} ${nome}${doTipo}`,
     repete ? `${ROTULOS_DO_NOME[c] ?? "na reserva"}: ${doLancamento}` : null,
     bilhete === null ? null : `bilhete ${bilhete}`,
     codigo === null ? null : `localizador ${codigo}`,

@@ -152,7 +152,8 @@ export function linhaDaBarra(v: VendaDaReserva, hoje: string): string {
 
 function produtoECancelada(v: VendaDaReserva): string {
   const produto = v.resumo.produto?.trim();
-  return `${produto ? `, ${produto}` : ""}${cancelada(v) ? ", cancelada" : ""}`;
+  const doProduto = produto ? `, ${produto}` : "";
+  return `${doProduto}${cancelada(v) ? ", cancelada" : ""}`;
 }
 
 /** "venda 2 de 10, RAV INTERNACIONAL, cancelada": o rótulo das setas da barra (IA 10.1). */
