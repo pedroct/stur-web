@@ -73,7 +73,10 @@ export const GRUPOS_DO_SERVICO_DA_SECAO_3 = [
 
 /** O nome do grupo no Anexo B sem a anotação entre parênteses: "Itinerário (aéreo e rodoviário)" vira "Itinerário". */
 export function nomeDoGrupo(grupo: string): string {
-  return grupo.replace(/\s*\(.*\)\s*$/, "");
+  const abre = grupo.indexOf("(");
+  const fecha = grupo.trimEnd().length - 1;
+  if (abre === -1 || fecha <= abre || grupo[fecha] !== ")") return grupo;
+  return grupo.slice(0, abre).trimEnd();
 }
 
 /**
