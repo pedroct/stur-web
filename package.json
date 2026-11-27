@@ -9,7 +9,6 @@
     "pnpm": ">=11"
   },
   "scripts": {
-    "preinstall": "npx -y only-allow pnpm",
     "dev": "next dev",
     "build": "next build",
     "start": "cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/ && node .next/standalone/server.js",
