@@ -123,7 +123,9 @@ test("tela 17: as ações do incentivo à direita, no topo, acima dos pares", as
   const t = await caixa(titulo);
   const p = await caixa(produto);
   expect(b.y + b.height).toBeLessThan(p.y);
-  expect(b.x).toBeGreaterThan(t.x + 400);
+  // Na linha do título, encostada à direita: a ajuda longa do incentivo não derruba a coluna.
+  expect(b.y).toBeLessThan(t.y + t.height);
+  expect(b.x + b.width).toBeGreaterThan(1150);
 });
 
 test("tela 5: no painel do serviço, as ações numa coluna à direita", async ({ page, api }) => {

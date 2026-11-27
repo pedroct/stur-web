@@ -36,7 +36,11 @@ export function CopiarParaEnviar({
         <Copy className="size-[18px]" aria-hidden="true" />
         {rotulo}
       </Button>
-      <span id={idDaAjuda} className="text-right text-[13px] leading-5 text-texto-auxiliar">
+      {/* Largura limitada: a ajuda longa do incentivo quebra em duas linhas, como no canvas. */}
+      <span
+        id={idDaAjuda}
+        className="max-w-[28rem] text-right text-[13px] leading-5 text-texto-auxiliar"
+      >
         {ajuda}
       </span>
       <AvisoDaCopia copiado={copiado} falhou={falhou} />
