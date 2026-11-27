@@ -1,3 +1,49 @@
+# [1.1.0](https://github.com/pedroct/stur-web/compare/v1.0.0...v1.1.0) (2026-11-27)
+
+
+### Bug Fixes
+
+* **a11y:** output e fieldset no lugar de role status e group ([e9cbc00](https://github.com/pedroct/stur-web/commit/e9cbc002963a0c6f820261b4ead870d2f792b5f2))
+* **reserva:** textos com nenhuma ou uma venda ativa ([c541b83](https://github.com/pedroct/stur-web/commit/c541b83659c2ffb0f4e693873f9dc8633e2ae8c3))
+* **reserva:** total da tabela com nenhuma ou uma venda ativa ([86acce4](https://github.com/pedroct/stur-web/commit/86acce4bbac21828df73574c4139be2dd50af266))
+* **venda:** "Conta do bilhete" no aéreo e "Conta da passagem" no rodoviário ([bfe0fdd](https://github.com/pedroct/stur-web/commit/bfe0fdd43cfedeaf8345c391d5a5f9f8d689ceb0))
+* **venda:** "Total do serviço" na tabela de um serviço só ([bd06ba7](https://github.com/pedroct/stur-web/commit/bd06ba7bd557c267e48be8bb1b7b1b11c8368835))
+* **venda:** ações à direita, no topo, no incentivo e no painel do serviço ([ee5321d](https://github.com/pedroct/stur-web/commit/ee5321d60f0cb3e80e70ca28e527f7aee2c45ccc))
+* **venda:** acordo do incentivo lido de vlrDescontoAcordo ([955a912](https://github.com/pedroct/stur-web/commit/955a9120c6c0979d6b3aafb07e3db1dd4edcc34b))
+* **venda:** ajuda do Copiar para enviar em até duas linhas, sem derrubar as ações ([91e704d](https://github.com/pedroct/stur-web/commit/91e704d13a48dae57c0a068b7885cd367b9d6235))
+* **venda:** avisos desconhecidos, contêineres fora do grupo e produto obrigatório na pessoa ([fb813ed](https://github.com/pedroct/stur-web/commit/fb813ed83446c212a740e0766be0c50ceb70ba97))
+* **venda:** card da hospedagem e do veículo com vários serviços sem os dados do serviço 1 ([e889b81](https://github.com/pedroct/stur-web/commit/e889b811442c96768c0d4496cf5919388b1d79e9))
+* **venda:** chaves das linhas da tarifa e testes da conta em moeda estrangeira ([088a7b1](https://github.com/pedroct/stur-web/commit/088a7b1dd595a9e943a16ac100948036a6e83abe))
+* **venda:** classificação com o rótulo da aplicação no subtítulo e no texto copiado ([ab8bec1](https://github.com/pedroct/stur-web/commit/ab8bec17118c39110006a521f23bbdf495c853a0))
+* **venda:** código da integração sem o "IDVenda:" repetido ([fec009e](https://github.com/pedroct/stur-web/commit/fec009e543236866a6c27a39629abbce2f963771))
+* **venda:** dado cru com separadores de linha Unicode ([0e492c1](https://github.com/pedroct/stur-web/commit/0e492c184d33855326f20b07161398f937567118))
+* **venda:** frase de vazio dos recebimentos e pagamentos ([115b999](https://github.com/pedroct/stur-web/commit/115b99951b47d63fd2b3e09599e2fdcaba2a08c7))
+* **venda:** grupos do serviço fora do molde e total vazio na frase da receita ([33176d8](https://github.com/pedroct/stur-web/commit/33176d8aa539fbc1b1a847c3c6650cf8252ff34f))
+* **venda:** hospedagem e veículo ao lado da conta, em cartões com borda ([408fbee](https://github.com/pedroct/stur-web/commit/408fbee0b1db678c7698d0b3b9193bce470d27ff))
+* **venda:** identificação e verificação da conta no incentivo ([1f2b176](https://github.com/pedroct/stur-web/commit/1f2b176860511c20b516e758c4027a0807688baf))
+* **venda:** incentivo com os cartões, sem a tabela, quando o cartão mostra tudo ([45951eb](https://github.com/pedroct/stur-web/commit/45951eb29acdb0e4ea259d9a73e7e98cc7905cd0))
+* **venda:** itinerário sem hora do Stur mostra só a data, sem 00h00 ([86cb299](https://github.com/pedroct/stur-web/commit/86cb29911526385792faed81fd01e690ed71d621))
+* **venda:** pares do grupo com rótulo e valor lado a lado a partir de 720 px ([b6bfea4](https://github.com/pedroct/stur-web/commit/b6bfea49508dc066853e639d4f509a17c9eff8c8))
+* **venda:** resto dos grupos com o nome do Anexo B ([5fb5c63](https://github.com/pedroct/stur-web/commit/5fb5c63546bb512b063a00e95877480d41015161))
+* **venda:** resultado da cópia anunciado ao leitor de tela ([b9af7b7](https://github.com/pedroct/stur-web/commit/b9af7b7adbf0d79fd843890676a10e8a944c393e))
+* **venda:** zerados com as siglas, o nome pela classificação e só o zero dos dois lados ([c8c2deb](https://github.com/pedroct/stur-web/commit/c8c2debd3ac31106c60fdb5aff2a1ca89b19a380))
+
+
+### Features
+
+* **contrato:** contrato 0.2.0, cliente da venda, decimais e formatação ([07efef7](https://github.com/pedroct/stur-web/commit/07efef77222703d19080902f402dd266fcbd7b57))
+* **reserva:** cabeçalho, financeiro e lançamentos da reserva ([a29558f](https://github.com/pedroct/stur-web/commit/a29558fb3585c4e1a83f7ca3d1078749642a674b))
+* **reserva:** tabela das vendas, barra de troca e venda aberta abaixo ([57224e9](https://github.com/pedroct/stur-web/commit/57224e932b2054722b73a4325c42d335edb8713b))
+* **venda:** cabeçalho, financeiro, avisos e grupos de campos ([9acb60e](https://github.com/pedroct/stur-web/commit/9acb60e7c6907c3c49e5586bee981c3b514c23ba))
+* **venda:** conta armada e painel do serviço ([c024af2](https://github.com/pedroct/stur-web/commit/c024af233590976cbe6fdbdaff4eb46ba4c930fa))
+* **venda:** copiar para enviar, caminho do resultado e atalhos ([1e70121](https://github.com/pedroct/stur-web/commit/1e70121a251d3bbc9d7bc99088fb9abe22b5e274))
+* **venda:** lançamentos, vínculos, mais detalhes, códigos do Stur e critério 8 ([922a12e](https://github.com/pedroct/stur-web/commit/922a12eac303a8d033f3c1b4010472e44bc5b7b4))
+* **venda:** layout da reserva com rota única, carregamento e estados ([16597dc](https://github.com/pedroct/stur-web/commit/16597dc743a632bc0d15af01690329b8a6825fc2))
+* **venda:** moldes de itinerário, hospedagem, veículo, serviços e pessoa ([f9a2203](https://github.com/pedroct/stur-web/commit/f9a22032903d0f82efe2cc24a894e77f4db02cd2))
+* **venda:** painel do dado cru ([996f29f](https://github.com/pedroct/stur-web/commit/996f29f289a5139ee1514fc8ab60755f36ec2a0d))
+* **venda:** regras de texto da venda e mapa do Anexo B ([da9e633](https://github.com/pedroct/stur-web/commit/da9e633abb40866aae43377e3d202f79d8f31ac4))
+* **venda:** venda de incentivo ([d80a2d0](https://github.com/pedroct/stur-web/commit/d80a2d0a60e2f6019a5a9ea0d2fa45bb1af6a193))
+
 # 1.0.0 (2026-11-26)
 
 
