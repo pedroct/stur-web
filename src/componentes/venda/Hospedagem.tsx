@@ -1,4 +1,4 @@
-import type { VendaConsultada } from "@/contrato/tipos";
+import type { ServicoAgi, VendaAgi, VendaConsultada } from "@/contrato/tipos";
 import { situacaoDe } from "@/lib/consulta/consulta";
 import { unir } from "@/lib/consulta/descricao";
 import { fornecedoresDe, preenchido } from "@/lib/venda/campos";
@@ -14,6 +14,80 @@ import {
   SecaoDoProduto,
   texto,
 } from "./produto-comum";
+
+/** Com vários serviços, o card só com o que vale para a venda: o hotel e o período somado. */
+function HospedagemDaVenda({
+  servicos,
+  hotel,
+  cancelada,
+  nivelBase,
+}: Readonly<{
+  servicos: ServicoAgi[];
+  hotel: string | null;
+  cancelada: boolean;
+  nivelBase: 1 | 2;
+}>) {
+  const datas = (campo: "dtEntrada" | "dtSaida") =>
+    servicos.flatMap((s) => {
+      const dia = s[campo];
+      return preenchido(dia, `detalheItem[].${campo}`) && dia ? [dia] : [];
+    });
+  const linha = [
+    periodoSomado(datas("dtEntrada"), datas("dtSaida")),
+    cancelada ? "não vai acontecer" : null,
+  ]
+    .filter((parte) => parte !== null)
+    .join(" · ");
+  return (
+    <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase} cartao>
+      {hotel !== null && <p className="text-base leading-6 font-semibold">{hotel}</p>}
+      {linha !== "" && <p className="mt-0.5 text-base leading-6 tabular-nums">{linha}</p>}
+    </SecaoDoProduto>
+  );
+}
+
+/** As diárias dos apartamentos, sem repetir: "1 diária", "3 diárias", "2 e 3 diárias"; sem nenhuma, null. */
+function textoDasDiarias(apartamentos: NonNullable<ServicoAgi["apartamentos"]>): string | null {
+  const diarias = [
+    ...new Set(
+      apartamentos.flatMap((a) =>
+        a.qtdeDiarias !== null && a.qtdeDiarias !== undefined ? [a.qtdeDiarias] : [],
+      ),
+    ),
+  ];
+  if (diarias.length === 0) return null;
+  const palavra = diarias.length === 1 && diarias[0] === 1 ? "diária" : "diárias";
+  return `${unir(diarias.map(String))} ${palavra}`;
+}
+
+/** Os pares do card de um serviço só: apartamento, regime, acomodação, hóspede, confirmação e voucher. */
+function paresDaHospedagem(
+  venda: VendaAgi,
+  servico: ServicoAgi,
+  comPessoa: boolean,
+): ParDoCartao[] {
+  const categoria = texto(servico.categHotel);
+  const apartamento = [
+    ...(servico.apartamentos ?? []).map((a) => texto(a.tipoApartamento)),
+    categoria === null ? null : `categoria ${categoria}`,
+  ]
+    .filter((parte) => parte !== null)
+    .join(" · ");
+  const hospede = comPessoa ? parDaPessoa(venda, servico) : null;
+  const confirmacao = texto(servico.numerodeconfirmacao);
+  const voucher = texto(servico.numeroVC);
+  const candidatos: [string, string | null][] = [
+    ["Apartamento", apartamento === "" ? null : apartamento],
+    ["Regime", texto(servico.regime)],
+    ["Acomodação", texto(servico.acomodacoesePassageiros)],
+  ];
+  return [
+    ...candidatos.flatMap(([rotulo, valor]) => (valor === null ? [] : [{ rotulo, valor }])),
+    ...(hospede === null ? [] : [hospede]),
+    ...(confirmacao === null ? [] : [{ rotulo: "Confirmação do hotel", valor: confirmacao }]),
+    ...(voucher === null ? [] : [{ rotulo: "Voucher", valor: voucher }]),
+  ];
+}
 
 /**
  * A hospedagem (IA 6.4; tela 3): o hotel, o período com as diárias e os pares do canvas. Com vários
@@ -33,33 +107,16 @@ export function Hospedagem({
   const cancelada = situacaoDe(venda.status ?? null) === "cancelada";
   const servicos = venda.detalheItem ?? [];
   if (servicos.length > 1) {
-    const datas = (campo: "dtEntrada" | "dtSaida") =>
-      servicos.flatMap((s) => {
-        const dia = s[campo];
-        return preenchido(dia, `detalheItem[].${campo}`) && dia ? [dia] : [];
-      });
-    const linha = [
-      periodoSomado(datas("dtEntrada"), datas("dtSaida")),
-      cancelada ? "não vai acontecer" : null,
-    ]
-      .filter((parte) => parte !== null)
-      .join(" · ");
     return (
-      <SecaoDoProduto titulo="Hospedagem" nivelBase={nivelBase} cartao>
-        {hotel !== null && <p className="text-base leading-6 font-semibold">{hotel}</p>}
-        {linha !== "" && <p className="mt-0.5 text-base leading-6 tabular-nums">{linha}</p>}
-      </SecaoDoProduto>
+      <HospedagemDaVenda
+        servicos={servicos}
+        hotel={hotel}
+        cancelada={cancelada}
+        nivelBase={nivelBase}
+      />
     );
   }
 
-  const apartamentos = servico.apartamentos ?? [];
-  const diarias = [
-    ...new Set(
-      apartamentos.flatMap((a) =>
-        a.qtdeDiarias !== null && a.qtdeDiarias !== undefined ? [a.qtdeDiarias] : [],
-      ),
-    ),
-  ];
   const entrada = servico.dtEntrada ?? null;
   const saida = servico.dtSaida ?? null;
   const periodo = periodoCurto(
@@ -68,39 +125,12 @@ export function Hospedagem({
   );
   const linhaDoPeriodo = [
     periodo,
-    diarias.length === 0
-      ? null
-      : `${unir(diarias.map(String))} ${diarias.length === 1 && diarias[0] === 1 ? "diária" : "diárias"}`,
+    textoDasDiarias(servico.apartamentos ?? []),
     cancelada ? "não vai acontecer" : null,
   ]
     .filter((parte) => parte !== null)
     .join(" · ");
-
-  const categoria = texto(servico.categHotel);
-  const apartamento = [
-    ...apartamentos.map((a) => texto(a.tipoApartamento)),
-    categoria === null ? null : `categoria ${categoria}`,
-  ]
-    .filter((parte) => parte !== null)
-    .join(" · ");
-  const hospede = comPessoa ? parDaPessoa(venda, servico) : null;
-  const candidatos: [string, string | null][] = [
-    ["Apartamento", apartamento === "" ? null : apartamento],
-    ["Regime", texto(servico.regime)],
-    ["Acomodação", texto(servico.acomodacoesePassageiros)],
-  ];
-  const pares: ParDoCartao[] = [
-    ...candidatos.flatMap(([rotulo, valor]) => (valor === null ? [] : [{ rotulo, valor }])),
-    ...(hospede === null ? [] : [hospede]),
-    ...((): ParDoCartao[] => {
-      const confirmacao = texto(servico.numerodeconfirmacao);
-      const voucher = texto(servico.numeroVC);
-      return [
-        ...(confirmacao === null ? [] : [{ rotulo: "Confirmação do hotel", valor: confirmacao }]),
-        ...(voucher === null ? [] : [{ rotulo: "Voucher", valor: voucher }]),
-      ];
-    })(),
-  ];
+  const pares = paresDaHospedagem(venda, servico, comPessoa);
   const nivel = (nivelBase + 2) as NivelDeTitulo;
   // Com um serviço só, a conta está na mesma página: o que ela mostra (a diária, a de balcão) não
   // se repete aqui.

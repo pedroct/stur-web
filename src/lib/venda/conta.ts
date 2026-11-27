@@ -386,6 +386,41 @@ export function somarContas(contas: ContaServico[]): ContaServico {
 }
 
 /**
+ * Os campos dos termos de um lado, mais o do percentual quando ele entra no rótulo. `comPartes`:
+ * a tarifa virou linha de unitário ou diária (`partesDaTarifa`).
+ */
+function camposDosTermos(
+  lado: Lado,
+  contaDoLado: ContaLado,
+  servico: ServicoAgi,
+  comPartes: boolean,
+): string[] {
+  return contaDoLado.termos.flatMap((termo) => {
+    const campos: string[] = [];
+    // Convertida numa linha de unitário ou diária, a tarifa de origem não aparece: só o termo
+    // em reais, e o campo fica para o grupo.
+    const tarifaNaOrigem = ehTarifa(termo.campo, lado) && contaDoLado.conversao !== null;
+    if (!tarifaNaOrigem || !comPartes) campos.push(termo.campo);
+    const percentual = TERMOS[lado][termo.campo]?.percentual;
+    if (percentual && percentualDoTermo(termo.campo, lado, servico) !== null) {
+      campos.push(percentual);
+    }
+    return campos;
+  });
+}
+
+/** A sigla, o câmbio e a data da conversão de um lado, pelo que a conta mostra. */
+function camposDaMoeda(lado: Lado, contaDoLado: ContaLado, servico: ServicoAgi): string[] {
+  const campos = CAMPOS_DO_LADO[lado];
+  if (contaDoLado.conversao !== null) {
+    const comData = preenchido(contaDoLado.conversao.dataCambio, `detalheItem[].${campos.data}`);
+    return comData ? [campos.sigla, campos.cambio, campos.data] : [campos.sigla, campos.cambio];
+  }
+  if (contaDoLado.siglaComCambio1 !== null) return [campos.sigla, campos.cambio];
+  return ehBrl(servico[campos.sigla]) ? [campos.sigla] : [];
+}
+
+/**
  * Os caminhos do Anexo B que a conta de um serviço mostra, pelo que veio: os termos (com o
  * percentual, quando ele entra no rótulo), os zerados pelo nome, a sigla, o câmbio e a data da
  * conversão, o unitário ou a diária da linha da tarifa e as referências. O resto dos grupos "Conta
@@ -397,32 +432,15 @@ export function caminhosDaConta(
   classificacao: string | null,
 ): Set<string> {
   const caminhos = new Set<string>();
-  const campo = (nome: string) => caminhos.add(`detalheItem[].${nome}`);
   for (const lado of ["cliente", "fornecedor"] as const) {
     const contaDoLado = conta[lado];
-    const campos = CAMPOS_DO_LADO[lado];
     const partes = partesDaTarifa(lado, servico, classificacao);
-    for (const termo of contaDoLado.termos) {
-      // Convertida numa linha de unitário ou diária, a tarifa de origem não aparece: só o termo
-      // em reais, e o campo fica para o grupo.
-      const tarifaNaOrigem = ehTarifa(termo.campo, lado) && contaDoLado.conversao !== null;
-      if (!tarifaNaOrigem || partes === null) campo(termo.campo);
-      const percentual = TERMOS[lado][termo.campo]?.percentual;
-      if (percentual && percentualDoTermo(termo.campo, lado, servico) !== null) campo(percentual);
-    }
-    for (const zerado of zeradosDaFrase(conta, classificacao)[lado]) campo(zerado);
-    if (contaDoLado.conversao !== null) {
-      campo(campos.sigla);
-      campo(campos.cambio);
-      if (preenchido(contaDoLado.conversao.dataCambio, `detalheItem[].${campos.data}`)) {
-        campo(campos.data);
-      }
-    } else if (contaDoLado.siglaComCambio1 !== null) {
-      campo(campos.sigla);
-      campo(campos.cambio);
-    } else if (ehBrl(servico[campos.sigla])) {
-      campo(campos.sigla);
-    }
+    const campos = [
+      ...camposDosTermos(lado, contaDoLado, servico, partes !== null),
+      ...zeradosDaFrase(conta, classificacao)[lado],
+      ...camposDaMoeda(lado, contaDoLado, servico),
+    ];
+    for (const c of campos) caminhos.add(`detalheItem[].${c}`);
     for (const c of partes?.caminhos ?? []) caminhos.add(c);
   }
   for (const frase of frasesDeReferencia(servico)) caminhos.add(frase.caminho);

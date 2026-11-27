@@ -213,33 +213,42 @@ async function pedirVenda(
   return dados;
 }
 
-function situar(
-  numero: number | null,
-  rota: Rota | null,
-  e: Estado,
-): { fase: FaseReservaVenda; erro: ErroDaConsulta | null } {
-  const carregando = { fase: "carregando", erro: null } as const;
+type Situacao = { fase: FaseReservaVenda; erro: ErroDaConsulta | null };
+
+/** Sem a reserva na memória: o erro da primeira carga ou o da venda aberta; senão, carregando. */
+function situarSemReserva(e: Estado, aberta: EstadoVenda | undefined): Situacao {
+  if (e.carga === "erro") return { fase: "erro", erro: e.erro };
+  if (aberta?.estado === "erro") return { fase: "erro", erro: aberta.erro ?? null };
+  return { fase: "carregando", erro: null };
+}
+
+/**
+ * A reserva de uma venda só é a venda: pela reserva, o `replace` para ela está a caminho; nela,
+ * espera a venda pronta ou mostra o erro dela. `null` quando nada disso segura a página.
+ */
+function situarVendaUnica(
+  rota: Rota,
+  unica: VendaDaReserva,
+  aberta: EstadoVenda | undefined,
+): Situacao | null {
+  if (rota.tipo === "reserva") return { fase: "carregando", erro: null };
+  if (rota.idreserva !== unica.resumo.idreserva) return null;
+  if (aberta?.estado === "erro") return { fase: "erro", erro: aberta.erro ?? null };
+  if (aberta?.estado !== "pronta") return { fase: "carregando", erro: null };
+  return null;
+}
+
+function situar(numero: number | null, rota: Rota | null, e: Estado): Situacao {
   if (numero === null || rota === null || e.carga === "invalido") {
     return { fase: "invalido", erro: null };
   }
   const aberta = rota.tipo === "venda" ? e.vendas.get(rota.idreserva) : undefined;
-  if (e.reserva === null) {
-    if (e.carga === "erro") return { fase: "erro", erro: e.erro };
-    if (aberta?.estado === "erro") return { fase: "erro", erro: aberta.erro ?? null };
-    return carregando;
-  }
+  if (e.reserva === null) return situarSemReserva(e, aberta);
   const lista = e.reserva.reserva.vendas;
   if (lista.length === 0) return { fase: "sem-vendas", erro: null };
   const [unica] = lista;
-  if (lista.length === 1 && unica) {
-    // A reserva de uma venda só é a venda: o `replace` para ela está a caminho.
-    if (rota.tipo === "reserva") return carregando;
-    if (rota.idreserva === unica.resumo.idreserva) {
-      if (aberta?.estado === "erro") return { fase: "erro", erro: aberta.erro ?? null };
-      if (aberta?.estado !== "pronta") return carregando;
-    }
-  }
-  return { fase: "pronta", erro: null };
+  const daVendaUnica = lista.length === 1 && unica ? situarVendaUnica(rota, unica, aberta) : null;
+  return daVendaUnica ?? { fase: "pronta", erro: null };
 }
 
 /**
@@ -274,8 +283,8 @@ export function useReservaVenda(numeroTexto: string, rota: Rota | null): Reserva
         pedirReserva(numero, modo === "primeira", sinal),
       ).then(
         (resposta) => despachar({ tipo: "reserva-chegou", geracao: g, resposta }),
-        (motivo: unknown) => {
-          const erro = comoErro(motivo);
+        (error_: unknown) => {
+          const erro = comoErro(error_);
           if (erro.tipo !== "cancelada")
             despachar({ tipo: "falhou", geracao: g, id: null, erro, modo });
         },
@@ -303,8 +312,8 @@ export function useReservaVenda(numeroTexto: string, rota: Rota | null): Reserva
         pedirVenda(numero, id, modo === "primeira", sinal),
       ).then(
         (dados) => despachar({ tipo: "venda-chegou", geracao: g, id, dados, modo }),
-        (motivo: unknown) => {
-          const erro = comoErro(motivo);
+        (error_: unknown) => {
+          const erro = comoErro(error_);
           if (erro.tipo !== "cancelada") despachar({ tipo: "falhou", geracao: g, id, erro, modo });
         },
       );
@@ -371,10 +380,11 @@ export function useReservaVenda(numeroTexto: string, rota: Rota | null): Reserva
       if (dadoCruEmVoo.current.has(chave)) return;
       dadoCruEmVoo.current.add(chave);
       despachar({ tipo: "dado-cru", geracao: g, id, dadoCru: { estado: "carregando" } });
-      consultarDadoCru(numero, id)
+      // Não rejeita: a falha da chamada vira o `DadoCru` de erro no primeiro `then`.
+      void consultarDadoCru(numero, id)
         .then(
           (texto): DadoCru => ({ estado: "pronto", texto, chegouEm: new Date().toISOString() }),
-          (motivo: unknown): DadoCru => ({ estado: "erro", erro: comoErro(motivo) }),
+          (error_: unknown): DadoCru => ({ estado: "erro", erro: comoErro(error_) }),
         )
         .then((dadoCru) => {
           dadoCruEmVoo.current.delete(chave);

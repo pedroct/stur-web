@@ -114,22 +114,13 @@ export function PaginaReservaVenda({
     falha: pagina.falhaAtualizar,
   };
 
-  function conteudo() {
-    if (numero === null || pagina.fase === "invalido") {
-      return (
-        <NenhumaVenda
-          caminho={[reservaNoCaminho]}
-          mensagem={textoSemVendasNumero(numeroTexto)}
-          complemento={null}
-          alterarHref={alterarHref}
-        />
-      );
-    }
-    const deFora = (
-      <VendaDeFora numero={numero} caminho={[reservaNoCaminho]} alterarHref={alterarHref} />
-    );
+  function deFora(numero: number) {
+    return <VendaDeFora numero={numero} caminho={[reservaNoCaminho]} alterarHref={alterarHref} />;
+  }
 
-    switch (pagina.fase) {
+  /** Antes da reserva pronta: o esqueleto (11), o erro (12) ou a tela 13. */
+  function conteudoDaFase(fase: "carregando" | "erro" | "sem-vendas", numero: number) {
+    switch (fase) {
       case "carregando":
         return (
           <>
@@ -144,7 +135,7 @@ export function PaginaReservaVenda({
           </>
         );
       case "erro":
-        if (pagina.erro?.tipo === "nao_encontrada" && rota?.tipo === "venda") return deFora;
+        if (pagina.erro?.tipo === "nao_encontrada" && rota?.tipo === "venda") return deFora(numero);
         return pagina.erro ? (
           <>
             <Caminho niveis={[...doResultado, reservaNoCaminho]} direita={setasDoResultado} />
@@ -170,13 +161,16 @@ export function PaginaReservaVenda({
           />
         ) : null;
     }
+  }
 
+  /** A reserva pronta: a venda sozinha (reserva de uma venda) ou a reserva, com ou sem venda aberta. */
+  function conteudoPronto(numero: number) {
     const { reserva } = pagina;
     if (reserva === null || rota === null) return null;
     const lista = reserva.reserva.vendas;
     const daRota = id === null ? undefined : lista.find((v) => v.resumo.idreserva === id);
     const estado = id === null ? undefined : pagina.vendas.get(id);
-    if (id !== null && (!daRota || estado?.erro?.tipo === "nao_encontrada")) return deFora;
+    if (id !== null && (!daRota || estado?.erro?.tipo === "nao_encontrada")) return deFora(numero);
 
     if (lista.length === 1) {
       return estado?.dados ? (
@@ -211,6 +205,21 @@ export function PaginaReservaVenda({
         />
       </>
     );
+  }
+
+  function conteudo() {
+    if (numero === null || pagina.fase === "invalido") {
+      return (
+        <NenhumaVenda
+          caminho={[reservaNoCaminho]}
+          mensagem={textoSemVendasNumero(numeroTexto)}
+          complemento={null}
+          alterarHref={alterarHref}
+        />
+      );
+    }
+    if (pagina.fase === "pronta") return conteudoPronto(numero);
+    return conteudoDaFase(pagina.fase, numero);
   }
 
   const vendaDaReserva =
