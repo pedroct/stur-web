@@ -645,7 +645,7 @@ test("busca do topo com o mesmo número consulta de novo", async () => {
 
   registrarOrigem({ enderecoResultado: "/consulta?de=2026-11-17", tituloCurto: "x", vendas: [] });
   const busca = screen.getByRole("search");
-  await userEvent.click(within(busca).getByRole("button", { name: "Buscar" }));
+  await userEvent.click(await within(busca).findByRole("button", { name: "Buscar" }));
   await waitFor(() => expect(requisicoesPara(CAMINHO)).toBe(2));
   await esperarCliente();
   expect(requisicoesPara(VENDA_1)).toBe(1);
@@ -663,7 +663,10 @@ test("busca do topo com o mesmo número consulta de novo", async () => {
   const v = "/api/v1/reservas/90000002/vendas/1001";
   expect(requisicoesPara("/api/v1/reservas/90000002")).toBe(1);
   expect(requisicoesPara(v)).toBe(1);
-  await userEvent.click(within(screen.getByRole("search")).getByRole("button", { name: "Buscar" }));
+  // A moldura só libera o botão depois da primeira carga (efeito): esperar o nome voltar a "Buscar".
+  await userEvent.click(
+    await within(screen.getByRole("search")).findByRole("button", { name: "Buscar" }),
+  );
   await waitFor(() => expect(requisicoesPara(v)).toBe(2));
   await esperarCliente();
   expect(requisicoesPara("/api/v1/reservas/90000002")).toBe(2);

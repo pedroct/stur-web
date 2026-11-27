@@ -231,7 +231,10 @@ test("chegar pela busca do topo depois de passar pelo resultado não mostra as s
   expect(screen.getByText("2 de 3 no resultado")).toBeVisible();
 
   // A busca já vem com o número do endereço: buscar de novo refaz a reserva sem o resultado.
-  await userEvent.click(within(screen.getByRole("search")).getByRole("button", { name: "Buscar" }));
+  // A moldura só libera o botão depois da primeira carga (efeito): esperar o nome voltar a "Buscar".
+  await userEvent.click(
+    await within(screen.getByRole("search")).findByRole("button", { name: "Buscar" }),
+  );
   await esperarVenda();
   expect(lerOrigem()).toBeNull();
   expect(screen.queryByText(/no resultado/)).toBeNull();
