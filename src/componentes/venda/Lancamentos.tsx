@@ -118,7 +118,7 @@ function TabelaDoLado({
                       <TableCell className={CELULA}>
                         {l.ehCredito ? (
                           <>
-                            Crédito a receber do fornecedor
+                            Crédito a receber do fornecedor{" "}
                             <span className="block text-[13px] leading-5 text-texto-auxiliar">
                               no Stur, aparece em pagamentos com sinal negativo
                             </span>

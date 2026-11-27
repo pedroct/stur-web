@@ -79,11 +79,10 @@ export function Veiculo({
     preenchido(devolucao, "detalheItem[].dtDevolucao") ? devolucao : null,
   );
   const diarias = servico.qtdeDiarias;
+  const palavraDasDiarias = diarias === 1 ? "diária" : "diárias";
   const linhaDoPeriodo = [
     periodo,
-    diarias === null || diarias === undefined
-      ? null
-      : `${diarias} ${diarias === 1 ? "diária" : "diárias"}`,
+    diarias === null || diarias === undefined ? null : `${diarias} ${palavraDasDiarias}`,
     cancelada ? "não vai acontecer" : null,
   ]
     .filter((parte) => parte !== null)
