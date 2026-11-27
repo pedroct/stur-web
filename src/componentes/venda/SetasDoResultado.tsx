@@ -66,10 +66,11 @@ function Seta({
     );
   }
   const produto = destino.produto?.trim();
+  const doProduto = produto ? `, ${produto}` : "";
   return (
     <Link
       href={enderecoDaVenda(destino.numero, destino.idreserva)}
-      aria-label={`${rotulo}: ${destino.numero}${produto ? `, ${produto}` : ""}`}
+      aria-label={`${rotulo}: ${destino.numero}${doProduto}`}
       title={`${rotulo} (${tecla})`}
       aria-keyshortcuts={tecla}
       className={SETA}
@@ -109,16 +110,15 @@ export function SetasDoResultado({
 
   if (i < 0) return null;
   return (
-    <div
-      role="group"
+    <fieldset
       aria-label="Vendas do resultado"
-      className="flex items-center gap-2 text-sm text-texto-auxiliar tabular-nums"
+      className="m-0 flex min-w-0 items-center gap-2 border-0 p-0 text-sm text-texto-auxiliar tabular-nums"
     >
       <Seta lado={ANTERIOR} destino={anterior} aoIr={ir} />
       <span>
         {i + 1} de {vendas.length} no resultado
       </span>
       <Seta lado={PROXIMA} destino={proxima} aoIr={ir} />
-    </div>
+    </fieldset>
   );
 }

@@ -116,11 +116,11 @@ function Erro({
 
 function Carregando() {
   return (
-    <div role="status" className="mt-6 space-y-3">
+    <output className="mt-6 block space-y-3">
       <span className="sr-only">Carregando o dado cru da venda</span>
       <Esqueleto largura="100%" altura={44} />
       <Esqueleto largura="100%" altura={320} />
-    </div>
+    </output>
   );
 }
 
@@ -210,7 +210,7 @@ function Json({
       <section
         aria-label="JSON da venda"
         // biome-ignore lint/a11y/noNoninteractiveTabindex: a região rola, e o teclado precisa chegar nela
-        tabIndex={0}
+        tabIndex={0} // NOSONAR: área rolável sem nada focável dentro; sem o tabIndex o teclado não rola o JSON (WCAG 2.1.1)
         className="mt-3 max-h-[70vh] overflow-auto rounded-grande border border-borda bg-superficie-sutil py-3 font-mono text-[13px] leading-5 outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foco"
       >
         {linhas.map((l) => (
