@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/pedroct/stur-web/compare/v1.1.0...v1.1.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* **build:** remover o preinstall que baixava o only-allow fora do lockfile ([e8beedd](https://github.com/pedroct/stur-web/commit/e8beeddac28ea51b67cb33e9096e96aef5cc4fe3))
+
 # [1.1.0](https://github.com/pedroct/stur-web/compare/v1.0.0...v1.1.0) (2026-11-27)
 
 
